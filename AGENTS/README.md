@@ -3,6 +3,11 @@
 This folder contains the system prompts for the AI agent team building PassTheCert.
 Each file defines a role. You (the founder) are the orchestrator.
 
+## Prerequisites
+Before using the agent workflow, ensure these exist:
+- **`SPEC.md`** — the MVP specification. Every agent references it as the source of truth. Create it at the repo root before starting any feature work.
+- **Dependencies** — some stack dependencies (Shadcn/UI, TanStack Query, Zod, Playwright) are approved but not yet installed. See `AGENTS/dev.md` → "Pending setup" for install commands.
+
 ## Team roster
 
 | Agent | File | Tool | Responsibility |
@@ -23,7 +28,7 @@ Or use Claude Projects — create one Project per agent and paste the `.md` as t
 **Recommended: Claude Projects setup**
 1. Create a Project called "PassTheCert — Product"
 2. Add `product.md` content as the Project instructions
-3. Add `SPEC.md` as a Project document
+3. Add `SPEC.md` as a Project document (create it first — see Prerequisites above)
 4. Repeat for each role
 
 ### In Claude Code (terminal)
@@ -39,12 +44,12 @@ claude
 ## Workflow per feature
 
 ```
-1. PM agent    → Write user story + acceptance criteria
-2. BA agent    → Write technical spec + data model + API contract  
-3. Design agent → Build UI component
-4. Dev agent   → Implement feature using BA spec + Design component
-5. QA agent       → Write test plan + run tests against Dev's output
-6. Architect agent → Review code quality, duplicity, scalability
+1. PM agent       → Write user story + acceptance criteria
+2. BA agent       → Write technical spec + data model + API contract
+3. Design agent   → Build UI component
+4. Dev agent      → Implement feature using BA spec + Design component
+5. QA agent       → Write test plan + run tests against Dev's output      ┐ can run
+6. Architect agent → Review code quality, duplicity, scalability           ┘ concurrently
 7. You            → Review, approve, merge PR
 ```
 

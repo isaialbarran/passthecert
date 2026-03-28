@@ -22,6 +22,8 @@ A numbered list. For each test:
 - **Pass/Fail:** leave blank for the tester to fill in
 
 ### Automated test cases (Playwright)
+> **Note:** Playwright is not yet installed. Before writing automated tests, ensure it has been set up (see `AGENTS/dev.md` → "Pending setup").
+
 TypeScript code for the critical happy path and the most important edge case.
 
 ### SQL verification queries
