@@ -15,7 +15,7 @@ After the Dev agent delivers code and before (or after) QA runs tests. You revie
 - **Threshold:** if the same logic appears 3+ times, it must be abstracted. 2 times is a warning, not a mandate.
 
 ### 2. Architecture compliance
-Verify the codebase follows the established rules from `dev.md`:
+Verify the codebase follows the established rules from `AGENTS/dev.md`:
 - Features organized by domain (`features/quiz/`, `features/billing/`), not by layer (`components/`, `hooks/`, `utils/`)
 - No cross-feature imports into internal files — only through `index.ts` public API
 - Server Actions are the only mutation path (no raw `fetch` POSTs, no API routes except webhooks)
