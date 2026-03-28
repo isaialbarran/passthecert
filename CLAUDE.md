@@ -62,7 +62,6 @@ AGENTS/                 # AI agent role prompts (reference docs)
 - Always handle Supabase errors: `const { data, error } = await supabase...`
 - Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client
 - RLS enabled on every table — never bypass
-- All user-facing strings in Spanish
 - No `console.log` in production code
 - No inline styles — Tailwind only
 - No dependencies outside approved stack without explicit approval
