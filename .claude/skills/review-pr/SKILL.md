@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: "Review a pull request comparing two branches. Invoke with /review-pr <source-branch> <target-branch>. Example: /review-pr feature/auth main"
+description: "Review a pull request like a senior developer. Invoke with /review-pr <source-branch> [target-branch]. Example: /review-pr feature/auth main"
 user-invocable: true
 argument-hint: "<source-branch> [target-branch=main]"
 allowed-tools: ["Bash", "Glob", "Grep", "Read", "Agent"]
@@ -28,102 +28,114 @@ Run these in parallel:
 
 If no PR exists, review the diff between branches directly.
 
-### 2. Get the Full Diff
+### 2. Read Project Rules
 
-- Run `git diff <target-branch>...<source-branch>` to get all changes
-- Identify which feature modules are affected (`features/`, `shared/`, `app/`)
-- Note file types: components, API routes, lib utilities, types, tests, config
+Read the project's CLAUDE.md and AGENTS.md to understand conventions. The review must check compliance with these rules.
 
-### 3. Read CLAUDE.md and AGENTS.md
+### 3. Launch Reviewer Agent
 
-Read the project's CLAUDE.md and AGENTS.md to understand project conventions. Any review must check compliance with these rules.
+Launch a single Sonnet agent acting as a **senior developer reviewer**. Pass it:
+- The list of changed files (from `--stat`)
+- The commit log (from `--oneline`)
+- The PR title and description (if a PR exists)
 
-### 4. Launch Parallel Review Agents
+**Do NOT pass the full diff.** The agent fetches only the files and hunks it needs.
 
-Launch 4 agents in parallel, each with the full diff context and list of changed files:
-
-**Agent 1 — Bug & Logic Review (Sonnet)**
-- Read each changed file fully
-- Look for: logic errors, null/undefined issues, race conditions, missing await, incorrect types, security vulnerabilities (XSS, injection, exposed secrets)
-- For Supabase queries: check RLS policies, missing `.single()`, unhandled errors
-- For Stripe integrations: check webhook signature verification, idempotency
-- For Next.js: check server/client boundary violations, missing `'use client'` directives
-- Score each finding 0-100. Only report >= 80.
-
-**Agent 2 — Architecture & Conventions (Sonnet)**
-- Verify feature-based architecture: code in correct module (`features/auth`, `features/quiz`, `features/billing`, `features/progress`)
-- Check imports follow the `@/*` alias pattern
-- Verify shared code is in `shared/lib` or `shared/types`
-- Check CLAUDE.md and AGENTS.md compliance
-- Verify Next.js App Router conventions (layout.tsx, page.tsx, loading.tsx, error.tsx)
-- Score each finding 0-100. Only report >= 80.
-
-**Agent 3 — Error Handling & Silent Failures (Sonnet)**
-- Find all try-catch blocks, `.catch()`, error callbacks
-- Check: empty catch blocks, swallowed errors, generic error messages
-- Verify Supabase calls check `error` return values
-- Verify Stripe webhook handlers have proper error responses
-- Verify API routes return appropriate HTTP status codes
-- Score each finding 0-100. Only report >= 80.
-
-**Agent 4 — Test Coverage & Quality (Sonnet)**
-- Check if new functionality has corresponding tests
-- Verify edge cases are covered (empty states, error states, boundary values)
-- Check test quality: testing behavior not implementation
-- For SM2 algorithm changes: verify spaced repetition edge cases
-- Note missing tests for critical paths
-- Score each finding 0-100. Only report >= 80.
-
-### 5. Filter & Validate
-
-For each issue found across all agents:
-- Discard scores below 80
-- Discard pre-existing issues (not introduced in this diff)
-- Discard issues a linter/typechecker/compiler would catch
-- Discard stylistic nitpicks not explicitly in CLAUDE.md
-- Merge duplicate findings from different agents
-
-### 6. Output Format
-
-```markdown
-## PR Review: <PR title or branch name>
-
-**Branch:** `<source>` -> `<target>`
-**Files changed:** X | **Commits:** Y
+The agent prompt must include:
 
 ---
 
-### Critical Issues (score 90-100)
+You are a senior developer doing a code review on a pull request for the PassTheCert project (Next.js 16, TypeScript, Supabase, Stripe, Tailwind CSS, feature-based architecture).
 
-1. **[Bug/Architecture/Error/Test]** <description>
-   `file/path.ts:LINE` — <explanation and fix suggestion>
+**Changed files:**
+<insert --stat output>
 
-### Important Issues (score 80-89)
+**Commits:**
+<insert --oneline log>
 
-1. **[Bug/Architecture/Error/Test]** <description>
-   `file/path.ts:LINE` — <explanation and fix suggestion>
+**PR description:**
+<insert PR body or "No PR — reviewing branch diff">
+
+**Project conventions (from CLAUDE.md/AGENTS.md):**
+<insert content of CLAUDE.md and AGENTS.md>
+
+## Your process
+
+1. Read the diffstat to understand the scope of the change.
+2. For each changed file, use `git diff <target>...<source> -- <file>` to read only that file's diff.
+3. If you need more context around a hunk, use the Read tool to read the full file at the relevant lines.
+4. Do NOT read every file — prioritize:
+   - Files with the most changes
+   - Logic-heavy files (lib, utils, API routes, server actions)
+   - Files that touch auth, billing, or data mutations
+   - Skip config-only changes, lockfiles, and trivial renames unless something looks off
+
+## What to look for
+
+Review like a teammate — pragmatic, not pedantic. Focus on things that matter:
+
+- **Bugs**: logic errors, off-by-one, null/undefined, missing await, race conditions
+- **Security**: XSS, injection, exposed secrets, missing auth checks, Supabase RLS gaps, Stripe webhook signature verification
+- **Architecture**: code in wrong feature module, server/client boundary violations, missing `'use client'`, broken imports
+- **Error handling**: swallowed errors, empty catch blocks, unchecked Supabase `.error`, missing HTTP status codes
+- **CLAUDE.md violations**: anything explicitly required by project rules
+- **Missing tests**: only for critical business logic (not for every file)
+
+## What to ignore
+
+- Pre-existing issues not introduced in this diff
+- Anything a linter, TypeScript, or ESLint would catch
+- Style nitpicks not in CLAUDE.md
+- Intentional changes aligned with the PR's purpose
+- Lines the author did not modify
+
+## Confidence scoring
+
+Score each finding 0-100:
+- **0-25**: False positive or pre-existing
+- **26-50**: Minor nitpick
+- **51-75**: Valid but low impact
+- **76-89**: Important, should fix
+- **90-100**: Critical, must fix before merge
+
+**Only report findings scored >= 80.**
+
+## Output format
+
+Return your review in this exact format:
+
+```
+## Files Reviewed
+
+- file1.ts (read diff + full context at lines X-Y)
+- file2.ts (read diff only)
+- file3.ts (skipped — config only)
+
+## Issues
+
+### Critical (90-100)
+
+1. [score] **description**
+   `file/path.ts:LINE` — explanation and suggested fix
+
+### Important (80-89)
+
+1. [score] **description**
+   `file/path.ts:LINE` — explanation and suggested fix
 
 ### Strengths
 
-- What this PR does well
+- What this PR does well (be specific)
 
 ### Verdict
 
-[ ] APPROVE — No critical issues, good to merge
-[ ] REQUEST CHANGES — Critical issues must be fixed
-[ ] COMMENT — Important issues to consider
+APPROVE | REQUEST CHANGES | COMMENT — one-line justification
 ```
 
-### 7. Post to PR (Optional)
+If no issues scored >= 80, say so and approve.
 
-If a GitHub PR exists and issues were found, ask the user if they want to post the review as a PR comment using `gh pr comment`.
+---
 
-## False Positive Guide
+### 4. Present Results
 
-Do NOT flag:
-- Pre-existing issues not introduced in this diff
-- Issues that linters, TypeScript, or ESLint would catch
-- Pedantic style preferences not in CLAUDE.md
-- Intentional functionality changes related to the PR's purpose
-- General code quality suggestions (unless CLAUDE.md requires them)
-- Lines the author did not modify
+Show the agent's review to the user. If a GitHub PR exists, ask if they want to post it as a comment with `gh pr comment`.
