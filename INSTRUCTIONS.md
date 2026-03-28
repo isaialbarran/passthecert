@@ -28,7 +28,7 @@
 
 | Layer           | Technology                   | Reason                                             |
 | --------------- | ---------------------------- | -------------------------------------------------- |
-| Framework       | Next.js 15 (App Router)      | RSC + Server Actions, no separate API layer needed |
+| Framework       | Next.js 16 (App Router)      | RSC + Server Actions, no separate API layer needed |
 | Styling         | Tailwind CSS                 | Fast iteration                                     |
 | Components      | Shadcn/UI                    | Pre-built accessible components                    |
 | Data fetching   | TanStack Query (React Query) | Client-side caching and optimistic updates         |
@@ -43,11 +43,12 @@
 ```
 /
 ├── app/                        # Next.js routes only — no business logic here
-│   ├── (marketing)/            # Public routes: landing, pricing
+│   ├── (marketing)/            # Public routes: landing, pricing, diagnostic test
 │   ├── (auth)/                 # Login, signup
 │   └── (app)/                  # Protected routes: dashboard, quiz, progress
 ├── features/
 │   ├── quiz/                   # Quiz engine, SM-2 algorithm, question display
+│   ├── diagnostic/             # Anonymous diagnostic test + lead capture
 │   ├── progress/               # User stats, domain mastery, readiness score
 │   ├── billing/                # Stripe checkout, webhooks, subscription status
 │   └── auth/                   # Supabase auth wrapper, middleware
@@ -271,6 +272,59 @@ export function calculateSM2(input: SM2Input): SM2Output {
 
 ## 6. MVP Features (Phase 1) — Build in This Order
 
+### 6.0 Diagnostic Test (Lead Magnet — Build First)
+
+This is the primary acquisition funnel. It runs fully anonymous — no login required.
+
+**User flow:**
+
+1. Landing page CTA: "Test your Security+ knowledge — free, no signup"
+2. User completes a 25-question diagnostic quiz covering all 5 Security+ domains (5 questions per domain)
+3. Quiz runs client-side with answers stored in `localStorage` — no DB writes during the test
+4. On completion: results page shows overall score but domain breakdown is blurred/hidden
+5. Gate: "See your full results" → email capture form
+6. On email submit:
+   - Save lead to `diagnostic_leads` table (email + domain scores + overall score)
+   - Send diagnostic report email via Resend (see email template below)
+   - Redirect to results page with full domain breakdown unlocked
+7. CTA on results page: "Start your personalized study plan — 7-day money-back guarantee"
+
+**Diagnostic report email must include:**
+- Overall score (e.g., "You scored 52%")
+- Weakest domain highlighted (e.g., "Your weakest area is Security Architecture — 30%")
+- Personalized study estimate: "If you complete 2 sessions per day, you could be ready to sit the exam in approximately 3 weeks"
+- CTA button: "Start your personalized study plan" → links to `/auth/login?source=diagnostic`
+
+**Study estimate formula:**
+```
+questions_to_master = total_questions_in_bank - questions_already_correct
+sessions_needed = ceil(questions_to_master / 10)  // 10 questions per session
+days_needed = ceil(sessions_needed / sessions_per_day)  // default: 2 sessions/day
+```
+
+**Route:** `app/(marketing)/diagnostic/page.tsx` — no auth middleware, fully public.
+
+**Database table:**
+```sql
+-- migrations/002_diagnostic_leads.sql
+create table public.diagnostic_leads (
+  id            uuid default uuid_generate_v4() primary key,
+  email         text not null,
+  overall_score int not null,               -- 0-100
+  domain_scores jsonb not null,             -- {"domain_id": score_pct, ...}
+  weakest_domain_id uuid references public.domains(id),
+  converted_at  timestamptz,                -- set when lead creates an account
+  created_at    timestamptz default now()
+);
+-- No RLS needed — written via service role key from Server Action only
+-- Email is unique per diagnostic attempt is NOT enforced — allow retakes
+create index diagnostic_leads_email_idx on public.diagnostic_leads(email);
+```
+
+**On account creation:** if the signup email matches a `diagnostic_leads` row, set `converted_at = now()` to track lead-to-paid conversion.
+
+---
+
 ### 6.1 Auth (Supabase Google OAuth)
 
 - Google OAuth only — no email/password forms to maintain
@@ -315,11 +369,16 @@ Show at a glance:
 
 ### 6.4 Pricing & Billing
 
-- **Free tier:** 20 questions per day, no full exam mode
-- **Pro (€19/month):** Unlimited questions, all modes, full exam simulation
-- Stripe Checkout via Server Action
+- **No free tier. No trial without payment.**
+- The diagnostic test is the free value — it replaces both a free tier and a free trial.
+- **Pro (€29/month):** Full access — unlimited questions, all modes, full exam simulation.
+- Payment is required immediately after the diagnostic to unlock the app.
+- **7-day money-back guarantee** — if the user requests a refund within 7 days, process it via Stripe without questions. This is a trust signal, not a trial.
+- Stripe Checkout via Server Action — triggered from the diagnostic results page CTA
 - Stripe webhook updates `subscription_status` in profiles table
-- Gate features with `isPro()` helper from `features/billing/index.ts`
+- Gate all quiz access with `isPro()` check from `features/billing/index.ts`
+- The guarantee must be displayed prominently on the pricing CTA: "7-day money-back guarantee, no questions asked"
+- Remove `trial_ends_at` logic — no trial state needed
 
 ---
 
@@ -483,21 +542,23 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 Execute in this exact order. Do not skip steps. Do not add features from later phases.
 
 ```
-1. [ ] Run Supabase migrations (001_initial_schema.sql)
+1. [ ] Run Supabase migrations (001_initial_schema.sql, 002_diagnostic_leads.sql)
 2. [ ] Run seed.sql
 3. [ ] Configure Supabase Auth (Google OAuth provider)
-4. [ ] Implement middleware.ts (route protection)
+4. [ ] Implement middleware.ts (route protection — exclude /diagnostic)
 5. [ ] Build features/auth/ (getUser, requireAuth, signIn, signOut)
 6. [ ] Build shared/lib/ (supabase.ts, stripe.ts, resend.ts clients)
 7. [ ] Build features/quiz/sm2.ts (algorithm, pure TS, no deps)
-8. [ ] Build features/quiz/ (getNextQuestion, submitAnswer actions)
-9. [ ] Build app/(app)/quiz/[certId]/page.tsx (quiz UI)
-10. [ ] Build features/progress/ (readiness score, domain mastery)
-11. [ ] Build app/(app)/dashboard/page.tsx (progress dashboard)
-12. [ ] Build features/billing/ (Stripe checkout + webhook)
-13. [ ] Build app/(marketing)/page.tsx (landing page — already designed)
-14. [ ] Deploy to Vercel (connect GitHub repo, add env vars)
-15. [ ] Set up Stripe webhook endpoint in Vercel URL
+8. [ ] Build features/diagnostic/ (anonymous quiz, lead capture, email send)
+9. [ ] Build app/(marketing)/diagnostic/page.tsx (diagnostic test UI)
+10. [ ] Build features/quiz/ (getNextQuestion, submitAnswer actions)
+11. [ ] Build app/(app)/quiz/[certId]/page.tsx (quiz UI)
+12. [ ] Build features/progress/ (readiness score, domain mastery)
+13. [ ] Build app/(app)/dashboard/page.tsx (progress dashboard)
+14. [ ] Build features/billing/ (Stripe checkout + webhook, trial logic)
+15. [ ] Build app/(marketing)/page.tsx (landing page)
+16. [ ] Deploy to Vercel (connect GitHub repo, add env vars)
+17. [ ] Set up Stripe webhook endpoint in Vercel URL
 ```
 
 ---
@@ -519,11 +580,13 @@ Execute in this exact order. Do not skip steps. Do not add features from later p
 
 The MVP is complete when:
 
-- [ ] A user can sign in with Google
+- [ ] A visitor can complete the diagnostic test without signing up
+- [ ] The diagnostic report email is sent automatically after email capture
+- [ ] A user can sign in with Google and get a 7-day full-access trial
 - [ ] A user can take a 10-question quiz and see explanations
 - [ ] Wrong answers are tracked and surfaced in "Review Mistakes" mode
 - [ ] The dashboard shows a readiness score and domain breakdown
-- [ ] A user can pay €19/month via Stripe to unlock full access
+- [ ] A user can pay €19/month via Stripe to unlock full access after trial
 - [ ] The app is live on passthecert.com via Vercel
 - [ ] At least 5 real users have paid
 
