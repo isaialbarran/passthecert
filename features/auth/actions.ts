@@ -58,7 +58,7 @@ export async function signUpWithEmail(
   })
 
   if (error) {
-    return { error: error.message }
+    return { error: 'Unable to create account. Please try again.' }
   }
 
   return { success: true }

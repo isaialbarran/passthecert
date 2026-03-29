@@ -1,21 +1,23 @@
 import { z } from 'zod'
 
+const toStr = z.preprocess((val) => (typeof val === 'string' ? val.trim() : ''), z.string())
+
 export const signUpSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: toStr.pipe(z.string().min(1, 'Email is required').email('Please enter a valid email address')),
+  password: toStr.pipe(z.string().min(8, 'Password must be at least 8 characters')),
 })
 
 export const signInSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: toStr.pipe(z.string().min(1, 'Email is required').email('Please enter a valid email address')),
+  password: toStr.pipe(z.string().min(1, 'Password is required')),
 })
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: toStr.pipe(z.string().min(1, 'Email is required').email('Please enter a valid email address')),
 })
 
 export const resetPasswordSchema = z.object({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: toStr.pipe(z.string().min(8, 'Password must be at least 8 characters')),
 })
 
 export type SignUpInput = z.infer<typeof signUpSchema>
