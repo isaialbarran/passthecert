@@ -46,6 +46,22 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  if (user && pathname.startsWith('/quiz')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('subscription_tier, subscription_status')
+      .eq('id', user.id)
+      .single()
+
+    const isActive =
+      profile?.subscription_tier === 'pro' &&
+      profile?.subscription_status === 'active'
+
+    if (!isActive) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
   if (isAuthPath && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

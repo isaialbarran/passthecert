@@ -1,5 +1,6 @@
 import { requireAuth } from '@/features/auth'
 import { createClient } from '@/shared/lib/supabase'
+import { isPro } from '@/features/billing'
 import {
   getReadinessScore,
   getDomainMastery,
@@ -12,10 +13,12 @@ import { DomainMastery } from '@/features/progress/components/domain-mastery'
 import { StudyStreak } from '@/features/progress/components/study-streak'
 import { RecentSessions } from '@/features/progress/components/recent-sessions'
 import { StartPracticeCta } from '@/features/progress/components/start-practice-cta'
+import { PaywallBanner } from '@/features/billing/components/paywall-banner'
 
 export default async function DashboardPage() {
   const user = await requireAuth()
   const supabase = await createClient()
+  const userIsPro = await isPro(user.id)
 
   const { data: exam } = await supabase
     .from('exams')
@@ -37,7 +40,8 @@ export default async function DashboardPage() {
     ])
 
   return (
-    <div className="space-y-8">
+    <div className="relative space-y-8">
+      {!userIsPro && <PaywallBanner />}
       <div>
         <h1 className="font-heading text-3xl font-extrabold">Dashboard</h1>
         <p className="mt-1 text-sm text-muted">
