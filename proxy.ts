@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 const protectedPaths = ['/dashboard', '/quiz']
-const authPaths = ['/auth/login']
+const authPaths = ['/auth/login', '/auth/signup', '/auth/forgot-password']
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
