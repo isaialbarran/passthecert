@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export default function LandingPage() {
+export default function LandingPage(): React.JSX.Element {
   return (
     <main>
       {/* Hero */}
@@ -15,13 +15,16 @@ export default function LandingPage() {
           learns where you fail and repeats those questions until you&apos;re ready
           to pass.
         </p>
-        <div className="mt-8 flex justify-center gap-4">
+        <div className="mt-8 flex flex-col items-center gap-3">
           <Link
-            href="/auth/login"
+            href="/diagnostic"
             className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
           >
-            Start Studying Free
+            Test Your Knowledge — Free, No Signup
           </Link>
+          <span className="text-xs text-muted">
+            25 questions &middot; 5 minutes &middot; see where you stand
+          </span>
         </div>
       </section>
 
@@ -66,78 +69,48 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section className="border-t border-border py-20">
-        <div className="mx-auto max-w-3xl px-4">
+        <div className="mx-auto max-w-lg px-4">
           <h2 className="font-heading text-center text-3xl font-extrabold">
-            Simple Pricing
+            One Plan. Full Access.
           </h2>
           <p className="mt-2 text-center text-sm text-muted">
-            Start free. Upgrade when you&apos;re serious about passing.
+            Take the free diagnostic first. Pay only when you&apos;re ready to commit.
           </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {/* Free */}
-            <div className="rounded-lg border border-border bg-surface p-8">
-              <h3 className="font-heading text-xl font-extrabold">Free</h3>
-              <p className="mt-1 text-sm text-muted">Get started</p>
-              <p className="mt-4 font-heading text-4xl font-extrabold">
-                €0<span className="text-lg text-muted">/mo</span>
-              </p>
-              <ul className="mt-6 space-y-3 text-sm">
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> 20 questions per
-                  day
-                </li>
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> Quick 10 mode
-                </li>
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> Review Mistakes
-                </li>
-                <li className="flex items-center gap-2 text-muted">
-                  <span className="text-muted">&#10007;</span> Full Exam
-                  simulation
-                </li>
-              </ul>
-              <Link
-                href="/auth/login"
-                className="mt-8 block rounded-lg border border-border py-3 text-center text-sm font-medium text-foreground transition-colors hover:bg-accent/10"
-              >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Pro */}
-            <div className="rounded-lg border border-accent/50 bg-surface p-8">
+          <div className="mt-12 rounded-lg border border-accent/50 bg-surface p-8">
+            <div className="flex items-baseline justify-between">
               <h3 className="font-heading text-xl font-extrabold text-accent">
                 Pro
               </h3>
-              <p className="mt-1 text-sm text-muted">Pass guaranteed</p>
-              <p className="mt-4 font-heading text-4xl font-extrabold">
-                €19<span className="text-lg text-muted">/mo</span>
+              <p className="font-heading text-4xl font-extrabold">
+                €29<span className="text-lg text-muted">/mo</span>
               </p>
-              <ul className="mt-6 space-y-3 text-sm">
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> Unlimited
-                  questions
-                </li>
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> All quiz modes
-                </li>
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> Full Exam
-                  simulation (90 min)
-                </li>
-                <li className="flex items-center gap-2 text-foreground">
-                  <span className="text-accent">&#10003;</span> Domain-focused
-                  practice
-                </li>
-              </ul>
-              <Link
-                href="/auth/login"
-                className="mt-8 block rounded-lg bg-accent py-3 text-center text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
-              >
-                Start Pro
-              </Link>
             </div>
+            <ul className="mt-6 space-y-3 text-sm">
+              <li className="flex items-center gap-2 text-foreground">
+                <span className="text-accent">&#10003;</span> Unlimited questions
+              </li>
+              <li className="flex items-center gap-2 text-foreground">
+                <span className="text-accent">&#10003;</span> All quiz modes (Quick 10, Domain Focus, Review Mistakes)
+              </li>
+              <li className="flex items-center gap-2 text-foreground">
+                <span className="text-accent">&#10003;</span> Full Exam simulation (90 min, 90 questions)
+              </li>
+              <li className="flex items-center gap-2 text-foreground">
+                <span className="text-accent">&#10003;</span> Personalized study plan based on your diagnostic
+              </li>
+              <li className="flex items-center gap-2 text-foreground">
+                <span className="text-accent">&#10003;</span> Readiness score &amp; domain mastery tracking
+              </li>
+            </ul>
+            <Link
+              href="/diagnostic"
+              className="mt-8 block rounded-lg bg-accent py-3 text-center text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+            >
+              Take the Free Diagnostic First
+            </Link>
+            <p className="mt-3 text-center text-xs text-muted">
+              7-day money-back guarantee, no questions asked
+            </p>
           </div>
         </div>
       </section>
@@ -149,13 +122,13 @@ export default function LandingPage() {
             Stop guessing. Start passing.
           </h2>
           <p className="mt-4 text-sm text-muted">
-            Join users already preparing for CompTIA Security+ with PassTheCert.
+            Find out where you stand in 5 minutes — then let us build your study plan.
           </p>
           <Link
-            href="/auth/login"
+            href="/diagnostic"
             className="mt-8 inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
           >
-            Start Studying Now
+            Take the Free Diagnostic
           </Link>
         </div>
       </section>
