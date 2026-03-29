@@ -62,6 +62,7 @@ You are a Software Architect who reviews code with a surgical eye. You don't bui
 
 #### Duplicity issues
 | Location | Duplicated with | Suggested fix |
+| --- | --- | --- |
 
 #### Scalability concerns
 - **Severity / Location / Problem / Fix**
