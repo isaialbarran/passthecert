@@ -14,7 +14,7 @@ function scoreColor(percentage: number): string {
 
 function studyEstimateWeeks(correctCount: number): number {
   const gap = Math.max(0, 90 - correctCount)
-  return Math.ceil(Math.ceil(gap / 10) / 2 / 7) || 1
+  return Math.ceil(gap / 10) || 1
 }
 
 export function buildDiagnosticReportEmail({

@@ -6,7 +6,6 @@ export async function getDiagnosticQuestions(
 ): Promise<DiagnosticQuestion[]> {
   const supabase = await createClient()
 
-  // Get the exam
   const { data: exam, error: examError } = await supabase
     .from('exams')
     .select('id')
@@ -17,7 +16,6 @@ export async function getDiagnosticQuestions(
     throw new Error('Exam not found')
   }
 
-  // Get all domains for this exam
   const { data: domains, error: domainsError } = await supabase
     .from('domains')
     .select('id, name, code')
@@ -28,13 +26,12 @@ export async function getDiagnosticQuestions(
     throw new Error('Domains not found')
   }
 
-  // Fetch 5 random questions per domain
   const allQuestions: DiagnosticQuestion[] = []
 
   for (const domain of domains) {
     const { data: questions, error: questionsError } = await supabase
       .from('questions')
-      .select('id, stem, options, correct_key, explanation, difficulty, domain_id')
+      .select('id, stem, options, difficulty, domain_id')
       .eq('exam_id', exam.id)
       .eq('domain_id', domain.id)
       .eq('is_active', true)
@@ -47,8 +44,6 @@ export async function getDiagnosticQuestions(
         id: q.id,
         stem: q.stem,
         options: q.options as DiagnosticQuestion['options'],
-        correct_key: q.correct_key,
-        explanation: q.explanation,
         difficulty: q.difficulty as DiagnosticQuestion['difficulty'],
         domain_id: domain.id,
         domain_name: domain.name,
@@ -57,7 +52,7 @@ export async function getDiagnosticQuestions(
     }
   }
 
-  // Shuffle the questions
+  // Shuffle
   for (let i = allQuestions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]]
@@ -66,7 +61,14 @@ export async function getDiagnosticQuestions(
   return allQuestions
 }
 
-export async function getDomains(examSlug: string) {
+interface DomainInfo {
+  id: string
+  name: string
+  code: string
+  weight_pct: number
+}
+
+export async function getDomains(examSlug: string): Promise<DomainInfo[]> {
   const supabase = await createClient()
 
   const { data: exam } = await supabase

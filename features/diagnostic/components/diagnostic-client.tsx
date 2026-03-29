@@ -1,11 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { QuestionCard } from '@/features/quiz/components/question-card'
-import { ExplanationPanel } from '@/features/quiz/components/explanation-panel'
+import { useState, useEffect, useCallback, useTransition } from 'react'
+import { QuestionCard } from '@/shared/components/ui/question-card'
+import { ExplanationPanel } from '@/shared/components/ui/explanation-panel'
+import { checkDiagnosticAnswer } from '../actions'
 import { DiagnosticResults } from './diagnostic-results'
 import { EmailGate } from './email-gate'
-import type { DiagnosticQuestion, DiagnosticAnswer, DiagnosticResult, DomainScore } from '../types'
+import type {
+  DiagnosticQuestion,
+  DiagnosticAnswer,
+  DiagnosticResult,
+  DomainScore,
+  CheckAnswerResult,
+} from '../types'
 
 type Phase = 'intro' | 'quiz' | 'results' | 'unlocked'
 
@@ -45,7 +52,10 @@ function computeResult(
   answers: DiagnosticAnswer[],
   questions: DiagnosticQuestion[]
 ): DiagnosticResult {
-  const domainMap = new Map<string, { name: string; code: string; correct: number; total: number }>()
+  const domainMap = new Map<
+    string,
+    { name: string; code: string; correct: number; total: number }
+  >()
 
   for (const q of questions) {
     if (!domainMap.has(q.domain_id)) {
@@ -75,7 +85,10 @@ function computeResult(
   let weakestPct = 101
 
   for (const [domainId, entry] of domainMap) {
-    const percentage = entry.total > 0 ? Math.round((entry.correct / entry.total) * 100) : 0
+    const percentage =
+      entry.total > 0
+        ? Math.round((entry.correct / entry.total) * 100)
+        : 0
     domainScores.push({
       domainId,
       domainName: entry.name,
@@ -106,13 +119,18 @@ function computeResult(
   }
 }
 
-export function DiagnosticClient({ questions }: DiagnosticClientProps) {
+export function DiagnosticClient({
+  questions,
+}: DiagnosticClientProps): React.JSX.Element | null {
   const [phase, setPhase] = useState<Phase>('intro')
   const [answers, setAnswers] = useState<DiagnosticAnswer[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [answerResult, setAnswerResult] = useState<CheckAnswerResult | null>(null)
+  const [isChecking, startCheck] = useTransition()
   const [result, setResult] = useState<DiagnosticResult | null>(null)
+
+  const isSubmitted = answerResult !== null
 
   // Restore from localStorage on mount
   useEffect(() => {
@@ -128,35 +146,45 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
     }
   }, [questions])
 
-  const currentQuestion = questions[currentIndex] as DiagnosticQuestion | undefined
+  const currentQuestion = questions[currentIndex] as
+    | DiagnosticQuestion
+    | undefined
 
-  const handleSelect = useCallback((key: string) => {
-    if (isSubmitted) return
-    setSelectedKey(key)
-  }, [isSubmitted])
+  const handleSelect = useCallback(
+    (key: string): void => {
+      if (isSubmitted || isChecking) return
+      setSelectedKey(key)
+    },
+    [isSubmitted, isChecking]
+  )
 
   function handleSubmitAnswer(): void {
-    if (!selectedKey || !currentQuestion) return
+    if (!selectedKey || !currentQuestion || isSubmitted) return
 
-    const isCorrect = selectedKey === currentQuestion.correct_key
-    const answer: DiagnosticAnswer = {
-      questionId: currentQuestion.id,
-      selectedKey,
-      isCorrect,
-      domainId: currentQuestion.domain_id,
-    }
+    startCheck(async () => {
+      const checkResult = await checkDiagnosticAnswer(
+        currentQuestion.id,
+        selectedKey
+      )
+      setAnswerResult(checkResult)
 
-    const newAnswers = [...answers, answer]
-    setAnswers(newAnswers)
-    saveAnswers(newAnswers)
-    setIsSubmitted(true)
+      const answer: DiagnosticAnswer = {
+        questionId: currentQuestion.id,
+        selectedKey,
+        isCorrect: checkResult.isCorrect,
+        domainId: currentQuestion.domain_id,
+      }
+
+      const newAnswers = [...answers, answer]
+      setAnswers(newAnswers)
+      saveAnswers(newAnswers)
+    })
   }
 
   function handleNext(): void {
     const nextIndex = currentIndex + 1
 
     if (nextIndex >= questions.length) {
-      // Quiz complete
       const res = computeResult(answers, questions)
       setResult(res)
       setPhase('results')
@@ -165,7 +193,7 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
 
     setCurrentIndex(nextIndex)
     setSelectedKey(null)
-    setIsSubmitted(false)
+    setAnswerResult(null)
   }
 
   function handleStart(): void {
@@ -177,7 +205,7 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
     setAnswers([])
     setCurrentIndex(0)
     setSelectedKey(null)
-    setIsSubmitted(false)
+    setAnswerResult(null)
     setResult(null)
     setPhase('intro')
   }
@@ -201,15 +229,21 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
 
         <div className="mt-8 grid grid-cols-1 gap-4 text-left sm:grid-cols-3">
           <div className="rounded-lg border border-border bg-surface p-4">
-            <p className="font-heading text-2xl font-extrabold text-accent">25</p>
+            <p className="font-heading text-2xl font-extrabold text-accent">
+              25
+            </p>
             <p className="text-xs text-muted">Questions</p>
           </div>
           <div className="rounded-lg border border-border bg-surface p-4">
-            <p className="font-heading text-2xl font-extrabold text-accent">5</p>
+            <p className="font-heading text-2xl font-extrabold text-accent">
+              5
+            </p>
             <p className="text-xs text-muted">Domains Covered</p>
           </div>
           <div className="rounded-lg border border-border bg-surface p-4">
-            <p className="font-heading text-2xl font-extrabold text-accent">~5 min</p>
+            <p className="font-heading text-2xl font-extrabold text-accent">
+              ~5 min
+            </p>
             <p className="text-xs text-muted">Estimated Time</p>
           </div>
         </div>
@@ -226,8 +260,6 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
 
   // --- Quiz ---
   if (phase === 'quiz' && currentQuestion) {
-    const currentAnswer = isSubmitted ? answers[answers.length - 1] : null
-
     return (
       <div className="mx-auto max-w-2xl space-y-6">
         {/* Progress */}
@@ -266,13 +298,13 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
               isSubmitted={isSubmitted}
               isCorrect={
                 isSubmitted
-                  ? option.key === currentQuestion.correct_key
+                  ? option.key === answerResult?.correctKey
                   : undefined
               }
               isSelectedWrong={
                 isSubmitted &&
                 selectedKey === option.key &&
-                selectedKey !== currentQuestion.correct_key
+                !answerResult?.isCorrect
               }
               onClick={() => handleSelect(option.key)}
             />
@@ -280,10 +312,10 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
         </div>
 
         {/* Explanation */}
-        {isSubmitted && currentAnswer && (
+        {isSubmitted && answerResult && (
           <ExplanationPanel
-            explanation={currentQuestion.explanation}
-            isCorrect={currentAnswer.isCorrect}
+            explanation={answerResult.explanation}
+            isCorrect={answerResult.isCorrect}
           />
         )}
 
@@ -292,10 +324,10 @@ export function DiagnosticClient({ questions }: DiagnosticClientProps) {
           {!isSubmitted ? (
             <button
               onClick={handleSubmitAnswer}
-              disabled={!selectedKey}
+              disabled={!selectedKey || isChecking}
               className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity disabled:opacity-40"
             >
-              Submit Answer
+              {isChecking ? 'Checking...' : 'Submit Answer'}
             </button>
           ) : (
             <button

@@ -3,7 +3,7 @@
 
 create table public.diagnostic_leads (
   id              uuid default uuid_generate_v4() primary key,
-  email           text not null,
+  email           text not null unique,
   overall_score   int not null check (overall_score between 0 and 100),
   domain_scores   jsonb not null default '{}',
   weakest_domain_id uuid references public.domains(id) on delete set null,

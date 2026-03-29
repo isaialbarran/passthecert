@@ -7,16 +7,21 @@ import { cookies } from 'next/headers'
  * Use only in Server Actions / API routes for operations that require elevated access.
  */
 export function createAdminClient() {
-  return createServer(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll: () => [],
-        setAll: () => {},
-      },
-    }
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    throw new Error(
+      'Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL — check .env.local'
+    )
+  }
+
+  return createServer(url, key, {
+    cookies: {
+      getAll: () => [],
+      setAll: () => {},
+    },
+  })
 }
 
 export function createBrowserClient() {

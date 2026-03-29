@@ -1,15 +1,19 @@
-import type { Question, QuestionOption } from '@/shared/types/database'
+import type { QuestionOption } from '@/shared/types/database'
 
 export interface DiagnosticQuestion {
   id: string
   stem: string
   options: QuestionOption[]
-  correct_key: string
-  explanation: string
   difficulty: 'easy' | 'medium' | 'hard'
   domain_id: string
   domain_name: string
   domain_code: string
+}
+
+export interface CheckAnswerResult {
+  isCorrect: boolean
+  correctKey: string
+  explanation: string
 }
 
 export interface DiagnosticAnswer {

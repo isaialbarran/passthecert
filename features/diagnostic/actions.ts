@@ -1,14 +1,42 @@
 'use server'
 
-import { createAdminClient } from '@/shared/lib/supabase'
+import { createClient, createAdminClient } from '@/shared/lib/supabase'
 import { resend } from '@/shared/lib/resend'
-import { diagnosticLeadSchema } from './schemas'
+import { diagnosticLeadSchema, checkAnswerSchema } from './schemas'
 import { buildDiagnosticReportEmail } from './emails/diagnostic-report'
-import type { DiagnosticLeadPayload, DomainScore } from './types'
+import type { DiagnosticLeadPayload, DomainScore, CheckAnswerResult } from './types'
 
 interface SubmitLeadResult {
   success: boolean
   error?: string
+}
+
+export async function checkDiagnosticAnswer(
+  questionId: string,
+  selectedKey: string
+): Promise<CheckAnswerResult> {
+  const parsed = checkAnswerSchema.safeParse({ questionId, selectedKey })
+  if (!parsed.success) {
+    return { isCorrect: false, correctKey: '', explanation: 'Invalid input' }
+  }
+
+  const supabase = await createClient()
+
+  const { data: question, error } = await supabase
+    .from('questions')
+    .select('correct_key, explanation')
+    .eq('id', parsed.data.questionId)
+    .single()
+
+  if (error || !question) {
+    return { isCorrect: false, correctKey: '', explanation: 'Question not found' }
+  }
+
+  return {
+    isCorrect: parsed.data.selectedKey === question.correct_key,
+    correctKey: question.correct_key,
+    explanation: question.explanation,
+  }
 }
 
 export async function submitDiagnosticLead(
@@ -21,7 +49,12 @@ export async function submitDiagnosticLead(
 
   const { email, overallScore, domainScores, weakestDomainId } = parsed.data
 
-  const supabase = createAdminClient()
+  let supabase: ReturnType<typeof createAdminClient>
+  try {
+    supabase = createAdminClient()
+  } catch {
+    return { success: false, error: 'Server configuration error. Please try again later.' }
+  }
 
   // Fetch domain names for the email
   const { data: domains } = await supabase
@@ -33,7 +66,6 @@ export async function submitDiagnosticLead(
     return { success: false, error: 'Failed to fetch domain data' }
   }
 
-  // Build domain score details for email
   const domainScoreDetails: DomainScore[] = domains
     .filter((d) => domainScores[d.id] !== undefined)
     .map((d) => ({
@@ -47,17 +79,20 @@ export async function submitDiagnosticLead(
 
   const weakestDomain = domains.find((d) => d.id === weakestDomainId)
 
-  // Insert lead
-  const { error: insertError } = await supabase
+  // Upsert lead — update scores if email already exists (retake)
+  const { error: upsertError } = await supabase
     .from('diagnostic_leads')
-    .insert({
-      email,
-      overall_score: overallScore,
-      domain_scores: domainScores,
-      weakest_domain_id: weakestDomainId,
-    })
+    .upsert(
+      {
+        email,
+        overall_score: overallScore,
+        domain_scores: domainScores,
+        weakest_domain_id: weakestDomainId,
+      },
+      { onConflict: 'email' }
+    )
 
-  if (insertError) {
+  if (upsertError) {
     return { success: false, error: 'Failed to save your results. Please try again.' }
   }
 

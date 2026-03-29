@@ -7,4 +7,9 @@ export const diagnosticLeadSchema = z.object({
   weakestDomainId: z.string().uuid(),
 })
 
+export const checkAnswerSchema = z.object({
+  questionId: z.string().uuid(),
+  selectedKey: z.string().min(1).max(2),
+})
+
 export type DiagnosticLeadInput = z.infer<typeof diagnosticLeadSchema>
