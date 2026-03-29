@@ -2,6 +2,23 @@ import { createBrowserClient as createBrowser } from '@supabase/ssr'
 import { createServerClient as createServer } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+/**
+ * Admin client using service role key — bypasses RLS.
+ * Use only in Server Actions / API routes for operations that require elevated access.
+ */
+export function createAdminClient() {
+  return createServer(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll: () => [],
+        setAll: () => {},
+      },
+    }
+  )
+}
+
 export function createBrowserClient() {
   return createBrowser(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

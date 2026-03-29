@@ -81,6 +81,16 @@ export interface QuizSession {
   created_at: string
 }
 
+export interface DiagnosticLead {
+  id: string
+  email: string
+  overall_score: number
+  domain_scores: Record<string, number>
+  weakest_domain_id: string | null
+  converted_at: string | null
+  created_at: string
+}
+
 export interface ReadinessScore {
   id: string
   user_id: string
