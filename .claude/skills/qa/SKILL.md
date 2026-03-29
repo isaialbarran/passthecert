@@ -38,7 +38,8 @@ Numbered list. For each:
 
 ### Automated test cases (Playwright)
 
-TypeScript code for the critical happy path and the most important edge case. Use `@playwright/test` imports.
+If `@playwright/test` is present in `package.json`, generate TypeScript code for the critical happy path and the most important edge case using `@playwright/test` imports.
+If `@playwright/test` is not installed, first output a brief note explaining how to install Playwright (for example: add `@playwright/test` to `devDependencies` and run `npx playwright install`), and then describe the test cases that should be implemented instead of emitting runnable Playwright code.
 
 ### SQL verification queries
 
