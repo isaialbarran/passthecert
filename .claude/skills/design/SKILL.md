@@ -57,7 +57,7 @@ Font body:     DM Sans (300/400)
 ## Output format
 
 1. Complete React component (`.tsx`) with Tailwind classes
-2. Any new tokens or variants needed in `tailwind.config.ts`
+2. Any new tokens or variants needed in `app/globals.css` (e.g., `@theme` tokens / CSS variables)
 3. Brief rationale for non-obvious design decisions
 
 ## Rules
