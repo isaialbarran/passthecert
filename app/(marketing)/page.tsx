@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export default function LandingPage(): React.ReactElement {
+export default function LandingPage(): React.JSX.Element {
   return (
     <main>
       {/* Hero */}
