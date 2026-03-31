@@ -5,7 +5,7 @@ Each file defines a role. You (the founder) are the orchestrator.
 
 ## Prerequisites
 Before using the agent workflow, ensure these exist:
-- **`SPEC.md`** — the MVP specification. Every agent references it as the source of truth. Create it at the repo root before starting any feature work.
+- **`INSTRUCTIONS.md`** — the MVP specification. Every agent references it as the source of truth.
 - **Dependencies** — some stack dependencies (Shadcn/UI, TanStack Query, Zod, Playwright) are approved but not yet installed. See `AGENTS/dev.md` → "Pending setup" for install commands.
 
 ## Team roster
@@ -28,17 +28,17 @@ Or use Claude Projects — create one Project per agent and paste the `.md` as t
 **Recommended: Claude Projects setup**
 1. Create a Project called "PassTheCert — Product"
 2. Add `product.md` content as the Project instructions
-3. Add `SPEC.md` as a Project document (create it first — see Prerequisites above)
+3. Add `INSTRUCTIONS.md` as a Project document
 4. Repeat for each role
 
 ### In Claude Code (terminal)
 ```bash
-# The dev agent runs via Claude Code with SPEC.md and dev.md as context
+# The dev agent runs via Claude Code with INSTRUCTIONS.md and dev.md as context
 claude
 
 # Inside the Claude Code session, reference the agent:
 # "You are the Dev agent defined in AGENTS/dev.md. 
-#  Read SPEC.md and implement step 7: features/quiz/sm2.ts"
+#  Read INSTRUCTIONS.md and implement step 7: features/quiz/sm2.ts"
 ```
 
 ## Workflow per feature
@@ -54,7 +54,7 @@ claude
 ```
 
 ## Ground rules
-- **SPEC.md is the constitution.** No agent overrides it without your approval.
+- **INSTRUCTIONS.md is the constitution.** No agent overrides it without your approval.
 - **One feature at a time.** Don't parallelize until you have the workflow stable.
 - **GitHub Issues = task queue.** Every task starts as an Issue, every output closes it.
 - **You merge all PRs.** Agents propose, you dispose.

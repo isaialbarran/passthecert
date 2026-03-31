@@ -5,8 +5,17 @@
 ## Source of truth
 
 - **`INSTRUCTIONS.md`** — MVP specification (features, schema, execution order). Read it before any task.
-- **`AGENTS.md`** — Rules for subagents and role definitions.
-- **`AGENTS/`** — Detailed system prompts per role (for use in Claude Projects or chat, not auto-read).
+- **`AGENTS/`** — Agent role prompts and workflow docs. See `AGENTS/README.md` for the roster and how to invoke each role.
+
+## Subagent rules (Task tool)
+
+When a subagent is launched via the Task tool:
+- It inherits `CLAUDE.md` as context automatically
+- It must follow the architecture and code standards below
+- It must read `INSTRUCTIONS.md` before any feature work
+- It must never add dependencies outside the approved stack
+- It must never bypass RLS or expose secrets
+- `INSTRUCTIONS.md` is the constitution — no agent overrides it without founder approval
 
 ## Stack (do not deviate)
 

@@ -279,7 +279,7 @@ This is the primary acquisition funnel. It runs fully anonymous — no login req
 **User flow:**
 
 1. Landing page CTA: "Test your Security+ knowledge — free, no signup"
-2. User completes a 25-question diagnostic quiz covering all 5 Security+ domains (5 questions per domain)
+2. User completes a 10-question diagnostic quiz covering all 5 Security+ domains (2 questions per domain)
 3. Quiz runs client-side with answers stored in `localStorage` — no DB writes during the test
 4. On completion: results page shows overall score but domain breakdown is blurred/hidden
 5. Gate: "See your full results" → email capture form
@@ -555,7 +555,7 @@ Execute in this exact order. Do not skip steps. Do not add features from later p
 11. [ ] Build app/(app)/quiz/[certId]/page.tsx (quiz UI)
 12. [ ] Build features/progress/ (readiness score, domain mastery)
 13. [ ] Build app/(app)/dashboard/page.tsx (progress dashboard)
-14. [ ] Build features/billing/ (Stripe checkout + webhook, trial logic)
+14. [ ] Build features/billing/ (Stripe checkout + webhook, subscription logic)
 15. [ ] Build app/(marketing)/page.tsx (landing page)
 16. [ ] Deploy to Vercel (connect GitHub repo, add env vars)
 17. [ ] Set up Stripe webhook endpoint in Vercel URL
@@ -582,11 +582,11 @@ The MVP is complete when:
 
 - [ ] A visitor can complete the diagnostic test without signing up
 - [ ] The diagnostic report email is sent automatically after email capture
-- [ ] A user can sign in with Google and get a 7-day full-access trial
+- [ ] A user can sign in with Google and access the app after payment
 - [ ] A user can take a 10-question quiz and see explanations
 - [ ] Wrong answers are tracked and surfaced in "Review Mistakes" mode
 - [ ] The dashboard shows a readiness score and domain breakdown
-- [ ] A user can pay €19/month via Stripe to unlock full access after trial
+- [ ] A user can pay €29/month via Stripe to unlock full access
 - [ ] The app is live on passthecert.com via Vercel
 - [ ] At least 5 real users have paid
 
