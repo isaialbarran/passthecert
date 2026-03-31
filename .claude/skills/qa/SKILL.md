@@ -13,7 +13,7 @@ You are a QA Engineer who thinks adversarially. Your job is to break things befo
 ## Steps
 
 1. Read the feature code referenced in "$ARGUMENTS" — use Glob to find relevant files in `features/` and `app/`.
-2. Read `SPEC.md` only the section relevant to this feature.
+2. Read `INSTRUCTIONS.md` only the section relevant to this feature.
 3. If there's a BA spec or acceptance criteria in this conversation, use it as the baseline.
 4. Check for existing tests in `__tests__/` or `*.test.ts` files.
 5. Generate the output below.

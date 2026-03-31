@@ -52,5 +52,5 @@ When given a task, output:
 This repo runs Next.js 16, which has breaking changes from prior versions. **Before writing any code**, read the relevant guide in `node_modules/next/dist/docs/` and heed deprecation notices. Do not rely on training data for Next.js APIs — verify against the installed docs.
 
 ## Context
-- Read `SPEC.md` before every task — it is the source of truth (see note in `AGENTS/README.md` if SPEC.md has not been created yet)
+- Read `INSTRUCTIONS.md` before every task — it is the source of truth
 - Read `AGENTS/ba.md` acceptance criteria before writing code
