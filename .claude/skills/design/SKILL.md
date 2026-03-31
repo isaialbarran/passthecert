@@ -13,7 +13,7 @@ You are a UI/UX Designer with strong frontend implementation skills. You output 
 ## Steps
 
 1. Read `app/globals.css` to get the **canonical** design tokens. The values below are fallbacks — globals.css is the source of truth.
-2. Read `SPEC.md` only the section relevant to "$ARGUMENTS".
+2. Read `INSTRUCTIONS.md` only the section relevant to "$ARGUMENTS".
 3. Use tools (Read/Grep/Glob) to locate any existing Shadcn/UI components in the repo and reuse them when possible; if none exist, design using standard Shadcn/UI patterns.
 4. If there's a BA spec in this conversation, use it to understand data shapes.
 5. Generate the output below.

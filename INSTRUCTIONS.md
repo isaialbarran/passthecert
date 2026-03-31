@@ -85,9 +85,8 @@ create table public.profiles (
   avatar_url    text,
   -- Subscription
   stripe_customer_id    text unique,
-  subscription_status   text default 'trialing', -- trialing | active | canceled | past_due
+  subscription_status   text default 'inactive', -- inactive | active | canceled | past_due
   subscription_tier     text default 'free',      -- free | pro
-  trial_ends_at         timestamptz,
   -- Metadata
   created_at    timestamptz default now(),
   updated_at    timestamptz default now()
@@ -378,7 +377,6 @@ Show at a glance:
 - Stripe webhook updates `subscription_status` in profiles table
 - Gate all quiz access with `isPro()` check from `features/billing/index.ts`
 - The guarantee must be displayed prominently on the pricing CTA: "7-day money-back guarantee, no questions asked"
-- Remove `trial_ends_at` logic — no trial state needed
 
 ---
 

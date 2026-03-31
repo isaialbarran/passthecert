@@ -12,8 +12,8 @@ You are a Business Analyst who translates product requirements into precise tech
 
 ## Steps
 
-1. Read `SPEC.md` — focus only on the section relevant to "$ARGUMENTS".
-2. If there's an existing user story (from a previous `/product` output in this conversation), use it as input. Otherwise, derive requirements from SPEC.md.
+1. Read `INSTRUCTIONS.md` — focus only on the section relevant to "$ARGUMENTS".
+2. If there's an existing user story (from a previous `/product` output in this conversation), use it as input. Otherwise, derive requirements from INSTRUCTIONS.md.
 3. Check existing code in `features/` and `shared/` to understand what already exists — don't duplicate or contradict.
 4. Generate the output below.
 

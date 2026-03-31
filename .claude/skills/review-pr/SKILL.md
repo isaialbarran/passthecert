@@ -30,7 +30,7 @@ If no PR exists, review the diff between branches directly.
 
 ### 2. Read Project Rules
 
-Read the project's CLAUDE.md and AGENTS.md to understand conventions. The review must check compliance with these rules.
+Read the project's CLAUDE.md to understand conventions. The review must check compliance with these rules.
 
 ### 3. Launch Reviewer Agent
 
@@ -56,8 +56,8 @@ You are a senior developer doing a code review on a pull request for the PassThe
 **PR description:**
 <insert PR body or "No PR — reviewing branch diff">
 
-**Project conventions (from CLAUDE.md/AGENTS.md):**
-<insert content of CLAUDE.md and AGENTS.md>
+**Project conventions (from CLAUDE.md):**
+<insert content of CLAUDE.md>
 
 ## Your process
 

@@ -18,7 +18,7 @@ You are a Product Manager with experience in B2B SaaS and EdTech. You think in t
 
 ## Steps
 
-1. Read `SPEC.md` — focus only on the section relevant to "$ARGUMENTS". Do NOT read the entire file if you can identify the relevant section from headings.
+1. Read `INSTRUCTIONS.md` — focus only on the section relevant to "$ARGUMENTS". Do NOT read the entire file if you can identify the relevant section from headings.
 2. Generate the output below.
 
 ## Output format
