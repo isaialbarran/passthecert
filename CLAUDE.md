@@ -1,21 +1,27 @@
-# PassTheCert — Project Instructions
+# CLAUDE.md
 
-> Claude Code reads this file automatically. It is the source of truth for how to work in this codebase.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Source of truth
 
 - **`INSTRUCTIONS.md`** — MVP specification (features, schema, execution order). Read it before any task.
 - **`AGENTS/`** — Agent role prompts and workflow docs. See `AGENTS/README.md` for the roster and how to invoke each role.
 
-## Subagent rules (Task tool)
+## Commands
 
-When a subagent is launched via the Task tool:
-- It inherits `CLAUDE.md` as context automatically
-- It must follow the architecture and code standards below
-- It must read `INSTRUCTIONS.md` before any feature work
-- It must never add dependencies outside the approved stack
-- It must never bypass RLS or expose secrets
-- `INSTRUCTIONS.md` is the constitution — no agent overrides it without founder approval
+```bash
+npm run dev          # Start dev server (Next.js 16)
+npm run build        # Production build
+npm run lint         # ESLint (next/core-web-vitals + next/typescript)
+npm start            # Run production build
+
+# Supabase (requires supabase CLI)
+npx supabase start   # Local Supabase instance
+npx supabase db reset # Reset DB + run migrations + seed
+npx supabase migration new <name>  # Create a new migration
+```
+
+No test runner is configured yet (Playwright is in the approved stack but not installed).
 
 ## Stack (do not deviate)
 
@@ -26,7 +32,7 @@ When a subagent is launched via the Task tool:
 | Styling | Tailwind CSS 4 |
 | Components | Shadcn/UI (pending install) |
 | Data fetching | TanStack Query (pending install) |
-| Validation | Zod (pending install) |
+| Validation | Zod |
 | DB + Auth | Supabase (PostgreSQL + Google OAuth + RLS) |
 | Payments | Stripe |
 | Email | Resend |
@@ -41,20 +47,26 @@ This repo runs Next.js 16, which may have breaking changes vs. your training dat
 
 ```
 app/                    # Routes only — no business logic
-  (marketing)/          # Public: landing, pricing
-  (auth)/               # Login, callback
+  (marketing)/          # Public: landing, pricing, diagnostic
+  (auth)/               # Login, signup, callback
   (app)/                # Protected: dashboard, quiz
+  api/webhooks/stripe/  # Stripe webhook handler
 features/               # Business logic organized by domain
-  auth/                 # Supabase auth wrapper
+  auth/                 # Supabase auth wrapper (actions, queries, schemas)
   quiz/                 # Quiz engine, SM-2, question display
   progress/             # User stats, readiness score
   billing/              # Stripe checkout, webhooks
 shared/
   lib/                  # Service clients (supabase.ts, stripe.ts, resend.ts)
-  types/                # Global TS types + Supabase generated types
+  types/                # Global TS types + Supabase generated types (database.ts)
   components/ui/        # Design system (Shadcn/UI)
+supabase/
+  migrations/           # Numbered SQL migration files (001_initial_schema.sql, ...)
+  seed.sql              # Initial question bank (Security+)
 AGENTS/                 # AI agent role prompts (reference docs)
 ```
+
+**Path alias:** `@/*` maps to the project root (configured in `tsconfig.json`). Use `@/features/...`, `@/shared/...`, etc.
 
 **Rules:**
 - Organize by feature, not by layer
@@ -63,6 +75,24 @@ AGENTS/                 # AI agent role prompts (reference docs)
 - Queries as plain async functions in `features/[name]/queries.ts`
 - Types co-located in `features/[name]/types.ts`
 - Shared service clients in `shared/lib/` (singleton pattern)
+
+## Supabase client pattern
+
+Two clients in `shared/lib/supabase.ts`:
+- `createBrowserClient()` — for client components
+- `createClient()` — async, for Server Components and Server Actions (uses `cookies()`)
+
+Env var for the anon key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` (not the usual `NEXT_PUBLIC_SUPABASE_ANON_KEY`). See `.env.example` for all required env vars.
+
+## Subagent rules (Task tool)
+
+When a subagent is launched via the Task tool:
+- It inherits `CLAUDE.md` as context automatically
+- It must follow the architecture and code standards below
+- It must read `INSTRUCTIONS.md` before any feature work
+- It must never add dependencies outside the approved stack
+- It must never bypass RLS or expose secrets
+- `INSTRUCTIONS.md` is the constitution — no agent overrides it without founder approval
 
 ## Code standards
 
@@ -74,6 +104,7 @@ AGENTS/                 # AI agent role prompts (reference docs)
 - No `console.log` in production code
 - No inline styles — Tailwind only
 - No dependencies outside approved stack without explicit approval
+- Use comments sparingly — only comment complex code
 
 ## Design system
 
@@ -83,8 +114,8 @@ Border:        rgba(74,222,128,0.2)
 Accent:        #4ade80     Danger:      #ef4444
 Text primary:  #edfded     Text muted:  #7ba87b
 
-Font heading:  Bricolage Grotesque (800)
-Font body:     DM Sans (300/400)
+Font heading:  Bricolage Grotesque (800) — var(--font-bricolage)
+Font body:     DM Sans (300/400) — var(--font-dm-sans)
 ```
 
-Canonical values live in `app/globals.css`. Always verify there first.
+Canonical values live in `app/globals.css`. Always verify there first. Fonts are loaded in `app/layout.tsx` via `next/font/google`.
