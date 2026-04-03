@@ -1,20 +1,6 @@
 import { stripe } from '@/shared/lib/stripe'
-import { createServerClient } from '@supabase/ssr'
+import { createAdminClient } from '@/shared/lib/supabase'
 import type Stripe from 'stripe'
-
-// Use service role key for webhook processing (bypasses RLS)
-function createAdminClient() {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll: () => [],
-        setAll: () => {},
-      },
-    }
-  )
-}
 
 export async function POST(request: Request) {
   const body = await request.text()

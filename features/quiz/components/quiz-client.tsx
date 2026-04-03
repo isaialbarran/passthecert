@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { submitAnswer, getNextQuestion } from '../actions'
-import { QuestionCard } from './question-card'
-import { ExplanationPanel } from './explanation-panel'
+import { QuestionCard } from '@/shared/components/ui/question-card'
+import { ExplanationPanel } from '@/shared/components/ui/explanation-panel'
 import type { Question } from '@/shared/types/database'
 import type { AnswerResult } from '../types'
 import Link from 'next/link'
