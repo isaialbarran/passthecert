@@ -97,7 +97,7 @@ export function DiagnosticResults({
             . Start there with targeted practice.
           </p>
           <Link
-            href="/login"
+            href="/auth/login"
             className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
           >
             Start Your Study Plan — €29/mo

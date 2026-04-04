@@ -12,8 +12,14 @@ import { DomainMastery } from '@/features/progress/components/domain-mastery'
 import { StudyStreak } from '@/features/progress/components/study-streak'
 import { RecentSessions } from '@/features/progress/components/recent-sessions'
 import { StartPracticeCta } from '@/features/progress/components/start-practice-cta'
+import { isPro, UpgradeBanner, UpgradeSuccessBanner } from '@/features/billing'
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<{ upgraded?: string }>
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const { upgraded } = await searchParams
   const user = await requireAuth()
   const supabase = await createClient()
 
@@ -27,13 +33,14 @@ export default async function DashboardPage() {
     return <p className="text-muted">No exam configured.</p>
   }
 
-  const [readiness, domainMastery, streak, mastered, recentSessions] =
+  const [readiness, domainMastery, streak, mastered, recentSessions, userIsPro] =
     await Promise.all([
       getReadinessScore(user.id, exam.id),
       getDomainMastery(user.id, exam.id),
       getStudyStreak(user.id),
       getQuestionsMastered(user.id),
       getRecentSessions(user.id),
+      isPro(user.id),
     ])
 
   return (
@@ -61,7 +68,13 @@ export default async function DashboardPage() {
 
       <DomainMastery domains={domainMastery} />
       <RecentSessions sessions={recentSessions} />
-      <StartPracticeCta examSlug={exam.slug} />
+      {upgraded === 'true' && !userIsPro ? (
+        <UpgradeSuccessBanner />
+      ) : userIsPro ? (
+        <StartPracticeCta examSlug={exam.slug} />
+      ) : (
+        <UpgradeBanner />
+      )}
     </div>
   )
 }
