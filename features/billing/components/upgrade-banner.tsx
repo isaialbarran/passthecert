@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { createCheckoutSession } from '../actions'
+import { PRICE_LABEL } from '../constants'
 
 export function UpgradeBanner(): JSX.Element {
   return (
@@ -19,15 +20,15 @@ export function UpgradeBanner(): JSX.Element {
       </svg>
       <h2 className="font-heading text-2xl font-extrabold">Unlock Full Access</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-        CompTIA Security+ (SY0-701) — preguntas ilimitadas, todos los modos,
-        simulacro completo de 90 minutos, repetición espaciada adaptativa.
+        CompTIA Security+ (SY0-701) — unlimited questions, every study mode,
+        full 90-minute practice exam, and adaptive spaced repetition.
       </p>
       <form action={createCheckoutSession} className="mt-6">
         <button
           type="submit"
           className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
         >
-          Start Studying — €29/mo
+          Start Studying — {PRICE_LABEL}
         </button>
       </form>
       <p className="mt-3 text-xs text-muted">7-day money-back guarantee, no questions asked</p>

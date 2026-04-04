@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import type { DiagnosticResult } from '../types'
+import { createCheckoutSession, PRICE_LABEL } from '@/features/billing'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
@@ -96,12 +96,14 @@ export function DiagnosticResults({
             </span>
             . Start there with targeted practice.
           </p>
-          <Link
-            href="/auth/login"
-            className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
-          >
-            Start Your Study Plan — €29/mo
-          </Link>
+          <form action={createCheckoutSession} className="inline-block">
+            <button
+              type="submit"
+              className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+            >
+              Start Your Study Plan — {PRICE_LABEL}
+            </button>
+          </form>
           <p className="mt-2 text-xs text-muted">
             7-day money-back guarantee
           </p>
