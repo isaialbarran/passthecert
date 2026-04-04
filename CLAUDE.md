@@ -115,7 +115,7 @@ Accent:        #4ade80     Danger:      #ef4444
 Text primary:  #edfded     Text muted:  #7ba87b
 
 Font heading:  Bricolage Grotesque (800) — var(--font-bricolage)
-Font body:     DM Sans (300/400) — var(--font-dm-sans)
+Font body:     DM Sans (300/400/500) — var(--font-dm-sans)
 ```
 
 Canonical values live in `app/globals.css`. Always verify there first. Fonts are loaded in `app/layout.tsx` via `next/font/google`.
