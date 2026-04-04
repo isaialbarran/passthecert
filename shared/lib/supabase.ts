@@ -1,22 +1,16 @@
 import { createBrowserClient as createBrowser } from '@supabase/ssr'
 import { createServerClient as createServer } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { serverEnv, clientEnv } from './env'
 
 /**
  * Admin client using service role key — bypasses RLS.
  * Use only in Server Actions / API routes for operations that require elevated access.
  */
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const env = serverEnv()
 
-  if (!url || !key) {
-    throw new Error(
-      'Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL — check .env.local'
-    )
-  }
-
-  return createServer(url, key, {
+  return createServer(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
     cookies: {
       getAll: () => [],
       setAll: () => {},
@@ -25,18 +19,17 @@ export function createAdminClient() {
 }
 
 export function createBrowserClient() {
-  return createBrowser(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!
-  )
+  const env = clientEnv()
+  return createBrowser(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY)
 }
 
 export async function createClient() {
+  const env = serverEnv()
   const cookieStore = await cookies()
 
   return createServer(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
     {
       cookies: {
         getAll() {
