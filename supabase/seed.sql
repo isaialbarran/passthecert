@@ -27,7 +27,7 @@ select
   'B',
   'A Man-in-the-Middle (MitM) attack occurs when an attacker secretly relays and possibly alters communications between two parties who believe they are communicating directly with each other. SQL Injection targets databases, DoS disrupts availability, and phishing targets users through deception.',
   'easy',
-  array['network-security','attacks','mitm']
+  array['network-security','attacks','mitm','obj-2.4']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '2.0'
 
@@ -41,7 +41,7 @@ select
   'C',
   'Non-repudiation ensures that a party cannot deny the authenticity of their signature on a document or a message they sent. This is typically achieved through digital signatures using asymmetric cryptography. Confidentiality protects data from unauthorized access, integrity ensures data has not been altered, and availability ensures systems are accessible.',
   'medium',
-  array['cryptography','pki','digital-signatures']
+  array['cryptography','pki','digital-signatures','obj-1.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '1.0'
 
@@ -55,7 +55,7 @@ select
   'B',
   'Network Access Control (NAC) enforces security policy compliance on devices before granting network access. It can verify device health, patch levels, and identity before allowing connection. VPNs encrypt remote connections, IDS detects intrusions, and DLP prevents data exfiltration.',
   'medium',
-  array['network-security','access-control','nac']
+  array['network-security','access-control','nac','obj-3.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '3.0'
 
@@ -69,7 +69,7 @@ select
   'B',
   'A SIEM system aggregates and correlates log data from multiple sources (firewalls, servers, applications) to provide real-time analysis of security alerts. It helps security teams detect threats, investigate incidents, and meet compliance requirements. It does not encrypt data, block traffic directly (that''s a firewall/IPS), or manage passwords (that''s an IAM system).',
   'easy',
-  array['siem','monitoring','security-operations']
+  array['siem','monitoring','security-operations','obj-4.4']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '4.0'
 
@@ -83,7 +83,7 @@ select
   'D',
   'Password history and expiration policies enforce regular password changes (expiration) and prevent reuse of recent passwords (history). Account lockout triggers after failed attempts, least privilege limits user permissions to the minimum necessary, and complexity requirements enforce character rules (uppercase, numbers, symbols).',
   'easy',
-  array['identity-management','password-policy','access-control']
+  array['identity-management','password-policy','access-control','obj-5.1']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '5.0'
 
@@ -97,7 +97,7 @@ select e.id, d.id,
   'B',
   'Defense in depth is a security strategy that employs multiple layers of controls (physical, technical, administrative) so that if one layer fails, others continue to provide protection. A single firewall is only one layer. Encryption and access restrictions are individual controls, not layered strategies.',
   'easy',
-  array['security-concepts','defense-in-depth']
+  array['security-concepts','defense-in-depth','obj-1.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '1.0'
 
@@ -108,7 +108,7 @@ select e.id, d.id,
   'B',
   'Data classification is the process of categorizing data based on its sensitivity level and the impact if disclosed. Least privilege limits access rights, separation of duties divides tasks to prevent fraud, and need to know restricts access based on job requirements.',
   'easy',
-  array['security-concepts','data-classification','governance']
+  array['security-concepts','data-classification','governance','obj-1.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '1.0'
 
@@ -119,7 +119,7 @@ select e.id, d.id,
   'C',
   'Biometric authentication (fingerprint, retina scan, facial recognition) uses "something you are." A smart card and security token are "something you have," and a PIN is "something you know." Multi-factor authentication combines two or more of these categories.',
   'easy',
-  array['security-concepts','authentication','biometrics']
+  array['security-concepts','authentication','biometrics','obj-1.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '1.0'
 
@@ -130,7 +130,7 @@ select e.id, d.id,
   'C',
   'Symmetric encryption uses one shared secret key for both encryption and decryption (e.g., AES). Asymmetric encryption uses a key pair — a public key to encrypt and a private key to decrypt (e.g., RSA). Symmetric is actually faster than asymmetric, and asymmetric encryption is used for digital signatures.',
   'medium',
-  array['cryptography','encryption','symmetric','asymmetric']
+  array['cryptography','encryption','symmetric','asymmetric','obj-1.4']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '1.0'
 
@@ -142,7 +142,7 @@ select e.id, d.id,
   'B',
   'Phishing is a social engineering attack using fraudulent emails that appear to come from a trusted source, directing victims to fake websites to steal credentials. Vishing uses voice calls, smishing uses SMS text messages, and whaling targets high-profile executives specifically.',
   'easy',
-  array['social-engineering','phishing','attacks']
+  array['social-engineering','phishing','attacks','obj-2.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '2.0'
 
@@ -153,7 +153,7 @@ select e.id, d.id,
   'C',
   'Ransomware encrypts files or locks systems and demands a ransom payment (usually cryptocurrency) for the decryption key. Trojans disguise themselves as legitimate software, worms self-replicate across networks, and rootkits hide their presence to maintain persistent access.',
   'easy',
-  array['malware','ransomware','threats']
+  array['malware','ransomware','threats','obj-2.4']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '2.0'
 
@@ -164,7 +164,7 @@ select e.id, d.id,
   'B',
   'A zero-day exploit takes advantage of a previously unknown vulnerability before the vendor has released a patch (day zero). Buffer overflow is a specific vulnerability type, a logic bomb is triggered by a condition, and privilege escalation is a post-exploitation technique.',
   'medium',
-  array['vulnerabilities','zero-day','exploits']
+  array['vulnerabilities','zero-day','exploits','obj-2.3']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '2.0'
 
@@ -175,7 +175,7 @@ select e.id, d.id,
   'B',
   'SQL injection occurs when user input is not properly sanitized and is included directly in SQL queries, allowing attackers to manipulate database operations. XSS injects scripts into web pages, CSRF tricks users into making unwanted requests, and XXE exploits XML parsers.',
   'medium',
-  array['vulnerabilities','sql-injection','web-security']
+  array['vulnerabilities','sql-injection','web-security','obj-2.3']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '2.0'
 
@@ -187,7 +187,7 @@ select e.id, d.id,
   'B',
   'A DMZ (Demilitarized Zone) is a perimeter network segment that hosts externally accessible services (web servers, email servers) while isolating them from the internal network. VLANs segment traffic logically, an intranet is internal only, and an air gap physically isolates a network.',
   'easy',
-  array['network-architecture','dmz','network-security']
+  array['network-architecture','dmz','network-security','obj-3.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '3.0'
 
@@ -198,7 +198,7 @@ select e.id, d.id,
   'B',
   'Platform as a Service (PaaS) provides a managed environment where the provider handles infrastructure, operating system, and runtime, while the customer manages applications and data. IaaS provides only infrastructure, SaaS delivers complete applications, and FaaS runs individual functions.',
   'medium',
-  array['cloud','paas','security-architecture']
+  array['cloud','paas','security-architecture','obj-3.1']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '3.0'
 
@@ -209,7 +209,7 @@ select e.id, d.id,
   'C',
   'Mandatory Access Control (MAC) uses security labels (classifications like Top Secret, Secret, Confidential) assigned by the system administrator. Access decisions are enforced by the system, not the owner. DAC lets owners set permissions, RBAC uses roles, and ABAC uses attributes and policies.',
   'medium',
-  array['access-control','mac','security-models']
+  array['access-control','mac','security-models','obj-3.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '3.0'
 
@@ -220,7 +220,7 @@ select e.id, d.id,
   'B',
   'A Virtual Private Cloud (VPC) is a logically isolated section within a public cloud environment that provides private network space for an organization''s resources. It is not a physical server, not a private data center with VPN, and not a virtual desktop infrastructure.',
   'medium',
-  array['cloud','vpc','security-architecture']
+  array['cloud','vpc','security-architecture','obj-3.1']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '3.0'
 
@@ -232,7 +232,7 @@ select e.id, d.id,
   'C',
   'The incident response process follows: Preparation → Identification → Containment → Eradication → Recovery → Lessons Learned. Preparation is the first step and includes establishing policies, procedures, communication plans, and training the response team before any incident occurs.',
   'easy',
-  array['incident-response','security-operations']
+  array['incident-response','security-operations','obj-4.8']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '4.0'
 
@@ -243,7 +243,7 @@ select e.id, d.id,
   'C',
   'Black-box testing (also called external or blind testing) simulates attacks without prior knowledge of the target systems, mimicking a real attacker. White-box testing provides full knowledge, gray-box provides partial knowledge, and regression testing verifies that changes haven''t broken existing functionality.',
   'medium',
-  array['penetration-testing','security-operations','vulnerability-assessment']
+  array['penetration-testing','security-operations','vulnerability-assessment','obj-4.3']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '4.0'
 
@@ -254,7 +254,7 @@ select e.id, d.id,
   'B',
   'Wireshark is a packet capture and analysis tool that allows security professionals to inspect network traffic in real time. Nmap is a network scanner for discovering hosts and services, Nessus is a vulnerability scanner, and Burp Suite is a web application security testing tool.',
   'easy',
-  array['network-tools','wireshark','security-operations']
+  array['network-tools','wireshark','security-operations','obj-4.9']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '4.0'
 
@@ -265,7 +265,7 @@ select e.id, d.id,
   'C',
   'A differential backup copies all files that have changed since the last full backup. An incremental backup copies only files changed since the last backup of any type (full or incremental). Full backup copies everything. Snapshots capture the state of a system at a point in time.',
   'medium',
-  array['backup','disaster-recovery','security-operations']
+  array['backup','disaster-recovery','security-operations','obj-3.4']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '4.0'
 
@@ -277,7 +277,7 @@ select e.id, d.id,
   'C',
   'The NIST Cybersecurity Framework (CSF) is the most widely adopted framework in the US for managing cybersecurity risk. It provides five core functions: Identify, Protect, Detect, Respond, and Recover. ITIL focuses on IT service management, COBIT on IT governance, and ISO 27001 is an international standard more common globally.',
   'medium',
-  array['frameworks','nist','governance','compliance']
+  array['frameworks','nist','governance','compliance','obj-5.1']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '5.0'
 
@@ -288,7 +288,7 @@ select e.id, d.id,
   'C',
   'Risk acceptance means acknowledging the risk and choosing not to take action, typically because the cost of mitigation outweighs the potential impact. Risk avoidance eliminates the activity causing risk, risk transference shifts risk to another party (insurance), and risk mitigation reduces the risk impact or likelihood.',
   'easy',
-  array['risk-management','governance','security-program']
+  array['risk-management','governance','security-program','obj-5.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '5.0'
 
@@ -299,7 +299,7 @@ select e.id, d.id,
   'D',
   'The General Data Protection Regulation (GDPR) is an EU regulation that governs the collection, processing, and storage of personal data for EU residents. HIPAA protects health information in the US, PCI DSS secures payment card data, and SOX governs financial reporting for public companies.',
   'easy',
-  array['compliance','gdpr','regulations','privacy']
+  array['compliance','gdpr','regulations','privacy','obj-5.4']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '5.0'
 
@@ -310,7 +310,7 @@ select e.id, d.id,
   'B',
   'A Business Impact Analysis (BIA) identifies critical business functions and determines the impact (financial, operational, reputational) of disruptions to those functions. It helps establish recovery priorities and objectives (RTO/RPO). Vulnerability scanning identifies weaknesses, security audits test controls, and asset inventory catalogs IT resources.',
   'medium',
-  array['business-continuity','bia','risk-management','governance']
+  array['business-continuity','bia','risk-management','governance','obj-5.2']
 from public.exams e, public.domains d
 where e.slug = 'comptia-security-plus' and d.code = '5.0';
 
