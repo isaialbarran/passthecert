@@ -21,11 +21,15 @@ export function UpgradeSuccessBanner(): JSX.Element {
         router.replace('/dashboard')
         return
       }
-      const pro = await checkIsPro()
-      if (pro) {
-        if (intervalRef.current) clearInterval(intervalRef.current)
-        router.replace('/dashboard')
-        router.refresh()
+      try {
+        const pro = await checkIsPro()
+        if (pro) {
+          if (intervalRef.current) clearInterval(intervalRef.current)
+          router.replace('/dashboard')
+          router.refresh()
+        }
+      } catch {
+        // Network error — let the next interval attempt retry
       }
     }, 2000)
 

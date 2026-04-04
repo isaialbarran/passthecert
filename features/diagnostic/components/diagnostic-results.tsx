@@ -1,8 +1,7 @@
 'use client'
 
 import type { DiagnosticResult } from '../types'
-import { createCheckoutSession } from '@/features/billing/actions'
-import { PRICE_LABEL } from '@/features/billing/constants'
+import { createCheckoutSession, PRICE_LABEL } from '@/features/billing'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
