@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/shared/lib/supabase'
+import { serverEnv } from '@/shared/lib/env'
 import { redirect } from 'next/navigation'
 import { signUpSchema, signInSchema, forgotPasswordSchema, resetPasswordSchema } from './schemas'
 
@@ -15,7 +16,7 @@ export async function signInWithGoogle(): Promise<void> {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: `${serverEnv().NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
   })
 
@@ -53,7 +54,7 @@ export async function signUpWithEmail(
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${serverEnv().NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
   })
 
@@ -104,7 +105,7 @@ export async function forgotPassword(
 
   const supabase = await createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/reset-password`,
+    redirectTo: `${serverEnv().NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/reset-password`,
   })
 
   if (error) {

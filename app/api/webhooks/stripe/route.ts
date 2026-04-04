@@ -1,5 +1,6 @@
 import { stripe } from '@/shared/lib/stripe'
 import { createAdminClient } from '@/shared/lib/supabase'
+import { serverEnv } from '@/shared/lib/env'
 import type Stripe from 'stripe'
 
 export async function POST(request: Request) {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     event = stripe().webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      serverEnv().STRIPE_WEBHOOK_SECRET
     )
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
