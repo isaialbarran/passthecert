@@ -1,6 +1,7 @@
+import type { JSX } from 'react'
 import { createCheckoutSession } from '../actions'
 
-export function UpgradeBanner(): React.JSX.Element {
+export function UpgradeBanner(): JSX.Element {
   return (
     <div className="rounded-lg border border-accent/40 bg-surface p-8 text-center">
       <svg
