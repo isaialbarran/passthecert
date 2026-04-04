@@ -1,5 +1,35 @@
--- Domain 1.0: General Security Concepts (10 new questions)
+-- Domain 1.0: General Security Concepts (11 new questions)
 -- Objectives: 1.1 (Security controls), 1.2 (Fundamental concepts), 1.3 (Change management), 1.4 (Cryptography)
+
+-- Ensure exam and domain rows exist before question inserts (migrations run before seed.sql)
+INSERT INTO public.exams (slug, name, vendor, total_questions, pass_score, duration_mins)
+VALUES ('comptia-security-plus', 'CompTIA Security+ (SY0-701)', 'CompTIA', 90, 750, 90)
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO public.domains (exam_id, name, code, weight_pct)
+SELECT e.id, 'General Security Concepts', '1.0', 12 FROM public.exams e
+WHERE e.slug = 'comptia-security-plus'
+AND NOT EXISTS (SELECT 1 FROM public.domains WHERE exam_id = e.id AND code = '1.0');
+
+INSERT INTO public.domains (exam_id, name, code, weight_pct)
+SELECT e.id, 'Threats, Vulnerabilities, and Mitigations', '2.0', 22 FROM public.exams e
+WHERE e.slug = 'comptia-security-plus'
+AND NOT EXISTS (SELECT 1 FROM public.domains WHERE exam_id = e.id AND code = '2.0');
+
+INSERT INTO public.domains (exam_id, name, code, weight_pct)
+SELECT e.id, 'Security Architecture', '3.0', 18 FROM public.exams e
+WHERE e.slug = 'comptia-security-plus'
+AND NOT EXISTS (SELECT 1 FROM public.domains WHERE exam_id = e.id AND code = '3.0');
+
+INSERT INTO public.domains (exam_id, name, code, weight_pct)
+SELECT e.id, 'Security Operations', '4.0', 28 FROM public.exams e
+WHERE e.slug = 'comptia-security-plus'
+AND NOT EXISTS (SELECT 1 FROM public.domains WHERE exam_id = e.id AND code = '4.0');
+
+INSERT INTO public.domains (exam_id, name, code, weight_pct)
+SELECT e.id, 'Security Program Management and Oversight', '5.0', 20 FROM public.exams e
+WHERE e.slug = 'comptia-security-plus'
+AND NOT EXISTS (SELECT 1 FROM public.domains WHERE exam_id = e.id AND code = '5.0');
 
 -- ─── 1.1 Compare and contrast various types of security controls ─────────────
 

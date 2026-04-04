@@ -1,21 +1,11 @@
 -- supabase/seed.sql
 -- Run after migrations
 
--- Insert exam
+-- Exam and domains are created in 003_questions_domain_1.sql to ensure FK validity at migration time.
+-- These inserts are guarded with ON CONFLICT / NOT EXISTS so running seed.sql after migrations is safe.
 insert into public.exams (slug, name, vendor, total_questions, pass_score, duration_mins)
-values ('comptia-security-plus', 'CompTIA Security+ (SY0-701)', 'CompTIA', 90, 750, 90);
-
--- Insert domains (Security+ SY0-701 official domains)
-insert into public.domains (exam_id, name, code, weight_pct)
-select id, 'General Security Concepts', '1.0', 12 from public.exams where slug = 'comptia-security-plus'
-union all
-select id, 'Threats, Vulnerabilities, and Mitigations', '2.0', 22 from public.exams where slug = 'comptia-security-plus'
-union all
-select id, 'Security Architecture', '3.0', 18 from public.exams where slug = 'comptia-security-plus'
-union all
-select id, 'Security Operations', '4.0', 28 from public.exams where slug = 'comptia-security-plus'
-union all
-select id, 'Security Program Management and Oversight', '5.0', 20 from public.exams where slug = 'comptia-security-plus';
+values ('comptia-security-plus', 'CompTIA Security+ (SY0-701)', 'CompTIA', 90, 750, 90)
+on conflict (slug) do nothing;
 
 -- Insert sample questions (expand to 100+ before launch)
 insert into public.questions (exam_id, domain_id, stem, options, correct_key, explanation, difficulty, tags)
