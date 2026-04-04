@@ -17,25 +17,23 @@ export async function checkDiagnosticAnswer(
 ): Promise<CheckAnswerResult> {
   const parsed = checkAnswerSchema.safeParse({ questionId, selectedKey })
   if (!parsed.success) {
-    return { isCorrect: false, correctKey: '', explanation: 'Invalid input' }
+    return { isCorrect: false }
   }
 
   const supabase = await createClient()
 
   const { data: question, error } = await supabase
     .from('questions')
-    .select('correct_key, explanation')
+    .select('correct_key')
     .eq('id', parsed.data.questionId)
     .single()
 
   if (error || !question) {
-    return { isCorrect: false, correctKey: '', explanation: 'Question not found' }
+    return { isCorrect: false }
   }
 
   return {
     isCorrect: parsed.data.selectedKey === question.correct_key,
-    correctKey: question.correct_key,
-    explanation: question.explanation,
   }
 }
 
