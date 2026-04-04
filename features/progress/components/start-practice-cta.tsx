@@ -8,7 +8,7 @@ export function StartPracticeCta({ examSlug }: StartPracticeCtaProps) {
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-8">
       <h3 className="font-heading text-xl font-extrabold">
-        Ready to practice?
+        Start Practicing
       </h3>
       <div className="flex flex-wrap gap-3">
         <Link
@@ -30,6 +30,9 @@ export function StartPracticeCta({ examSlug }: StartPracticeCtaProps) {
           Full Exam (90 min)
         </Link>
       </div>
+      <p className="text-xs text-muted">
+        Or pick a domain below to focus your practice
+      </p>
     </div>
   )
 }

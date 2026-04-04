@@ -160,7 +160,8 @@ export function DiagnosticClient({
         setAnswers(saved)
         setCurrentIndex(saved.length)
         setPhase('quiz')
-        if (savedTimer) setTimerStartedAt(savedTimer)
+        // Fall back to now if timer key was lost or invalid — timer will show full 15 min
+        setTimerStartedAt(Number.isFinite(savedTimer) ? savedTimer : Date.now())
       })
     } else if (saved.length >= questions.length) {
       startTransition(() => {
@@ -221,6 +222,7 @@ export function DiagnosticClient({
     const currentAnswers = answersRef.current
     const res = computeResult(currentAnswers, questions)
     clearSavedData()
+    setAnswers(currentAnswers)
     setResult(res)
     setPhase('results')
   }
@@ -317,7 +319,7 @@ export function DiagnosticClient({
             <div
               className="h-full rounded-full bg-accent transition-all duration-300"
               style={{
-                width: `${(currentIndex / questions.length) * 100}%`,
+                width: `${((currentIndex + 1) / questions.length) * 100}%`,
               }}
             />
           </div>
