@@ -35,7 +35,7 @@ export async function getDiagnosticQuestions(
       .eq('exam_id', exam.id)
       .eq('domain_id', domain.id)
       .eq('is_active', true)
-      .limit(5)
+      .limit(2)
 
     if (questionsError || !questions) continue
 
