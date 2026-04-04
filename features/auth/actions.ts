@@ -108,7 +108,7 @@ export async function forgotPassword(
   })
 
   if (error) {
-    return { error: error.message }
+    return { error: 'Unable to send reset email. Please try again.' }
   }
 
   return { success: true }
@@ -131,7 +131,7 @@ export async function resetPassword(
   })
 
   if (error) {
-    return { error: error.message }
+    return { error: 'Unable to reset password. Please try again.' }
   }
 
   redirect('/dashboard')
