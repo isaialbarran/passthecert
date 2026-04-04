@@ -4,6 +4,7 @@ import { createClient } from '@/shared/lib/supabase'
 import { stripe } from '@/shared/lib/stripe'
 import { requireAuth } from '@/features/auth'
 import { redirect } from 'next/navigation'
+import { isPro } from './queries'
 
 export async function createCheckoutSession() {
   const user = await requireAuth()
@@ -26,10 +27,11 @@ export async function createCheckoutSession() {
     })
     customerId = customer.id
 
-    await supabase
+    const { error: updateError } = await supabase
       .from('profiles')
       .update({ stripe_customer_id: customerId })
       .eq('id', user.id)
+    if (updateError) throw new Error('Failed to save Stripe customer ID')
   }
 
   const session = await stripe().checkout.sessions.create({
@@ -49,4 +51,9 @@ export async function createCheckoutSession() {
   if (session.url) {
     redirect(session.url)
   }
+}
+
+export async function checkIsPro(): Promise<boolean> {
+  const user = await requireAuth()
+  return isPro(user.id)
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useTransition } from 'react'
+import { useState, useEffect, useCallback, useTransition, startTransition } from 'react'
 import { QuestionCard } from '@/shared/components/ui/question-card'
 import { ExplanationPanel } from '@/shared/components/ui/explanation-panel'
 import { checkDiagnosticAnswer } from '../actions'
@@ -136,13 +136,17 @@ export function DiagnosticClient({
   useEffect(() => {
     const saved = loadSavedAnswers()
     if (saved.length > 0 && saved.length < questions.length) {
-      setAnswers(saved)
-      setCurrentIndex(saved.length)
-      setPhase('quiz')
+      startTransition(() => {
+        setAnswers(saved)
+        setCurrentIndex(saved.length)
+        setPhase('quiz')
+      })
     } else if (saved.length >= questions.length) {
-      setAnswers(saved)
-      setResult(computeResult(saved, questions))
-      setPhase('results')
+      startTransition(() => {
+        setAnswers(saved)
+        setResult(computeResult(saved, questions))
+        setPhase('results')
+      })
     }
   }, [questions])
 

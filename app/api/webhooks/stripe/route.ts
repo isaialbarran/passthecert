@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       const userId = session.metadata?.supabase_user_id
 
       if (userId) {
-        await supabase
+        const { error } = await supabase
           .from('profiles')
           .update({
             stripe_customer_id: session.customer as string,
@@ -41,6 +41,10 @@ export async function POST(request: Request) {
             subscription_tier: 'pro',
           })
           .eq('id', userId)
+
+        if (error) {
+          return new Response('DB update failed', { status: 500 })
+        }
       }
       break
     }
@@ -49,16 +53,21 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription
       const customerId = subscription.customer as string
 
-      const status = subscription.status === 'active' ? 'active' : 'past_due'
-      const tier = subscription.status === 'active' ? 'pro' : 'free'
+      const isActive = subscription.status === 'active' || subscription.status === 'trialing'
+      const status = isActive ? 'active' : 'past_due'
+      const tier = isActive ? 'pro' : 'free'
 
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
           subscription_status: status,
           subscription_tier: tier,
         })
         .eq('stripe_customer_id', customerId)
+
+      if (error) {
+        return new Response('DB update failed', { status: 500 })
+      }
       break
     }
 
@@ -66,13 +75,17 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription
       const customerId = subscription.customer as string
 
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
           subscription_status: 'canceled',
           subscription_tier: 'free',
         })
         .eq('stripe_customer_id', customerId)
+
+      if (error) {
+        return new Response('DB update failed', { status: 500 })
+      }
       break
     }
 
@@ -80,10 +93,14 @@ export async function POST(request: Request) {
       const invoice = event.data.object as Stripe.Invoice
       const customerId = invoice.customer as string
 
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ subscription_status: 'past_due' })
         .eq('stripe_customer_id', customerId)
+
+      if (error) {
+        return new Response('DB update failed', { status: 500 })
+      }
       break
     }
   }

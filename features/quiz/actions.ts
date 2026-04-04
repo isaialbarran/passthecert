@@ -228,8 +228,8 @@ export async function completeSession(sessionId: string) {
   return { scorePct, correctCount: session.correct_count, totalQuestions: session.total_questions }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getNextQuestionForSession(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- query builder needs flexible typing for chained .select()
   supabase: any,
   userId: string,
   examId: string,
