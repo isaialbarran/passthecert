@@ -1,15 +1,26 @@
 'use client'
 
+import type { JSX } from 'react'
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { checkIsPro } from '../actions'
 
-export function UpgradeSuccessBanner(): React.JSX.Element {
+const MAX_ATTEMPTS = 15 // 15 × 2s = 30 seconds
+
+export function UpgradeSuccessBanner(): JSX.Element {
   const router = useRouter()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
+    let attempts = 0
+
     intervalRef.current = setInterval(async () => {
+      attempts++
+      if (attempts >= MAX_ATTEMPTS) {
+        if (intervalRef.current) clearInterval(intervalRef.current)
+        router.replace('/dashboard')
+        return
+      }
       const pro = await checkIsPro()
       if (pro) {
         if (intervalRef.current) clearInterval(intervalRef.current)
