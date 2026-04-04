@@ -134,7 +134,7 @@ Score denormalizado para el dashboard. 1 fila por usuario (unique en `user_id`).
 ## Avisos (no bloqueantes para MVP)
 
 ### ⚠️ 1. `correct_key` expuesto vía anon key
-`questions` no tiene RLS. Cualquiera con la `publishable_key` puede consultar todas las respuestas correctas vía REST. Para un MVP de exam prep esto es común y aceptable (las respuestas están en cualquier libro), pero es un dato a tener en cuenta si quieres evitar que bots extraigan el banco completo. Solución futura: RLS con `is_active = true` y limitación de filas.
+`questions` no tiene RLS. Cualquiera con la `publishable_key` puede consultar todas las respuestas correctas vía REST. Para un MVP de exam prep esto es común y aceptable (las respuestas están en cualquier libro), pero es un dato a tener en cuenta si quieres evitar que bots extraigan el banco completo. Solución futura: si quieres filtrar visibilidad, usa RLS para exponer sólo filas válidas (por ejemplo `is_active = true`), pero no como mecanismo de “limitación de filas”. Para reducir scraping de forma efectiva, sirve las preguntas mediante una RPC/Edge Function que devuelva un subconjunto aleatorio y/o expón una vista pública que omita `correct_key`.
 
 ### ⚠️ 2. `readiness_scores` no se crea en el trigger de signup
 El trigger `on_auth_user_created` sólo inserta en `profiles`. La fila de `readiness_scores` deberá crearse aparte (probablemente en la primera sesión o en un upsert desde la app). Considera añadirla al trigger para garantizar consistencia.
