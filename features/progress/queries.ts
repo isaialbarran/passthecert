@@ -70,7 +70,7 @@ export async function getStudyStreak(userId: string) {
 
   const today = new Date().toISOString().split('T')[0]
   let streak = 0
-  let expectedDate = new Date(today)
+  const expectedDate = new Date(today)
 
   for (const day of uniqueDays) {
     const dayStr = expectedDate.toISOString().split('T')[0]
