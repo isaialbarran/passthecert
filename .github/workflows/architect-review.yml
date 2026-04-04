@@ -6,6 +6,10 @@ on:
 
 jobs:
   architect:
+    # Only run on same-repo PRs — forks don't have access to repository secrets
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !github.event.pull_request.draft
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,6 +24,8 @@ jobs:
 
       - name: Run Architect Review
         uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           model: 'sonnet'
@@ -29,7 +35,7 @@ jobs:
             First, read CLAUDE.md and INSTRUCTIONS.md to understand the project rules.
 
             Then get the list of files changed in this PR:
-              git diff --name-only origin/${{ github.base_ref }}...HEAD
+              git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
 
             Review those files for:
             1. **Architecture violations** — logic in app/ routes, cross-feature internal imports (only index.ts is public), missing queries.ts / types.ts / index.ts structure inside features/
@@ -37,7 +43,10 @@ jobs:
             3. **Code standard violations** — use of `any`, `@ts-ignore`, `console.log`, inline styles, missing explicit return types, dependencies outside the approved stack
             4. **Design system violations** — hardcoded color values instead of CSS variables from globals.css
 
-            Post a single comment on this PR with your findings. Use this exact format:
+            When done, post your findings as a PR comment using:
+              gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body "<your findings>"
+
+            Use this exact format for your findings:
 
             ## 🏛️ Architect Review
 
@@ -60,4 +69,4 @@ jobs:
             - 💡 **Suggestion** — optional improvement
 
             If all sections are clean, post only: "## ✅ Architecture looks good — no issues found."
-          allowed_tools: 'Bash(git diff*),Bash(git log*),Read,Grep,Glob'
+          allowed_tools: 'Bash(git diff*),Bash(git log*),Bash(gh pr comment*),Read,Grep,Glob'
