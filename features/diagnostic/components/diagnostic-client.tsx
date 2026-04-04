@@ -1,17 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback, useTransition, startTransition } from 'react'
+import { useState, useEffect, useCallback, useRef, useTransition, startTransition } from 'react'
 import { QuestionCard } from '@/shared/components/ui/question-card'
-import { ExplanationPanel } from '@/shared/components/ui/explanation-panel'
 import { checkDiagnosticAnswer } from '../actions'
 import { DiagnosticResults } from './diagnostic-results'
 import { EmailGate } from './email-gate'
+import { DiagnosticTimer } from './diagnostic-timer'
 import type {
   DiagnosticQuestion,
   DiagnosticAnswer,
   DiagnosticResult,
   DomainScore,
-  CheckAnswerResult,
 } from '../types'
 
 type Phase = 'intro' | 'quiz' | 'results' | 'unlocked'
@@ -21,6 +20,8 @@ interface DiagnosticClientProps {
 }
 
 const STORAGE_KEY = 'diagnostic_answers'
+const TIMER_START_KEY = 'diagnostic_timer_start'
+const TIMER_TOTAL_SECONDS = 900 // 15 minutes
 
 function loadSavedAnswers(): DiagnosticAnswer[] {
   if (typeof window === 'undefined') return []
@@ -32,6 +33,16 @@ function loadSavedAnswers(): DiagnosticAnswer[] {
   }
 }
 
+function loadTimerStart(): number | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const saved = localStorage.getItem(TIMER_START_KEY)
+    return saved ? Number(saved) : null
+  } catch {
+    return null
+  }
+}
+
 function saveAnswers(answers: DiagnosticAnswer[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(answers))
@@ -40,9 +51,10 @@ function saveAnswers(answers: DiagnosticAnswer[]): void {
   }
 }
 
-function clearSavedAnswers(): void {
+function clearSavedData(): void {
   try {
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(TIMER_START_KEY)
   } catch {
     // noop
   }
@@ -107,7 +119,10 @@ function computeResult(
 
   domainScores.sort((a, b) => a.domainCode.localeCompare(b.domainCode))
 
-  const overallScore = Math.round((correctCount / questions.length) * 100)
+  const overallScore =
+    questions.length > 0
+      ? Math.round((correctCount / questions.length) * 100)
+      : 0
 
   return {
     overallScore,
@@ -126,20 +141,26 @@ export function DiagnosticClient({
   const [answers, setAnswers] = useState<DiagnosticAnswer[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [answerResult, setAnswerResult] = useState<CheckAnswerResult | null>(null)
   const [isChecking, startCheck] = useTransition()
   const [result, setResult] = useState<DiagnosticResult | null>(null)
+  const [timerStartedAt, setTimerStartedAt] = useState<number | null>(null)
 
-  const isSubmitted = answerResult !== null
+  // Keep a ref to answers so handleTimerExpire always sees the latest value
+  const answersRef = useRef(answers)
+  useEffect(() => {
+    answersRef.current = answers
+  }, [answers])
 
   // Restore from localStorage on mount
   useEffect(() => {
     const saved = loadSavedAnswers()
+    const savedTimer = loadTimerStart()
     if (saved.length > 0 && saved.length < questions.length) {
       startTransition(() => {
         setAnswers(saved)
         setCurrentIndex(saved.length)
         setPhase('quiz')
+        if (savedTimer) setTimerStartedAt(savedTimer)
       })
     } else if (saved.length >= questions.length) {
       startTransition(() => {
@@ -156,21 +177,20 @@ export function DiagnosticClient({
 
   const handleSelect = useCallback(
     (key: string): void => {
-      if (isSubmitted || isChecking) return
+      if (isChecking) return
       setSelectedKey(key)
     },
-    [isSubmitted, isChecking]
+    [isChecking]
   )
 
-  function handleSubmitAnswer(): void {
-    if (!selectedKey || !currentQuestion || isSubmitted) return
+  function handleConfirmAndNext(): void {
+    if (!selectedKey || !currentQuestion || isChecking) return
 
     startCheck(async () => {
       const checkResult = await checkDiagnosticAnswer(
         currentQuestion.id,
         selectedKey
       )
-      setAnswerResult(checkResult)
 
       const answer: DiagnosticAnswer = {
         questionId: currentQuestion.id,
@@ -180,42 +200,54 @@ export function DiagnosticClient({
       }
 
       const newAnswers = [...answers, answer]
-      setAnswers(newAnswers)
       saveAnswers(newAnswers)
+
+      const nextIndex = currentIndex + 1
+      if (nextIndex >= questions.length) {
+        const res = computeResult(newAnswers, questions)
+        clearSavedData()
+        setAnswers(newAnswers)
+        setResult(res)
+        setPhase('results')
+      } else {
+        setAnswers(newAnswers)
+        setCurrentIndex(nextIndex)
+        setSelectedKey(null)
+      }
     })
   }
 
-  function handleNext(): void {
-    const nextIndex = currentIndex + 1
-
-    if (nextIndex >= questions.length) {
-      const res = computeResult(answers, questions)
-      setResult(res)
-      setPhase('results')
-      return
-    }
-
-    setCurrentIndex(nextIndex)
-    setSelectedKey(null)
-    setAnswerResult(null)
+  function handleTimerExpire(): void {
+    const currentAnswers = answersRef.current
+    const res = computeResult(currentAnswers, questions)
+    clearSavedData()
+    setResult(res)
+    setPhase('results')
   }
 
   function handleStart(): void {
+    const now = Date.now()
+    try {
+      localStorage.setItem(TIMER_START_KEY, String(now))
+    } catch {
+      // noop
+    }
+    setTimerStartedAt(now)
     setPhase('quiz')
   }
 
   function handleRestart(): void {
-    clearSavedAnswers()
+    clearSavedData()
     setAnswers([])
     setCurrentIndex(0)
     setSelectedKey(null)
-    setAnswerResult(null)
     setResult(null)
+    setTimerStartedAt(null)
     setPhase('intro')
   }
 
   function handleUnlock(): void {
-    clearSavedAnswers()
+    clearSavedData()
     setPhase('unlocked')
   }
 
@@ -227,14 +259,14 @@ export function DiagnosticClient({
           Security+ <span className="text-accent">Diagnostic</span>
         </h1>
         <p className="mx-auto mt-4 max-w-lg text-muted">
-          25 questions across all 5 exam domains. Find out where you stand in
-          about 5 minutes — no signup required.
+          10 questions across all 5 exam domains. Find out where you stand in
+          about 15 minutes — no signup required.
         </p>
 
         <div className="mt-8 grid grid-cols-1 gap-4 text-left sm:grid-cols-3">
           <div className="rounded-lg border border-border bg-surface p-4">
             <p className="font-heading text-2xl font-extrabold text-accent">
-              25
+              10
             </p>
             <p className="text-xs text-muted">Questions</p>
           </div>
@@ -246,9 +278,9 @@ export function DiagnosticClient({
           </div>
           <div className="rounded-lg border border-border bg-surface p-4">
             <p className="font-heading text-2xl font-extrabold text-accent">
-              ~5 min
+              15 min
             </p>
-            <p className="text-xs text-muted">Estimated Time</p>
+            <p className="text-xs text-muted">Time Limit</p>
           </div>
         </div>
 
@@ -264,8 +296,18 @@ export function DiagnosticClient({
 
   // --- Quiz ---
   if (phase === 'quiz' && currentQuestion) {
+    const isLastQuestion = currentIndex + 1 >= questions.length
     return (
       <div className="mx-auto max-w-2xl space-y-6">
+        {/* Timer */}
+        {timerStartedAt !== null && (
+          <DiagnosticTimer
+            totalSeconds={TIMER_TOTAL_SECONDS}
+            startedAt={timerStartedAt}
+            onExpire={handleTimerExpire}
+          />
+        )}
+
         {/* Progress */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted">
@@ -275,7 +317,7 @@ export function DiagnosticClient({
             <div
               className="h-full rounded-full bg-accent transition-all duration-300"
               style={{
-                width: `${((currentIndex + (isSubmitted ? 1 : 0)) / questions.length) * 100}%`,
+                width: `${(currentIndex / questions.length) * 100}%`,
               }}
             />
           </div>
@@ -299,50 +341,27 @@ export function DiagnosticClient({
               optionKey={option.key}
               text={option.text}
               isSelected={selectedKey === option.key}
-              isSubmitted={isSubmitted}
-              isCorrect={
-                isSubmitted
-                  ? option.key === answerResult?.correctKey
-                  : undefined
-              }
-              isSelectedWrong={
-                isSubmitted &&
-                selectedKey === option.key &&
-                !answerResult?.isCorrect
-              }
+              isSubmitted={false}
+              isCorrect={undefined}
+              isSelectedWrong={false}
               onClick={() => handleSelect(option.key)}
             />
           ))}
         </div>
 
-        {/* Explanation */}
-        {isSubmitted && answerResult && (
-          <ExplanationPanel
-            explanation={answerResult.explanation}
-            isCorrect={answerResult.isCorrect}
-          />
-        )}
-
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          {!isSubmitted ? (
-            <button
-              onClick={handleSubmitAnswer}
-              disabled={!selectedKey || isChecking}
-              className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity disabled:opacity-40"
-            >
-              {isChecking ? 'Checking...' : 'Submit Answer'}
-            </button>
-          ) : (
-            <button
-              onClick={handleNext}
-              className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
-            >
-              {currentIndex + 1 >= questions.length
+          <button
+            onClick={handleConfirmAndNext}
+            disabled={!selectedKey || isChecking}
+            className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity disabled:opacity-40"
+          >
+            {isChecking
+              ? 'Loading...'
+              : isLastQuestion
                 ? 'See Results'
                 : 'Next Question'}
-            </button>
-          )}
+          </button>
         </div>
       </div>
     )
