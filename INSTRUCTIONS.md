@@ -566,7 +566,7 @@ Execute in this exact order. Do not skip steps. Do not add features from later p
 - No admin dashboard
 - No email/password auth (Google OAuth only)
 - No mobile app
-- No AI-generated questions
+- No fully AI-generated questions — AI-assisted drafting is allowed, but every question must be human-reviewed and validated before publishing
 - No community features (forums, comments)
 - No multiple languages
 - No team/enterprise plans
