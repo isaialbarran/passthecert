@@ -82,7 +82,7 @@ Two clients in `shared/lib/supabase.ts`:
 - `createBrowserClient()` — for client components
 - `createClient()` — async, for Server Components and Server Actions (uses `cookies()`)
 
-Env var for the anon key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` (not the usual `NEXT_PUBLIC_SUPABASE_ANON_KEY`). See `.env.example` for all required env vars.
+Env var for the anon key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` (not the usual `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
 
 ## Subagent rules (Task tool)
 
