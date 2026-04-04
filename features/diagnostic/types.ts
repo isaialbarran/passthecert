@@ -12,8 +12,6 @@ export interface DiagnosticQuestion {
 
 export interface CheckAnswerResult {
   isCorrect: boolean
-  correctKey: string
-  explanation: string
 }
 
 export interface DiagnosticAnswer {
