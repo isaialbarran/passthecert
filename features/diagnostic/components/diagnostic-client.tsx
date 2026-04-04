@@ -160,8 +160,8 @@ export function DiagnosticClient({
         setAnswers(saved)
         setCurrentIndex(saved.length)
         setPhase('quiz')
-        // Fall back to now if timer key was lost — timer will show full 15 min
-        setTimerStartedAt(savedTimer ?? Date.now())
+        // Fall back to now if timer key was lost or invalid — timer will show full 15 min
+        setTimerStartedAt(Number.isFinite(savedTimer) ? savedTimer : Date.now())
       })
     } else if (saved.length >= questions.length) {
       startTransition(() => {
