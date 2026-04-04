@@ -1,5 +1,6 @@
 import { stripe } from '@/shared/lib/stripe'
 import { createAdminClient } from '@/shared/lib/supabase'
+import { serverEnv } from '@/shared/lib/env'
 import type Stripe from 'stripe'
 
 export async function POST(request: Request) {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     event = stripe().webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      serverEnv().STRIPE_WEBHOOK_SECRET
     )
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
@@ -54,20 +55,31 @@ export async function POST(request: Request) {
       const customerId = subscription.customer as string
 
       const isActive = subscription.status === 'active' || subscription.status === 'trialing'
-      const status = isActive ? 'active' : 'past_due'
-      const tier = isActive ? 'pro' : 'free'
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          subscription_status: status,
-          subscription_tier: tier,
-        })
-        .eq('stripe_customer_id', customerId)
+      if (isActive) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            subscription_status: 'active',
+            subscription_tier: 'pro',
+          })
+          .eq('stripe_customer_id', customerId)
 
-      if (error) {
-        return new Response('DB update failed', { status: 500 })
+        if (error) {
+          return new Response('DB update failed', { status: 500 })
+        }
+      } else if (subscription.status === 'past_due') {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ subscription_status: 'past_due' })
+          .eq('stripe_customer_id', customerId)
+
+        if (error) {
+          return new Response('DB update failed', { status: 500 })
+        }
       }
+      // Ignore other statuses (incomplete, incomplete_expired) to avoid
+      // overwriting 'active' set by checkout.session.completed
       break
     }
 

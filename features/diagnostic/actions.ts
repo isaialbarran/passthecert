@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient, createAdminClient } from '@/shared/lib/supabase'
+import { createAdminClient } from '@/shared/lib/supabase'
 import { resend } from '@/shared/lib/resend'
 import { diagnosticLeadSchema, checkAnswerSchema } from './schemas'
 import { buildDiagnosticReportEmail } from './emails/diagnostic-report'
@@ -20,7 +20,7 @@ export async function checkDiagnosticAnswer(
     return { isCorrect: false }
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: question, error } = await supabase
     .from('questions')

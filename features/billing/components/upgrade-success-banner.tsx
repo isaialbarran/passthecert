@@ -1,24 +1,28 @@
 'use client'
 
 import type { JSX } from 'react'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { checkIsPro } from '../actions'
 
-const MAX_ATTEMPTS = 15 // 15 × 2s = 30 seconds
+const MAX_ATTEMPTS = 30 // 30 × 2s = 60 seconds
 
 export function UpgradeSuccessBanner(): JSX.Element {
   const router = useRouter()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [timedOut, setTimedOut] = useState(false)
 
-  useEffect(() => {
+  const startPolling = useCallback(() => {
+    setTimedOut(false)
     let attempts = 0
+
+    if (intervalRef.current) clearInterval(intervalRef.current)
 
     intervalRef.current = setInterval(async () => {
       attempts++
       if (attempts >= MAX_ATTEMPTS) {
         if (intervalRef.current) clearInterval(intervalRef.current)
-        router.replace('/dashboard')
+        setTimedOut(true)
         return
       }
       try {
@@ -32,11 +36,38 @@ export function UpgradeSuccessBanner(): JSX.Element {
         // Network error — let the next interval attempt retry
       }
     }, 2000)
+  }, [router])
 
+  useEffect(() => {
+    startPolling()
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [router])
+  }, [startPolling])
+
+  if (timedOut) {
+    return (
+      <div className="rounded-lg border border-accent/40 bg-surface p-6 text-center">
+        <h2 className="font-heading text-xl font-extrabold">
+          Taking longer than expected
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          Your payment was received but activation is still processing.
+          Try refreshing — if the issue persists, contact support.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            router.refresh()
+            startPolling()
+          }}
+          className="mt-4 rounded-lg bg-accent px-6 py-2 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-lg border border-accent/40 bg-surface p-6 text-center">

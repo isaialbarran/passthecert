@@ -34,14 +34,14 @@ export async function startQuizSession(
 
   const { data: exam } = await supabase
     .from('exams')
-    .select('id')
+    .select('id, total_questions')
     .eq('slug', examSlug)
     .single()
 
   if (!exam) throw new Error('Exam not found')
 
   const totalQuestions =
-    mode === 'random_10' ? 10 : mode === 'full_exam' ? 90 : 10
+    mode === 'random_10' ? 10 : mode === 'full_exam' ? exam.total_questions : 10
 
   const { data: session, error } = await supabase
     .from('quiz_sessions')
@@ -55,7 +55,7 @@ export async function startQuizSession(
     .select()
     .single()
 
-  if (error) throw new Error(error.message)
+  if (error) throw new Error('Failed to create quiz session. Please try again.')
 
   const firstQuestion = await getNextQuestionForSession(
     supabase,
@@ -153,18 +153,9 @@ export async function submitAnswer(
     session_id: sessionId,
   })
 
-  // Update session correct count
+  // Update session correct count atomically to prevent race conditions
   if (isCorrect) {
-    const { data: session } = await supabase
-      .from('quiz_sessions')
-      .select('correct_count')
-      .eq('id', sessionId)
-      .single()
-
-    await supabase
-      .from('quiz_sessions')
-      .update({ correct_count: (session?.correct_count ?? 0) + 1 })
-      .eq('id', sessionId)
+    await supabase.rpc('increment_correct_count', { session_id: sessionId })
   }
 
   // Update readiness score

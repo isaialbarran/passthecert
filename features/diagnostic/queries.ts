@@ -1,10 +1,10 @@
-import { createClient } from '@/shared/lib/supabase'
+import { createAdminClient } from '@/shared/lib/supabase'
 import type { DiagnosticQuestion } from './types'
 
 export async function getDiagnosticQuestions(
   examSlug: string
 ): Promise<DiagnosticQuestion[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: exam, error: examError } = await supabase
     .from('exams')
@@ -69,7 +69,7 @@ interface DomainInfo {
 }
 
 export async function getDomains(examSlug: string): Promise<DomainInfo[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: exam } = await supabase
     .from('exams')

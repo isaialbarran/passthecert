@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { clientEnv } from '@/shared/lib/env'
 
 const protectedPaths = ['/dashboard', '/quiz']
 const authPaths = ['/auth/login', '/auth/signup', '/auth/forgot-password']
@@ -8,11 +9,12 @@ const authPaths = ['/auth/login', '/auth/signup', '/auth/forgot-password']
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  const env = clientEnv()
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
     {
       cookies: {
         getAll() {

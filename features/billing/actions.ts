@@ -2,6 +2,7 @@
 
 import { createClient } from '@/shared/lib/supabase'
 import { stripe } from '@/shared/lib/stripe'
+import { serverEnv } from '@/shared/lib/env'
 import { requireAuth } from '@/features/auth'
 import { redirect } from 'next/navigation'
 import { isPro } from './queries'
@@ -39,12 +40,12 @@ export async function createCheckoutSession() {
     mode: 'subscription',
     line_items: [
       {
-        price: process.env.STRIPE_PRO_PRICE_ID!,
+        price: serverEnv().STRIPE_PRO_PRICE_ID,
         quantity: 1,
       },
     ],
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?upgraded=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+    success_url: `${serverEnv().NEXT_PUBLIC_APP_URL}/dashboard?upgraded=true`,
+    cancel_url: `${serverEnv().NEXT_PUBLIC_APP_URL}/dashboard`,
     metadata: { supabase_user_id: user.id },
   })
 

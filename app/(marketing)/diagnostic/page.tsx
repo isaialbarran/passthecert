@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { getDiagnosticQuestions } from '@/features/diagnostic/queries'
 import { DiagnosticClient } from '@/features/diagnostic/components/diagnostic-client'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Free Security+ Diagnostic — PassTheCert',
   description:
