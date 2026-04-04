@@ -1,0 +1,63 @@
+name: Architect Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  architect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Architect Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          model: 'sonnet'
+          direct_prompt: |
+            You are acting as the Software Architect agent for this project.
+
+            First, read CLAUDE.md and INSTRUCTIONS.md to understand the project rules.
+
+            Then get the list of files changed in this PR:
+              git diff --name-only origin/${{ github.base_ref }}...HEAD
+
+            Review those files for:
+            1. **Architecture violations** — logic in app/ routes, cross-feature internal imports (only index.ts is public), missing queries.ts / types.ts / index.ts structure inside features/
+            2. **Security issues** — RLS bypass, SUPABASE_SERVICE_ROLE_KEY exposed to client, Server Actions missing Zod validation before DB access, unhandled Supabase errors
+            3. **Code standard violations** — use of `any`, `@ts-ignore`, `console.log`, inline styles, missing explicit return types, dependencies outside the approved stack
+            4. **Design system violations** — hardcoded color values instead of CSS variables from globals.css
+
+            Post a single comment on this PR with your findings. Use this exact format:
+
+            ## 🏛️ Architect Review
+
+            ### Architecture
+            (findings or ✅ No issues)
+
+            ### Security
+            (findings or ✅ No issues)
+
+            ### Code Standards
+            (findings or ✅ No issues)
+
+            ### Design System
+            (findings or ✅ No issues)
+
+            ---
+            For each finding use:
+            - 🔴 **Blocker** — must fix before merge
+            - 🟡 **Warning** — should fix
+            - 💡 **Suggestion** — optional improvement
+
+            If all sections are clean, post only: "## ✅ Architecture looks good — no issues found."
+          allowed_tools: 'Bash(git diff*),Bash(git log*),Read,Grep,Glob'
