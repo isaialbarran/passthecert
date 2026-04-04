@@ -1,4 +1,4 @@
-import { createCheckoutSession } from '@/features/billing'
+import { createCheckoutSession } from '../actions'
 
 export function UpgradeBanner(): React.JSX.Element {
   return (
