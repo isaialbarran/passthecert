@@ -47,7 +47,7 @@ This repo runs Next.js 16, which may have breaking changes vs. your training dat
 
 ```
 app/                    # Routes only — no business logic
-  (marketing)/          # Public: landing, pricing, diagnostic
+  (marketing)/          # Public: landing, pricing
   (auth)/               # Login, signup, callback
   (app)/                # Protected: dashboard, quiz
   api/webhooks/stripe/  # Stripe webhook handler
