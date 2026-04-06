@@ -1,5 +1,6 @@
 'use server'
 
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@/shared/lib/supabase'
 import { requireAuth } from '@/features/auth'
 import { calculateSM2 } from './sm2'
@@ -224,8 +225,7 @@ export async function completeSession(sessionId: string) {
 }
 
 async function getNextQuestionForSession(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- query builder needs flexible typing for chained .select()
-  supabase: any,
+  supabase: SupabaseClient,
   userId: string,
   examId: string,
   sessionId: string,
@@ -271,19 +271,21 @@ async function getNextQuestionForSession(
   // Returns a fresh query builder each call to avoid mutation leakage
   // (Supabase's PostgrestFilterBuilder is mutable — reusing one builder
   //  for both count and data fetch causes head:true to stick)
-  const buildQuery = () => {
+  const buildQuery = (opts?: { countOnly: boolean }) => {
+    const columns = opts?.countOnly ? 'id' : '*'
+    const selectOpts = opts?.countOnly ? { count: 'exact' as const, head: true } : undefined
+
     if (mode === 'review_mistakes' && reviewFilteredIds) {
       return supabase
         .from('questions')
-        .select('*')
+        .select(columns, selectOpts)
         .in('id', reviewFilteredIds)
         .eq('is_active', true)
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- query builder needs flexible typing for chained filters
-    let q: any = supabase
+    let q = supabase
       .from('questions')
-      .select('*')
+      .select(columns, selectOpts)
       .eq('exam_id', examId)
       .eq('is_active', true)
 
@@ -298,15 +300,17 @@ async function getNextQuestionForSession(
     return q
   }
 
-  const { count } = await buildQuery().select('*', { count: 'exact', head: true })
+  const { count, error: countError } = await buildQuery({ countOnly: true })
 
+  if (countError) throw new Error('Failed to count available questions.')
   if (!count || count === 0) return null
 
   const randomOffset = Math.floor(Math.random() * count)
 
-  const { data: questions } = await buildQuery()
+  const { data: questions, error: fetchError } = await buildQuery()
     .range(randomOffset, randomOffset)
-    .limit(1)
+
+  if (fetchError) throw new Error('Failed to fetch next question.')
 
   return questions?.[0] ?? null
 }
