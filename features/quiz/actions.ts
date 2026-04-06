@@ -1,5 +1,6 @@
 'use server'
 
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@/shared/lib/supabase'
 import { requireAuth } from '@/features/auth'
 import { calculateSM2 } from './sm2'
@@ -224,8 +225,7 @@ export async function completeSession(sessionId: string) {
 }
 
 async function getNextQuestionForSession(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- query builder needs flexible typing for chained .select()
-  supabase: any,
+  supabase: SupabaseClient,
   userId: string,
   examId: string,
   sessionId: string,
@@ -242,20 +242,8 @@ async function getNextQuestionForSession(
     (r: { question_id: string }) => r.question_id
   )
 
-  let query = supabase
-    .from('questions')
-    .select('*')
-    .eq('exam_id', examId)
-    .eq('is_active', true)
-
-  if (answeredIds.length > 0) {
-    query = query.not('id', 'in', `(${answeredIds.join(',')})`)
-  }
-
-  if (mode === 'domain_focus' && domainId) {
-    query = query.eq('domain_id', domainId)
-  }
-
+  // Pre-compute review_mistakes filter IDs (async, with early returns)
+  let reviewFilteredIds: string[] | null = null
   if (mode === 'review_mistakes') {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -273,28 +261,56 @@ async function getNextQuestionForSession(
 
     if (wrongIds.length === 0) return null
 
-    const filteredIds = wrongIds.filter(
+    const filtered = wrongIds.filter(
       (id: string) => !answeredIds.includes(id)
     )
-    if (filteredIds.length === 0) return null
-
-    query = supabase
-      .from('questions')
-      .select('*')
-      .in('id', filteredIds)
-      .eq('is_active', true)
+    if (filtered.length === 0) return null
+    reviewFilteredIds = filtered
   }
 
-  // Random ordering via limit 1 with random offset
-  const { count } = await query.select('*', { count: 'exact', head: true })
+  // Returns a fresh query builder each call to avoid mutation leakage
+  // (Supabase's PostgrestFilterBuilder is mutable — reusing one builder
+  //  for both count and data fetch causes head:true to stick)
+  const buildQuery = (opts?: { countOnly: boolean }) => {
+    const columns = opts?.countOnly ? 'id' : '*'
+    const selectOpts = opts?.countOnly ? { count: 'exact' as const, head: true } : undefined
 
+    if (mode === 'review_mistakes' && reviewFilteredIds) {
+      return supabase
+        .from('questions')
+        .select(columns, selectOpts)
+        .in('id', reviewFilteredIds)
+        .eq('is_active', true)
+    }
+
+    let q = supabase
+      .from('questions')
+      .select(columns, selectOpts)
+      .eq('exam_id', examId)
+      .eq('is_active', true)
+
+    if (answeredIds.length > 0) {
+      q = q.not('id', 'in', `(${answeredIds.join(',')})`)
+    }
+
+    if (mode === 'domain_focus' && domainId) {
+      q = q.eq('domain_id', domainId)
+    }
+
+    return q
+  }
+
+  const { count, error: countError } = await buildQuery({ countOnly: true })
+
+  if (countError) throw new Error('Failed to count available questions.')
   if (!count || count === 0) return null
 
   const randomOffset = Math.floor(Math.random() * count)
 
-  const { data: questions } = await query
+  const { data: questions, error: fetchError } = await buildQuery()
     .range(randomOffset, randomOffset)
-    .limit(1)
+
+  if (fetchError) throw new Error('Failed to fetch next question.')
 
   return questions?.[0] ?? null
 }
