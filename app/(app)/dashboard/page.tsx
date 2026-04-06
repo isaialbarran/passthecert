@@ -52,6 +52,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </p>
       </div>
 
+      {upgraded === 'true' && !userIsPro && <UpgradeSuccessBanner />}
+      {userIsPro ? (
+        <StartPracticeCta examSlug={exam.slug} />
+      ) : (
+        <UpgradeBanner />
+      )}
+
       <div className="grid gap-6 md:grid-cols-3">
         <ReadinessCard score={readiness?.overall_score ?? 0} />
         <StudyStreak streak={streak} />
@@ -66,15 +73,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       </div>
 
-      <DomainMastery domains={domainMastery} />
+      <DomainMastery domains={domainMastery} examSlug={exam.slug} />
       <RecentSessions sessions={recentSessions} />
-      {upgraded === 'true' && !userIsPro ? (
-        <UpgradeSuccessBanner />
-      ) : userIsPro ? (
-        <StartPracticeCta examSlug={exam.slug} />
-      ) : (
-        <UpgradeBanner />
-      )}
     </div>
   )
 }
