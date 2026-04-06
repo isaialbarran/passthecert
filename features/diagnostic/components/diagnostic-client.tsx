@@ -37,7 +37,9 @@ function loadTimerStart(): number | null {
   if (typeof window === 'undefined') return null
   try {
     const saved = localStorage.getItem(TIMER_START_KEY)
-    return saved ? Number(saved) : null
+    if (!saved) return null
+    const parsed = Number(saved)
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null
   } catch {
     return null
   }
@@ -147,6 +149,8 @@ export function DiagnosticClient({
 
   // Keep a ref to answers so handleTimerExpire always sees the latest value
   const answersRef = useRef(answers)
+  // Guard against timer-expiry and submission racing to set results
+  const isFinishedRef = useRef(false)
   useEffect(() => {
     answersRef.current = answers
   }, [answers])
@@ -160,8 +164,8 @@ export function DiagnosticClient({
         setAnswers(saved)
         setCurrentIndex(saved.length)
         setPhase('quiz')
-        // Fall back to now if timer key was lost — timer will show full 10 min
-        setTimerStartedAt(savedTimer ?? Date.now())
+        // Fall back to now if timer key was lost or invalid — timer will show full 10 min
+        setTimerStartedAt(Number.isFinite(savedTimer) ? savedTimer : Date.now())
       })
     } else if (saved.length >= questions.length) {
       startTransition(() => {
@@ -205,6 +209,8 @@ export function DiagnosticClient({
 
       const nextIndex = currentIndex + 1
       if (nextIndex >= questions.length) {
+        if (isFinishedRef.current) return
+        isFinishedRef.current = true
         const res = computeResult(newAnswers, questions)
         clearSavedData()
         setAnswers(newAnswers)
@@ -219,6 +225,8 @@ export function DiagnosticClient({
   }
 
   function handleTimerExpire(): void {
+    if (isFinishedRef.current) return
+    isFinishedRef.current = true
     const currentAnswers = answersRef.current
     const res = computeResult(currentAnswers, questions)
     clearSavedData()
@@ -240,6 +248,7 @@ export function DiagnosticClient({
 
   function handleRestart(): void {
     clearSavedData()
+    isFinishedRef.current = false
     setAnswers([])
     setCurrentIndex(0)
     setSelectedKey(null)
