@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { createCheckoutSession } from '../actions'
+import { createCheckoutAndRedirect } from '../actions'
 import { PRICE_LABEL } from '../constants'
 
 export function UpgradeBanner(): JSX.Element {
@@ -23,7 +23,7 @@ export function UpgradeBanner(): JSX.Element {
         CompTIA Security+ (SY0-701) — unlimited questions, every study mode,
         full 90-minute practice exam, and adaptive spaced repetition.
       </p>
-      <form action={createCheckoutSession} className="mt-6">
+      <form action={createCheckoutAndRedirect} className="mt-6">
         <button
           type="submit"
           className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"

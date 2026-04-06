@@ -1,34 +1,38 @@
 import { createClient } from '@/shared/lib/supabase'
+import type { SubscriptionStatus } from './types'
 
 export async function isPro(userId: string): Promise<boolean> {
   const supabase = await createClient()
 
   const { data } = await supabase
     .from('profiles')
-    .select('subscription_tier, subscription_status')
+    .select('subscription_status')
     .eq('id', userId)
     .single()
 
-  return (
-    data?.subscription_tier === 'pro' && data?.subscription_status === 'active'
-  )
+  return data?.subscription_status === 'active'
 }
 
-export async function getSubscriptionStatus(userId: string) {
+export async function getSubscriptionStatus(
+  userId: string
+): Promise<SubscriptionStatus> {
   const supabase = await createClient()
 
   const { data } = await supabase
     .from('profiles')
-    .select(
-      'subscription_tier, subscription_status, stripe_customer_id, trial_ends_at'
-    )
+    .select('subscription_status')
     .eq('id', userId)
     .single()
 
-  return data
+  if (!data?.subscription_status) return null
+
+  const status = data.subscription_status as SubscriptionStatus
+  return status
 }
 
-export async function getDailyQuestionCount(userId: string): Promise<number> {
+export async function getDailyQuestionCount(
+  userId: string
+): Promise<number> {
   const supabase = await createClient()
 
   const todayStart = new Date()

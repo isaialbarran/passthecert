@@ -1,7 +1,7 @@
 'use client'
 
 import type { DiagnosticResult } from '../types'
-import { createCheckoutSession } from '@/features/billing/actions'
+import { createCheckoutAndRedirect } from '@/features/billing/actions'
 import { PRICE_LABEL } from '@/features/billing/constants'
 
 interface DiagnosticResultsProps {
@@ -97,7 +97,7 @@ export function DiagnosticResults({
             </span>
             . Start there with targeted practice.
           </p>
-          <form action={createCheckoutSession} className="inline-block">
+          <form action={createCheckoutAndRedirect} className="inline-block">
             <button
               type="submit"
               className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
