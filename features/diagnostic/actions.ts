@@ -70,9 +70,9 @@ export async function submitDiagnosticLead(
       domainId: d.id,
       domainName: d.name,
       domainCode: d.code,
-      correct: Math.round((domainScores[d.id] / 100) * 5),
-      total: 5,
-      percentage: domainScores[d.id],
+      correct: domainScores[d.id].correct,
+      total: domainScores[d.id].total,
+      percentage: domainScores[d.id].percentage,
     }))
 
   const weakestDomain = domains.find((d) => d.id === weakestDomainId)
