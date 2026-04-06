@@ -18,9 +18,13 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
     e.preventDefault()
     setError(null)
 
-    const domainScores: Record<string, number> = {}
+    const domainScores: Record<string, { percentage: number; correct: number; total: number }> = {}
     for (const ds of result.domainScores) {
-      domainScores[ds.domainId] = ds.percentage
+      domainScores[ds.domainId] = {
+        percentage: ds.percentage,
+        correct: ds.correct,
+        total: ds.total,
+      }
     }
 
     startTransition(async () => {
