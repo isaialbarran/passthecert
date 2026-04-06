@@ -115,11 +115,12 @@ export async function getQuestionsMastered(userId: string) {
 
 export async function getWrongAnswersCount(userId: string): Promise<number> {
   const supabase = await createClient()
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from('user_responses')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('is_correct', false)
+  if (error) console.error('[getWrongAnswersCount]', error)
   return count ?? 0
 }
 

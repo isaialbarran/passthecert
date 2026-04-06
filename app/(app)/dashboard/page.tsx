@@ -6,8 +6,8 @@ import {
   getStudyStreak,
   getQuestionsMastered,
   getWrongAnswersCount,
+  DashboardGreeting,
 } from '@/features/progress'
-import { DashboardGreeting } from '@/features/progress/components/dashboard-greeting'
 import { DomainMastery } from '@/features/progress/components/domain-mastery'
 import { StartPracticeCta } from '@/features/progress/components/start-practice-cta'
 import { isPro, UpgradeBanner, UpgradeSuccessBanner } from '@/features/billing'
@@ -23,7 +23,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const { data: exam } = await supabase
     .from('exams')
-    .select('id, slug')
+    .select('id, slug, name')
     .eq('slug', 'comptia-security-plus')
     .single()
 
@@ -51,6 +51,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     <div className="space-y-8">
       <DashboardGreeting
         firstName={firstName}
+        examName={exam.name}
         readinessScore={readiness?.overall_score ?? 0}
         streak={streak}
         mastered={mastered}

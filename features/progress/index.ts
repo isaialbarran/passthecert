@@ -7,3 +7,4 @@ export {
   getWrongAnswersCount,
 } from './queries'
 export { updateReadinessScore } from './actions'
+export { DashboardGreeting } from './components/dashboard-greeting'

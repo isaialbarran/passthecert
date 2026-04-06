@@ -1,9 +1,11 @@
 'use client'
 
+import { useSyncExternalStore } from 'react'
 import type { JSX } from 'react'
 
 interface DashboardGreetingProps {
   firstName: string
+  examName: string
   readinessScore: number
   streak: number
   mastered: number
@@ -23,11 +25,18 @@ function getReadinessLabel(score: number): string {
 
 export function DashboardGreeting({
   firstName,
+  examName,
   readinessScore,
   streak,
   mastered,
 }: DashboardGreetingProps): JSX.Element {
-  const greeting = getGreeting(new Date().getHours())
+  // useSyncExternalStore gives '' on the server (preventing hydration mismatch)
+  // and the real greeting on the client after mount.
+  const greeting = useSyncExternalStore(
+    () => () => {},
+    () => getGreeting(new Date().getHours()),
+    () => '',
+  )
 
   return (
     <div className="rounded-lg border border-border bg-surface p-6">
@@ -36,7 +45,7 @@ export function DashboardGreeting({
           <h1 className="font-heading text-3xl font-extrabold">
             {greeting}, {firstName}
           </h1>
-          <p className="mt-1 text-sm text-muted">CompTIA Security+ (SY0-701)</p>
+          <p className="mt-1 text-sm text-muted">{examName}</p>
           <div className="mt-3 flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs text-muted">
               🔥 <span className="font-medium text-foreground">{streak}</span> day streak

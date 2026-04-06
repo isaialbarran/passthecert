@@ -21,10 +21,11 @@ export async function requireAuth(next?: string) {
 
 export const getProfile = cache(async (userId: string) => {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .select('full_name, email')
     .eq('id', userId)
     .single()
+  if (error) console.error('[getProfile]', error)
   return data
 })

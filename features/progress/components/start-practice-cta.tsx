@@ -1,11 +1,12 @@
 import Link from 'next/link'
+import type { JSX } from 'react'
 
 interface StartPracticeCtaProps {
   examSlug: string
   hasMistakes: boolean
 }
 
-export function StartPracticeCta({ examSlug, hasMistakes }: StartPracticeCtaProps) {
+export function StartPracticeCta({ examSlug, hasMistakes }: StartPracticeCtaProps): JSX.Element {
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-8">
       <h3 className="font-heading text-xl font-extrabold">
