@@ -1,6 +1,5 @@
 'use server'
 
-import { z } from 'zod'
 import { createClient } from '@/shared/lib/supabase'
 import { stripe } from '@/shared/lib/stripe'
 import { serverEnv } from '@/shared/lib/env'
@@ -8,20 +7,11 @@ import { requireAuth } from '@/features/auth'
 import { redirect } from 'next/navigation'
 import { isPro } from './queries'
 
-const checkoutSchema = z.object({
-  priceId: z.string().startsWith('price_', 'Invalid price ID'),
-})
-
-export async function createCheckoutSession(
-  priceId?: string
-): Promise<{ url: string }> {
+export async function createCheckoutSession(): Promise<{ url: string }> {
   const user = await requireAuth()
   const supabase = await createClient()
 
   const env = serverEnv()
-  const validatedPriceId = checkoutSchema.parse({
-    priceId: priceId ?? env.STRIPE_PRO_PRICE_ID,
-  }).priceId
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -57,7 +47,7 @@ export async function createCheckoutSession(
     mode: 'subscription',
     line_items: [
       {
-        price: validatedPriceId,
+        price: env.STRIPE_PRO_PRICE_ID,
         quantity: 1,
       },
     ],

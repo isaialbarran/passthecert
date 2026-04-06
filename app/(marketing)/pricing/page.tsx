@@ -1,5 +1,5 @@
 import { getUser } from '@/features/auth'
-import { checkIsPro, createCheckoutSession } from '@/features/billing'
+import { checkIsPro, createCheckoutAndRedirect } from '@/features/billing'
 import Link from 'next/link'
 
 const FEATURES = [
@@ -90,12 +90,7 @@ function PricingCta({
   }
 
   return (
-    <form
-      action={async (): Promise<void> => {
-        'use server'
-        await createCheckoutSession()
-      }}
-    >
+    <form action={createCheckoutAndRedirect}>
       <button
         type="submit"
         className="mt-8 w-full cursor-pointer rounded-lg bg-accent py-3 text-center text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
