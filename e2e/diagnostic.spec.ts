@@ -32,21 +32,21 @@ test.describe('Diagnostic quiz', () => {
     }, [ANSWERS_KEY, TIMER_KEY])
   })
 
-  test('TC-01: intro muestra 10 preguntas, 5 dominios y 15 min', async ({ page }) => {
+  test('TC-01: intro muestra 10 preguntas, 5 dominios y 10 min', async ({ page }) => {
     await gotoIntro(page)
     await expect(page.getByRole('heading', { name: /Security\+ Diagnostic/i })).toBeVisible()
     // Use exact match to avoid strict-mode violation with "10 questions across..." paragraph
     await expect(page.getByText('10', { exact: true })).toBeVisible()
     await expect(page.getByText('5', { exact: true })).toBeVisible()
-    await expect(page.getByText('15 min', { exact: true })).toBeVisible()
+    await expect(page.getByText('10 min', { exact: true })).toBeVisible()
   })
 
   test('TC-02: timer aparece en esquina superior derecha al iniciar', async ({ page }) => {
     await startQuiz(page)
     await expect(page.getByText('Time Remaining')).toBeVisible()
-    // Timer starts near 15:00 — matches 14:xx or 15:00
+    // Timer starts near 10:00 — matches 09:xx or 10:00
     const timerText = await page.locator('p.tabular-nums').textContent()
-    expect(timerText).toMatch(/^1[45]:/)
+    expect(timerText).toMatch(/^(10:00|09:)/)
   })
 
   test('TC-03: responder pregunta no muestra feedback — carga siguiente de inmediato', async ({

@@ -21,7 +21,7 @@ interface DiagnosticClientProps {
 
 const STORAGE_KEY = 'diagnostic_answers'
 const TIMER_START_KEY = 'diagnostic_timer_start'
-const TIMER_TOTAL_SECONDS = 900 // 15 minutes
+const TIMER_TOTAL_SECONDS = 600 // 10 minutes
 
 function loadSavedAnswers(): DiagnosticAnswer[] {
   if (typeof window === 'undefined') return []
@@ -160,7 +160,7 @@ export function DiagnosticClient({
         setAnswers(saved)
         setCurrentIndex(saved.length)
         setPhase('quiz')
-        // Fall back to now if timer key was lost — timer will show full 15 min
+        // Fall back to now if timer key was lost — timer will show full 10 min
         setTimerStartedAt(savedTimer ?? Date.now())
       })
     } else if (saved.length >= questions.length) {
@@ -262,7 +262,7 @@ export function DiagnosticClient({
         </h1>
         <p className="mx-auto mt-4 max-w-lg text-muted">
           10 questions across all 5 exam domains. Find out where you stand in
-          about 15 minutes — no signup required.
+          about 10 minutes — no signup required.
         </p>
 
         <div className="mt-8 grid grid-cols-1 gap-4 text-left sm:grid-cols-3">
@@ -280,7 +280,7 @@ export function DiagnosticClient({
           </div>
           <div className="rounded-lg border border-border bg-surface p-4">
             <p className="font-heading text-2xl font-extrabold text-accent">
-              15 min
+              10 min
             </p>
             <p className="text-xs text-muted">Time Limit</p>
           </div>
