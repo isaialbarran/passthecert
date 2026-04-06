@@ -242,20 +242,8 @@ async function getNextQuestionForSession(
     (r: { question_id: string }) => r.question_id
   )
 
-  let query = supabase
-    .from('questions')
-    .select('*')
-    .eq('exam_id', examId)
-    .eq('is_active', true)
-
-  if (answeredIds.length > 0) {
-    query = query.not('id', 'in', `(${answeredIds.join(',')})`)
-  }
-
-  if (mode === 'domain_focus' && domainId) {
-    query = query.eq('domain_id', domainId)
-  }
-
+  // Pre-compute review_mistakes filter IDs (async, with early returns)
+  let reviewFilteredIds: string[] | null = null
   if (mode === 'review_mistakes') {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -273,26 +261,50 @@ async function getNextQuestionForSession(
 
     if (wrongIds.length === 0) return null
 
-    const filteredIds = wrongIds.filter(
+    const filtered = wrongIds.filter(
       (id: string) => !answeredIds.includes(id)
     )
-    if (filteredIds.length === 0) return null
-
-    query = supabase
-      .from('questions')
-      .select('*')
-      .in('id', filteredIds)
-      .eq('is_active', true)
+    if (filtered.length === 0) return null
+    reviewFilteredIds = filtered
   }
 
-  // Random ordering via limit 1 with random offset
-  const { count } = await query.select('*', { count: 'exact', head: true })
+  // Returns a fresh query builder each call to avoid mutation leakage
+  // (Supabase's PostgrestFilterBuilder is mutable — reusing one builder
+  //  for both count and data fetch causes head:true to stick)
+  const buildQuery = () => {
+    if (mode === 'review_mistakes' && reviewFilteredIds) {
+      return supabase
+        .from('questions')
+        .select('*')
+        .in('id', reviewFilteredIds)
+        .eq('is_active', true)
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- query builder needs flexible typing for chained filters
+    let q: any = supabase
+      .from('questions')
+      .select('*')
+      .eq('exam_id', examId)
+      .eq('is_active', true)
+
+    if (answeredIds.length > 0) {
+      q = q.not('id', 'in', `(${answeredIds.join(',')})`)
+    }
+
+    if (mode === 'domain_focus' && domainId) {
+      q = q.eq('domain_id', domainId)
+    }
+
+    return q
+  }
+
+  const { count } = await buildQuery().select('*', { count: 'exact', head: true })
 
   if (!count || count === 0) return null
 
   const randomOffset = Math.floor(Math.random() * count)
 
-  const { data: questions } = await query
+  const { data: questions } = await buildQuery()
     .range(randomOffset, randomOffset)
     .limit(1)
 
