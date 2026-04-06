@@ -1,16 +1,14 @@
-import { requireAuth } from '@/features/auth'
+import { requireAuth, getProfile } from '@/features/auth'
 import { createClient } from '@/shared/lib/supabase'
 import {
   getReadinessScore,
   getDomainMastery,
   getStudyStreak,
   getQuestionsMastered,
-  getRecentSessions,
+  getWrongAnswersCount,
+  DashboardGreeting,
 } from '@/features/progress'
-import { ReadinessCard } from '@/features/progress/components/readiness-card'
 import { DomainMastery } from '@/features/progress/components/domain-mastery'
-import { StudyStreak } from '@/features/progress/components/study-streak'
-import { RecentSessions } from '@/features/progress/components/recent-sessions'
 import { StartPracticeCta } from '@/features/progress/components/start-practice-cta'
 import { isPro, UpgradeBanner, UpgradeSuccessBanner } from '@/features/billing'
 
@@ -25,7 +23,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const { data: exam } = await supabase
     .from('exams')
-    .select('id, slug')
+    .select('id, slug, name')
     .eq('slug', 'comptia-security-plus')
     .single()
 
@@ -33,48 +31,40 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     return <p className="text-muted">No exam configured.</p>
   }
 
-  const [readiness, domainMastery, streak, mastered, recentSessions, userIsPro] =
+  const [readiness, domainMastery, streak, mastered, wrongAnswersCount, userIsPro, profile] =
     await Promise.all([
       getReadinessScore(user.id, exam.id),
       getDomainMastery(user.id, exam.id),
       getStudyStreak(user.id),
       getQuestionsMastered(user.id),
-      getRecentSessions(user.id),
+      getWrongAnswersCount(user.id),
       isPro(user.id),
+      getProfile(user.id),
     ])
+
+  const firstName =
+    profile?.full_name?.split(' ')[0]?.trim() ||
+    profile?.email?.split('@')[0] ||
+    'there'
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-heading text-3xl font-extrabold">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted">
-          CompTIA Security+ (SY0-701)
-        </p>
-      </div>
+      <DashboardGreeting
+        firstName={firstName}
+        examName={exam.name}
+        readinessScore={readiness?.overall_score ?? 0}
+        streak={streak}
+        mastered={mastered}
+      />
 
       {upgraded === 'true' && !userIsPro && <UpgradeSuccessBanner />}
       {userIsPro ? (
-        <StartPracticeCta examSlug={exam.slug} />
+        <StartPracticeCta examSlug={exam.slug} hasMistakes={wrongAnswersCount > 0} />
       ) : (
         <UpgradeBanner />
       )}
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <ReadinessCard score={readiness?.overall_score ?? 0} />
-        <StudyStreak streak={streak} />
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <p className="text-sm text-muted">Questions Mastered</p>
-          <p className="mt-2 font-heading text-4xl font-extrabold text-accent">
-            {mastered}
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            Answered correctly 3+ times
-          </p>
-        </div>
-      </div>
-
       <DomainMastery domains={domainMastery} examSlug={exam.slug} />
-      <RecentSessions sessions={recentSessions} />
     </div>
   )
 }

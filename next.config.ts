@@ -1,9 +1,17 @@
 import type { NextConfig } from "next";
 import { resolve } from "path";
+import { existsSync } from "fs";
+
+function findTurbopackRoot(dir: string): string {
+  if (existsSync(resolve(dir, "node_modules"))) return dir;
+  const parent = resolve(dir, "..");
+  if (parent === dir) return dir;
+  return findTurbopackRoot(parent);
+}
 
 const nextConfig: NextConfig = {
   turbopack: {
-    root: resolve(__dirname),
+    root: findTurbopackRoot(__dirname),
   },
   headers: async () => [
     {
