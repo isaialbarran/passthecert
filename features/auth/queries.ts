@@ -10,10 +10,11 @@ export const getUser = cache(async () => {
   return user
 })
 
-export async function requireAuth() {
+export async function requireAuth(next?: string) {
   const user = await getUser()
   if (!user) {
-    redirect('/auth/login')
+    const loginUrl = next ? `/auth/login?next=${encodeURIComponent(next)}` : '/auth/login'
+    redirect(loginUrl)
   }
   return user
 }

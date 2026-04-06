@@ -24,7 +24,8 @@ export default async function QuizPage({
   const { sessionId, question, totalQuestions } = await startQuizSession(
     certId,
     mode as QuizMode,
-    domainId
+    domainId,
+    { userId: user.id, isPro: userIsPro }
   )
 
   if (!question) {

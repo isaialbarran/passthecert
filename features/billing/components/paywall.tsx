@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { createCheckoutAndRedirect } from '../actions'
+import { PRICE_CTA } from '../constants'
 
 export function Paywall(): JSX.Element {
   return (
@@ -29,7 +30,7 @@ export function Paywall(): JSX.Element {
             type="submit"
             className="w-full rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
           >
-            Subscribe — €29/mo
+            {PRICE_CTA}
           </button>
         </form>
         <p className="mt-4 text-xs text-muted">

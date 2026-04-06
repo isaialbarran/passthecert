@@ -114,7 +114,7 @@ export function DiagnosticResults({
             </form>
           ) : (
             <a
-              href="/auth/login?source=diagnostic&redirect=/dashboard"
+              href="/auth/login?next=/dashboard"
               className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
             >
               Start Your Study Plan — {PRICE_LABEL}

@@ -1,5 +1,5 @@
 import { getUser } from '@/features/auth'
-import { checkIsPro, createCheckoutAndRedirect } from '@/features/billing'
+import { checkIsPro, createCheckoutAndRedirect, PRICE_CTA } from '@/features/billing'
 import Link from 'next/link'
 
 const FEATURES = [
@@ -81,10 +81,10 @@ function PricingCta({
   if (!isAuthenticated) {
     return (
       <Link
-        href="/auth/login?source=pricing&redirect=/dashboard"
+        href="/auth/login?next=/dashboard"
         className="mt-8 block rounded-lg bg-accent py-3 text-center text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
       >
-        Subscribe — &euro;29/mo
+        {PRICE_CTA}
       </Link>
     )
   }
@@ -95,7 +95,7 @@ function PricingCta({
         type="submit"
         className="mt-8 w-full cursor-pointer rounded-lg bg-accent py-3 text-center text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
       >
-        Subscribe — &euro;29/mo
+        {PRICE_CTA}
       </button>
     </form>
   )
