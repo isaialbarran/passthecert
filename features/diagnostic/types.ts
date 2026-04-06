@@ -39,9 +39,15 @@ export interface DiagnosticResult {
   weakestDomainName: string
 }
 
+export interface DomainScorePayload {
+  percentage: number
+  correct: number
+  total: number
+}
+
 export interface DiagnosticLeadPayload {
   email: string
   overallScore: number
-  domainScores: Record<string, number>
+  domainScores: Record<string, DomainScorePayload>
   weakestDomainId: string
 }
