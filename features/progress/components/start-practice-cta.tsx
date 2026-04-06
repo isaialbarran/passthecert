@@ -2,9 +2,10 @@ import Link from 'next/link'
 
 interface StartPracticeCtaProps {
   examSlug: string
+  hasMistakes: boolean
 }
 
-export function StartPracticeCta({ examSlug }: StartPracticeCtaProps) {
+export function StartPracticeCta({ examSlug, hasMistakes }: StartPracticeCtaProps) {
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-8">
       <h3 className="font-heading text-xl font-extrabold">
@@ -17,12 +18,14 @@ export function StartPracticeCta({ examSlug }: StartPracticeCtaProps) {
         >
           Quick 10 Questions
         </Link>
-        <Link
-          href={`/quiz/${examSlug}?mode=review_mistakes`}
-          className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent/10"
-        >
-          Review Mistakes
-        </Link>
+        {hasMistakes && (
+          <Link
+            href={`/quiz/${examSlug}?mode=review_mistakes`}
+            className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent/10"
+          >
+            Review Mistakes
+          </Link>
+        )}
         <Link
           href={`/quiz/${examSlug}?mode=full_exam`}
           className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent/10"
