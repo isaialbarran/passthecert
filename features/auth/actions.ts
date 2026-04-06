@@ -10,13 +10,18 @@ export type AuthActionState = {
   success?: boolean
 } | null
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(formData?: FormData): Promise<void> {
   const supabase = await createClient()
+  const next = formData?.get('next')?.toString() ?? '/dashboard'
+  const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
+
+  const callbackUrl = new URL(`${serverEnv().NEXT_PUBLIC_APP_URL}/auth/callback`)
+  callbackUrl.searchParams.set('next', safeNext)
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${serverEnv().NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: callbackUrl.toString(),
     },
   })
 
@@ -73,6 +78,8 @@ export async function signInWithEmail(
     email: formData.get('email'),
     password: formData.get('password'),
   }
+  const next = formData.get('next')?.toString() ?? '/dashboard'
+  const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
 
   const parsed = signInSchema.safeParse(raw)
   if (!parsed.success) {
@@ -89,7 +96,7 @@ export async function signInWithEmail(
     return { error: 'Invalid email or password' }
   }
 
-  redirect('/dashboard')
+  redirect(safeNext)
 }
 
 export async function forgotPassword(

@@ -15,12 +15,20 @@ export default function MarketingLayout({
           >
             PassTheCert
           </Link>
-          <Link
-            href="/auth/login"
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
-          >
-            Sign In
-          </Link>
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-muted transition-colors hover:text-foreground"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/auth/login"
+              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+            >
+              Log In
+            </Link>
+          </nav>
         </div>
       </header>
       {children}

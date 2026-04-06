@@ -1,34 +1,57 @@
 import { createClient } from '@/shared/lib/supabase'
+import type { SubscriptionStatus } from './types'
+
+const VALID_STATUSES = new Set<string>([
+  'active',
+  'canceled',
+  'past_due',
+  'unpaid',
+  'trialing',
+])
 
 export async function isPro(userId: string): Promise<boolean> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .select('subscription_tier, subscription_status')
     .eq('id', userId)
     .single()
+
+  if (error) {
+    throw new Error(`Failed to check subscription: ${error.message}`)
+  }
 
   return (
     data?.subscription_tier === 'pro' && data?.subscription_status === 'active'
   )
 }
 
-export async function getSubscriptionStatus(userId: string) {
+export async function getSubscriptionStatus(
+  userId: string
+): Promise<SubscriptionStatus> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
-    .select(
-      'subscription_tier, subscription_status, stripe_customer_id, trial_ends_at'
-    )
+    .select('subscription_status')
     .eq('id', userId)
     .single()
 
-  return data
+  if (error) {
+    throw new Error(`Failed to fetch subscription status: ${error.message}`)
+  }
+
+  if (!data?.subscription_status) return null
+
+  if (!VALID_STATUSES.has(data.subscription_status)) return null
+
+  return data.subscription_status as SubscriptionStatus
 }
 
-export async function getDailyQuestionCount(userId: string): Promise<number> {
+export async function getDailyQuestionCount(
+  userId: string
+): Promise<number> {
   const supabase = await createClient()
 
   const todayStart = new Date()

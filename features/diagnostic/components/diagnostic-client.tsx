@@ -17,6 +17,7 @@ type Phase = 'intro' | 'quiz' | 'results' | 'unlocked'
 
 interface DiagnosticClientProps {
   questions: DiagnosticQuestion[]
+  isLoggedIn: boolean
 }
 
 const STORAGE_KEY = 'diagnostic_answers'
@@ -138,6 +139,7 @@ function computeResult(
 
 export function DiagnosticClient({
   questions,
+  isLoggedIn,
 }: DiagnosticClientProps): React.JSX.Element | null {
   const [phase, setPhase] = useState<Phase>('intro')
   const [answers, setAnswers] = useState<DiagnosticAnswer[]>([])
@@ -382,7 +384,7 @@ export function DiagnosticClient({
   if (phase === 'results' && result) {
     return (
       <div className="mx-auto max-w-2xl space-y-8 py-10">
-        <DiagnosticResults result={result} isUnlocked={false} />
+        <DiagnosticResults result={result} isUnlocked={false} isLoggedIn={isLoggedIn} />
         <EmailGate result={result} onUnlock={handleUnlock} />
         <div className="text-center">
           <button
@@ -400,7 +402,7 @@ export function DiagnosticClient({
   if (phase === 'unlocked' && result) {
     return (
       <div className="mx-auto max-w-2xl space-y-8 py-10">
-        <DiagnosticResults result={result} isUnlocked={true} />
+        <DiagnosticResults result={result} isUnlocked={true} isLoggedIn={isLoggedIn} />
         <div className="text-center">
           <button
             onClick={handleRestart}

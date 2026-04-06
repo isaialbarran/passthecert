@@ -20,6 +20,12 @@ export default async function AppLayout({
             PassTheCert
           </Link>
           <div className="flex items-center gap-4">
+            <Link
+              href="/settings"
+              className="text-sm text-muted hover:text-foreground transition-colors"
+            >
+              Settings
+            </Link>
             <span className="text-sm text-muted">
               {user.email}
             </span>

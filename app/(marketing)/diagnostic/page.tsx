@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getDiagnosticQuestions } from '@/features/diagnostic/queries'
 import { DiagnosticClient } from '@/features/diagnostic/components/diagnostic-client'
+import { getUser } from '@/features/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,11 +12,14 @@ export const metadata: Metadata = {
 }
 
 export default async function DiagnosticPage(): Promise<React.JSX.Element> {
-  const questions = await getDiagnosticQuestions('comptia-security-plus')
+  const [questions, user] = await Promise.all([
+    getDiagnosticQuestions('comptia-security-plus'),
+    getUser(),
+  ])
 
   return (
     <main className="px-4 py-12">
-      <DiagnosticClient questions={questions} />
+      <DiagnosticClient questions={questions} isLoggedIn={!!user} />
     </main>
   )
 }

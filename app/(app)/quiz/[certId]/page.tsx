@@ -1,6 +1,8 @@
 import { startQuizSession } from '@/features/quiz'
 import type { QuizMode } from '@/features/quiz'
 import { QuizClient } from '@/features/quiz/components/quiz-client'
+import { requireAuth } from '@/features/auth'
+import { isPro, Paywall } from '@/features/billing'
 
 export default async function QuizPage({
   params,
@@ -9,13 +11,21 @@ export default async function QuizPage({
   params: Promise<{ certId: string }>
   searchParams: Promise<{ mode?: string; domainId?: string }>
 }) {
+  const user = await requireAuth()
+  const userIsPro = await isPro(user.id)
+
+  if (!userIsPro) {
+    return <Paywall />
+  }
+
   const { certId } = await params
   const { mode = 'random_10', domainId } = await searchParams
 
   const { sessionId, question, totalQuestions } = await startQuizSession(
     certId,
     mode as QuizMode,
-    domainId
+    domainId,
+    { userId: user.id, isPro: userIsPro }
   )
 
   if (!question) {

@@ -13,18 +13,22 @@ const FREE_DAILY_LIMIT = 20
 export async function startQuizSession(
   examSlug: string,
   mode: QuizMode,
-  domainId?: string
+  domainId?: string,
+  prefetched?: { userId: string; isPro: boolean }
 ) {
-  const user = await requireAuth()
+  const user = prefetched
+    ? { id: prefetched.userId }
+    : await requireAuth()
   const supabase = await createClient()
 
-  // Billing gate: full_exam requires Pro
-  const userIsPro = await isPro(user.id)
+  const userIsPro = prefetched
+    ? prefetched.isPro
+    : await isPro(user.id)
+
   if (mode === 'full_exam' && !userIsPro) {
     throw new Error('Full exam mode requires a Pro subscription')
   }
 
-  // Free tier: check daily question limit
   if (!userIsPro) {
     const dailyCount = await getDailyQuestionCount(user.id)
     if (dailyCount >= FREE_DAILY_LIMIT) {

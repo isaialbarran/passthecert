@@ -94,6 +94,10 @@ When a subagent is launched via the Task tool:
 - It must never bypass RLS or expose secrets
 - `INSTRUCTIONS.md` is the constitution — no agent overrides it without founder approval
 
+## Language
+
+All user-facing text (UI labels, buttons, headings, error messages, email copy) must be in **English**. No Spanish, no mixed languages. This applies to every file in the codebase.
+
 ## Code standards
 
 - Explicit return types on all functions

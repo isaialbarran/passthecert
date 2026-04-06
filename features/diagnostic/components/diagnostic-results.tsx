@@ -1,12 +1,17 @@
 'use client'
 
 import type { DiagnosticResult } from '../types'
-import { createCheckoutSession } from '@/features/billing/actions'
+// Direct imports required: this is a 'use client' component — importing from
+// the barrel @/features/billing would pull in server-only query modules that
+// use next/headers. Server action modules ('use server') are safe as they
+// become RPC stubs on the client.
+import { createCheckoutAndRedirect } from '@/features/billing/actions'
 import { PRICE_LABEL } from '@/features/billing/constants'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
   isUnlocked: boolean
+  isLoggedIn: boolean
 }
 
 function scoreColor(percentage: number): string {
@@ -18,6 +23,7 @@ function scoreColor(percentage: number): string {
 export function DiagnosticResults({
   result,
   isUnlocked,
+  isLoggedIn,
 }: DiagnosticResultsProps) {
   return (
     <div className="space-y-8">
@@ -97,14 +103,23 @@ export function DiagnosticResults({
             </span>
             . Start there with targeted practice.
           </p>
-          <form action={createCheckoutSession} className="inline-block">
-            <button
-              type="submit"
-              className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+          {isLoggedIn ? (
+            <form action={createCheckoutAndRedirect} className="inline-block">
+              <button
+                type="submit"
+                className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+              >
+                Start Your Study Plan — {PRICE_LABEL}
+              </button>
+            </form>
+          ) : (
+            <a
+              href="/auth/login?next=/dashboard"
+              className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
             >
               Start Your Study Plan — {PRICE_LABEL}
-            </button>
-          </form>
+            </a>
+          )}
           <p className="mt-2 text-xs text-muted">
             7-day money-back guarantee
           </p>
