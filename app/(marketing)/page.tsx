@@ -23,7 +23,7 @@ export default function LandingPage(): React.JSX.Element {
             Test Your Knowledge — Free, No Signup
           </Link>
           <span className="text-xs text-muted">
-            10 questions &middot; 15 minutes &middot; see where you stand
+            10 questions &middot; 10 minutes &middot; see where you stand
           </span>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function LandingPage(): React.JSX.Element {
             Stop guessing. Start passing.
           </h2>
           <p className="mt-4 text-sm text-muted">
-            Find out where you stand in 15 minutes — then let us build your study plan.
+            Find out where you stand in 10 minutes — then let us build your study plan.
           </p>
           <Link
             href="/diagnostic"
