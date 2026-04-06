@@ -94,8 +94,8 @@ export function buildDiagnosticReportEmail({
     </div>
 
     <div style="text-align: center; margin-bottom: 32px;">
-      <a href="${serverEnv().NEXT_PUBLIC_APP_URL}/login" style="display: inline-block; background-color: #4ade80; color: #060b06; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 14px; font-weight: 600;">
-        Start Your Study Plan
+      <a href="${serverEnv().NEXT_PUBLIC_APP_URL}/auth/login?source=diagnostic" style="display: inline-block; background-color: #4ade80; color: #060b06; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+        Empieza tu plan de estudio personalizado
       </a>
       <p style="color: #7ba87b; font-size: 12px; margin-top: 12px;">
         Personalized spaced repetition &middot; All 5 domains &middot; Exam simulation

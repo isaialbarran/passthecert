@@ -7,6 +7,7 @@ import { PRICE_LABEL } from '@/features/billing/constants'
 interface DiagnosticResultsProps {
   result: DiagnosticResult
   isUnlocked: boolean
+  isLoggedIn: boolean
 }
 
 function scoreColor(percentage: number): string {
@@ -18,6 +19,7 @@ function scoreColor(percentage: number): string {
 export function DiagnosticResults({
   result,
   isUnlocked,
+  isLoggedIn,
 }: DiagnosticResultsProps) {
   return (
     <div className="space-y-8">
@@ -91,22 +93,31 @@ export function DiagnosticResults({
       {isUnlocked && (
         <div className="text-center">
           <p className="mb-4 text-sm text-muted">
-            Your weakest domain is{' '}
+            Tu dominio m&aacute;s d&eacute;bil es{' '}
             <span className="font-medium text-danger">
               {result.weakestDomainName}
             </span>
-            . Start there with targeted practice.
+            . Empieza por ah&iacute; con pr&aacute;ctica dirigida.
           </p>
-          <form action={createCheckoutAndRedirect} className="inline-block">
-            <button
-              type="submit"
-              className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+          {isLoggedIn ? (
+            <form action={createCheckoutAndRedirect} className="inline-block">
+              <button
+                type="submit"
+                className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
+              >
+                Empieza tu plan de estudio personalizado — {PRICE_LABEL}
+              </button>
+            </form>
+          ) : (
+            <a
+              href="/auth/login?source=diagnostic&redirect=/dashboard"
+              className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
             >
-              Start Your Study Plan — {PRICE_LABEL}
-            </button>
-          </form>
+              Empieza tu plan de estudio personalizado — {PRICE_LABEL}
+            </a>
+          )}
           <p className="mt-2 text-xs text-muted">
-            7-day money-back guarantee
+            Garant&iacute;a de devoluci&oacute;n de 7 d&iacute;as, sin preguntas
           </p>
         </div>
       )}
