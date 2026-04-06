@@ -24,7 +24,7 @@ export default async function AppLayout({
               href="/settings"
               className="text-sm text-muted hover:text-foreground transition-colors"
             >
-              Configuración
+              Settings
             </Link>
             <span className="text-sm text-muted">
               {user.email}

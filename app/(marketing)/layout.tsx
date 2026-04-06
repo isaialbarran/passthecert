@@ -20,13 +20,13 @@ export default function MarketingLayout({
               href="/pricing"
               className="text-sm font-medium text-muted transition-colors hover:text-foreground"
             >
-              Precios
+              Pricing
             </Link>
             <Link
               href="/auth/login"
               className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
             >
-              Sign In
+              Iniciar sesión
             </Link>
           </nav>
         </div>

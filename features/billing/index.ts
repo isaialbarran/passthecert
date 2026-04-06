@@ -3,6 +3,8 @@ export {
   createCheckoutAndRedirect,
   createPortalSession,
   createPortalAndRedirect,
+  updatePaymentMethodAndRedirect,
+  cancelSubscriptionAndRedirect,
   checkIsPro,
 } from './actions'
 export { isPro, getSubscriptionStatus, getDailyQuestionCount } from './queries'

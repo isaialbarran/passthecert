@@ -12,11 +12,15 @@ const VALID_STATUSES = new Set<string>([
 export async function isPro(userId: string): Promise<boolean> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .select('subscription_tier, subscription_status')
     .eq('id', userId)
     .single()
+
+  if (error) {
+    throw new Error(`Failed to check subscription: ${error.message}`)
+  }
 
   return (
     data?.subscription_tier === 'pro' && data?.subscription_status === 'active'
@@ -28,11 +32,15 @@ export async function getSubscriptionStatus(
 ): Promise<SubscriptionStatus> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .select('subscription_status')
     .eq('id', userId)
     .single()
+
+  if (error) {
+    throw new Error(`Failed to fetch subscription status: ${error.message}`)
+  }
 
   if (!data?.subscription_status) return null
 

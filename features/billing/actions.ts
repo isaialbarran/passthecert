@@ -68,7 +68,11 @@ export async function createCheckoutAndRedirect(): Promise<never> {
   redirect(url)
 }
 
-export async function createPortalSession(): Promise<{ url: string }> {
+type PortalFlow = 'payment_method_update' | 'subscription_cancel' | null
+
+export async function createPortalSession(
+  flow?: PortalFlow
+): Promise<{ url: string }> {
   const user = await requireAuth()
   const supabase = await createClient()
 
@@ -83,16 +87,62 @@ export async function createPortalSession(): Promise<{ url: string }> {
   }
 
   const env = serverEnv()
-  const portalSession = await stripe().billingPortal.sessions.create({
+
+  const params: Record<string, unknown> = {
     customer: profile.stripe_customer_id,
-    return_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard`,
-  })
+    return_url: `${env.NEXT_PUBLIC_APP_URL}/settings`,
+  }
+
+  if (flow === 'payment_method_update') {
+    params.flow_data = { type: 'payment_method_update' }
+  } else if (flow === 'subscription_cancel') {
+    params.flow_data = {
+      type: 'subscription_cancel',
+      subscription_cancel: {
+        subscription: await getActiveSubscriptionId(
+          profile.stripe_customer_id
+        ),
+      },
+    }
+  }
+
+  const portalSession = await stripe().billingPortal.sessions.create(
+    params as Parameters<
+      ReturnType<typeof stripe>['billingPortal']['sessions']['create']
+    >[0]
+  )
 
   return { url: portalSession.url }
 }
 
+async function getActiveSubscriptionId(
+  customerId: string
+): Promise<string> {
+  const subscriptions = await stripe().subscriptions.list({
+    customer: customerId,
+    status: 'active',
+    limit: 1,
+  })
+
+  if (!subscriptions.data[0]) {
+    throw new Error('No active subscription found')
+  }
+
+  return subscriptions.data[0].id
+}
+
 export async function createPortalAndRedirect(): Promise<never> {
   const { url } = await createPortalSession()
+  redirect(url)
+}
+
+export async function updatePaymentMethodAndRedirect(): Promise<never> {
+  const { url } = await createPortalSession('payment_method_update')
+  redirect(url)
+}
+
+export async function cancelSubscriptionAndRedirect(): Promise<never> {
+  const { url } = await createPortalSession('subscription_cancel')
   redirect(url)
 }
 

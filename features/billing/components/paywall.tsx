@@ -19,21 +19,21 @@ export function Paywall(): JSX.Element {
           />
         </svg>
         <h2 className="font-heading text-2xl font-extrabold">
-          Contenido exclusivo
+          Exclusive Content
         </h2>
         <p className="mx-auto mt-3 max-w-sm text-sm text-muted">
-          Necesitas una suscripción para acceder a este contenido.
+          You need a subscription to access this content.
         </p>
         <form action={createCheckoutAndRedirect} className="mt-8">
           <button
             type="submit"
             className="w-full rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
           >
-            Suscríbete — €29/mes
+            Subscribe — €29/mo
           </button>
         </form>
         <p className="mt-4 text-xs text-muted">
-          Garantía de devolución de 7 días, sin preguntas
+          7-day money-back guarantee, no questions asked
         </p>
       </div>
     </div>

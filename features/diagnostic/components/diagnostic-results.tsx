@@ -1,8 +1,7 @@
 'use client'
 
 import type { DiagnosticResult } from '../types'
-import { createCheckoutAndRedirect } from '@/features/billing/actions'
-import { PRICE_LABEL } from '@/features/billing/constants'
+import { createCheckoutAndRedirect, PRICE_LABEL } from '@/features/billing'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
@@ -93,11 +92,11 @@ export function DiagnosticResults({
       {isUnlocked && (
         <div className="text-center">
           <p className="mb-4 text-sm text-muted">
-            Tu dominio m&aacute;s d&eacute;bil es{' '}
+            Your weakest domain is{' '}
             <span className="font-medium text-danger">
               {result.weakestDomainName}
             </span>
-            . Empieza por ah&iacute; con pr&aacute;ctica dirigida.
+            . Start there with targeted practice.
           </p>
           {isLoggedIn ? (
             <form action={createCheckoutAndRedirect} className="inline-block">
@@ -105,7 +104,7 @@ export function DiagnosticResults({
                 type="submit"
                 className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
               >
-                Empieza tu plan de estudio personalizado — {PRICE_LABEL}
+                Start Your Study Plan — {PRICE_LABEL}
               </button>
             </form>
           ) : (
@@ -113,11 +112,11 @@ export function DiagnosticResults({
               href="/auth/login?source=diagnostic&redirect=/dashboard"
               className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
             >
-              Empieza tu plan de estudio personalizado — {PRICE_LABEL}
+              Start Your Study Plan — {PRICE_LABEL}
             </a>
           )}
           <p className="mt-2 text-xs text-muted">
-            Garant&iacute;a de devoluci&oacute;n de 7 d&iacute;as, sin preguntas
+            7-day money-back guarantee
           </p>
         </div>
       )}
