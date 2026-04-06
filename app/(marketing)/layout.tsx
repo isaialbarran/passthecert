@@ -26,7 +26,7 @@ export default function MarketingLayout({
               href="/auth/login"
               className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
             >
-              Iniciar sesión
+              Log In
             </Link>
           </nav>
         </div>
