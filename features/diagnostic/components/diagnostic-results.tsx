@@ -1,7 +1,12 @@
 'use client'
 
 import type { DiagnosticResult } from '../types'
-import { createCheckoutAndRedirect, PRICE_LABEL } from '@/features/billing'
+// Direct imports required: this is a 'use client' component — importing from
+// the barrel @/features/billing would pull in server-only query modules that
+// use next/headers. Server action modules ('use server') are safe as they
+// become RPC stubs on the client.
+import { createCheckoutAndRedirect } from '@/features/billing/actions'
+import { PRICE_LABEL } from '@/features/billing/constants'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
