@@ -32,7 +32,7 @@ export default function RootLayout({
       className={`${bricolage.variable} ${dmSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
