@@ -1,5 +1,6 @@
 import { requireAuth } from '@/features/auth'
 import { signOut } from '@/features/auth'
+import { ThemeSwitcher } from '@/shared/components/theme-switcher'
 import Link from 'next/link'
 
 export default async function AppLayout({
@@ -20,6 +21,7 @@ export default async function AppLayout({
             PassTheCert
           </Link>
           <div className="flex items-center gap-4">
+            <ThemeSwitcher />
             <Link
               href="/settings"
               className="text-sm text-muted hover:text-foreground transition-colors"
