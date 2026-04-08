@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Bricolage_Grotesque, DM_Sans } from 'next/font/google'
-import { ThemeProvider } from '@/shared/components/theme-provider'
+import { ThemeProvider } from '@/shared/components/ui/theme-provider'
 import './globals.css'
 
 const bricolage = Bricolage_Grotesque({

@@ -1,6 +1,6 @@
 import { requireAuth } from '@/features/auth'
 import { signOut } from '@/features/auth'
-import { ThemeSwitcher } from '@/shared/components/theme-switcher'
+import { ThemeSwitcher } from '@/shared/components/ui/theme-switcher'
 import Link from 'next/link'
 
 export default async function AppLayout({

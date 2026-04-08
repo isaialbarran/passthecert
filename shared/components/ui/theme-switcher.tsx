@@ -3,20 +3,17 @@
 import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
 
-function subscribe(callback: () => void): () => void {
-  window.addEventListener('storage', callback)
-  return () => window.removeEventListener('storage', callback)
-}
+const emptySubscribe = (): (() => void) => () => {}
 
 function useMounted(): boolean {
   return useSyncExternalStore(
-    subscribe,
+    emptySubscribe,
     () => true,
     () => false,
   )
 }
 
-export function ThemeSwitcher(): React.ReactElement {
+export function ThemeSwitcher(): React.JSX.Element {
   const { theme, setTheme } = useTheme()
   const mounted = useMounted()
 

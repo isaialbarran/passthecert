@@ -6,7 +6,7 @@ export function ThemeProvider({
   children,
 }: {
   children: React.ReactNode
-}): React.ReactElement {
+}): React.JSX.Element {
   return (
     <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       {children}
