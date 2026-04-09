@@ -3,7 +3,7 @@
 ## Épica
 
 **Como** visitante o usuario registrado,
-**quiero** poder suscribirme al plan Pro (€29/mes) ya sea después del diagnóstico o directamente desde pricing, y gestionar mi información de facturación cuando lo necesite,
+**quiero** poder suscribirme al plan Pro (€14,99/mes) ya sea después del diagnóstico o directamente desde pricing, y gestionar mi información de facturación cuando lo necesite,
 **para que** pueda acceder al contenido de preparación sin fricciones y mantener mis datos de pago actualizados.
 
 ---
@@ -18,7 +18,7 @@
 
 1. **Given** el visitante está en la página de resultados del diagnóstico,
    **when** hace click en "Empieza tu plan de estudio personalizado",
-   **then** se le redirige a Google OAuth si no tiene cuenta, y después a Stripe Checkout con el plan Pro (€29/mes).
+   **then** se le redirige a Google OAuth si no tiene cuenta, y después a Stripe Checkout con el plan Pro (€14,99/mes).
 
 2. **Given** el visitante ya tiene una sesión activa (hizo login antes),
    **when** hace click en el CTA,
@@ -46,7 +46,7 @@
 ### Criterios de aceptación
 
 1. **Given** el visitante está en la página de pricing (`/pricing`),
-   **when** hace click en "Suscríbete — €29/mes",
+   **when** hace click en "Suscríbete — €14,99/mes",
    **then** se le redirige a Google OAuth y después a Stripe Checkout.
 
 2. **Given** el visitante llega a la landing page,
@@ -76,7 +76,7 @@
    **then** se le redirige a una página de checkout/paywall.
 
 2. **Given** la página de paywall,
-   **then** muestra el precio (€29/mes), la garantía de 7 días, y un único botón hacia Stripe Checkout.
+   **then** muestra el precio (€14,99/mes), la garantía de 7 días, y un único botón hacia Stripe Checkout.
 
 3. **Given** el usuario completa el pago desde el paywall,
    **when** el webhook confirma,

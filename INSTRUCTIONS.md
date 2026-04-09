@@ -370,7 +370,7 @@ Show at a glance:
 
 - **No free tier. No trial without payment.**
 - The diagnostic test is the free value — it replaces both a free tier and a free trial.
-- **Pro (€29/month):** Full access — unlimited questions, all modes, full exam simulation.
+- **Pro (€14.99/month):** Full access — unlimited questions, all modes, full exam simulation.
 - Payment is required immediately after the diagnostic to unlock the app.
 - **7-day money-back guarantee** — if the user requests a refund within 7 days, process it via Stripe without questions. This is a trust signal, not a trial.
 - Stripe Checkout via Server Action — triggered from the diagnostic results page CTA
@@ -584,7 +584,7 @@ The MVP is complete when:
 - [ ] A user can take a 10-question quiz and see explanations
 - [ ] Wrong answers are tracked and surfaced in "Review Mistakes" mode
 - [ ] The dashboard shows a readiness score and domain breakdown
-- [ ] A user can pay €29/month via Stripe to unlock full access
+- [ ] A user can pay €14.99/month via Stripe to unlock full access
 - [ ] The app is live on passthecert.com via Vercel
 - [ ] At least 5 real users have paid
 
