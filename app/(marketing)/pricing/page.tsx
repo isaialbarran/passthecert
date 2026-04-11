@@ -1,5 +1,5 @@
 import { getUser } from '@/features/auth'
-import { checkIsPro, createCheckoutAndRedirect, PRICE_CTA } from '@/features/billing'
+import { checkIsPro, createCheckoutAndRedirect, PRICE_AMOUNT, PRICE_CTA } from '@/features/billing'
 import Link from 'next/link'
 
 const FEATURES = [
@@ -30,7 +30,7 @@ export default async function PricingPage(): Promise<React.JSX.Element> {
             Pro
           </h2>
           <p className="font-heading text-4xl font-extrabold">
-            &euro;29<span className="text-lg text-muted">/mo</span>
+            {PRICE_AMOUNT}<span className="text-lg text-muted">/mo</span>
           </p>
         </div>
 

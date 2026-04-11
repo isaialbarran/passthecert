@@ -1,3 +1,4 @@
+import { PRICE_AMOUNT } from '@/features/billing'
 import Link from 'next/link'
 
 export default function LandingPage(): React.JSX.Element {
@@ -82,7 +83,7 @@ export default function LandingPage(): React.JSX.Element {
                 Pro
               </h3>
               <p className="font-heading text-4xl font-extrabold">
-                €29<span className="text-lg text-muted">/mo</span>
+                {PRICE_AMOUNT}<span className="text-lg text-muted">/mo</span>
               </p>
             </div>
             <ul className="mt-6 space-y-3 text-sm">
