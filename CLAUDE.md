@@ -43,6 +43,21 @@ No test runner is configured yet (Playwright is in the approved stack but not in
 
 This repo runs Next.js 16, which may have breaking changes vs. your training data. If unsure about a specific API (routing, Server Actions, middleware, etc.), consult `node_modules/next/dist/docs/` before using it. Don't read those docs preemptively — only when needed.
 
+### Breaking changes vs. Next.js 15
+
+| What changed | Old (≤15) | New (16) |
+|---|---|---|
+| Route protection file | `middleware.ts` | `proxy.ts` |
+| Exported function name | `export function middleware` | `export function proxy` |
+| Runtime | `edge` (default) | `nodejs` (default, edge not supported in proxy) |
+| Config flag | `skipMiddlewareUrlNormalize` | `skipProxyUrlNormalize` |
+
+**Rule:** Never create `middleware.ts` in this repo. The file is `proxy.ts` at the project root. The exported function must be named `proxy`. `middleware.ts` still works if you need the `edge` runtime, but we use `nodejs` (proxy.ts).
+
+### Supabase auth in proxy.ts
+
+Use `createServerClient` from `@supabase/ssr` with `getAll`/`setAll` cookie methods. Always call `supabase.auth.getUser()` — never `getSession()` — for authorization decisions. Return `supabaseResponse` (not a fresh `NextResponse.next()`) to keep the session cookie alive.
+
 ## Architecture
 
 ```

@@ -1,16 +1,16 @@
 # Project Status — PassTheCert
 
-> Last updated: 2026-04-08
+> Last updated: 2026-04-11
 
 ## Summary
 
 | Milestone | Progress | Done | Partial | Pending |
 |-----------|----------|------|---------|---------|
 | 1 - Foundation | **100%** | 5/5 | 0 | 0 |
-| 2 - AI Tutor | **50%** | 2/4 | 1 | 1 |
+| 2 - AI Tutor | **75%** | 3/4 | 0 | 1 |
 | 3 - Study Modes | **67%** | 4/6 | 1 | 1 |
-| 4 - Launch | **17%** | 1/6 | 1 | 4 |
-| **Total** | **57%** | **12/21** | **3** | **6** |
+| 4 - Launch | **33%** | 2/6 | 1 | 3 |
+| **Total** | **66%** | **14/21** | **2** | **4** |
 
 ---
 
@@ -31,7 +31,7 @@
 | [#34](https://github.com/isaialbarran/passthecert/issues/34) | AI Tutor — Claude API | **Pending** | Sin integracion con Claude API |
 | [#35](https://github.com/isaialbarran/passthecert/issues/35) | Readiness dashboard | Done | Score + domain mastery en `features/progress/` |
 | [#36](https://github.com/isaialbarran/passthecert/issues/36) | Study session tracking | Done | Quiz sessions con modo, score, completado |
-| [#37](https://github.com/isaialbarran/passthecert/issues/37) | 300 preguntas Security+ | **Partial** | ~25 preguntas en seed.sql (faltan ~275) |
+| [#37](https://github.com/isaialbarran/passthecert/issues/37) | 300 preguntas Security+ | Done | 287 preguntas (migrations 003-012 + seed.sql). Mínimo 200 superado. |
 
 ## Milestone 3 — Study Modes (Sem 5-6)
 
@@ -59,8 +59,8 @@
 
 ## Next priorities
 
-1. **#34** AI Tutor con Claude API (critical, blocker para diferenciacion)
-2. **#37** Expandir banco de preguntas a 300+
-3. **#42** PWA para mobile
-4. **#47** Analytics antes de launch
-5. **#48** Verificar deployment en Vercel
+1. **#47** Analytics (PostHog) — blocker antes del soft launch
+2. **Smoke test** — diagnostic → email → login → Stripe → dashboard → quiz (end-to-end en prod)
+3. **#49** Soft launch — Reddit/Discord/LinkedIn, primeros 30 beta users
+4. **#34** AI Tutor con Claude API (post-launch, semana 1-2)
+5. **#48** Verificar deployment en Vercel (CI/CD)
