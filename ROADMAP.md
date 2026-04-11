@@ -90,7 +90,7 @@
 ## Fase 2 — Post-MVP (no construir hasta que Fase 1 esté completa)
 
 - [ ] Expandir banco de preguntas a 100+ (mínimo 20 por dominio)
-- [ ] PostHog analytics (funnels, retention)
+- [x] PostHog analytics (funnels, retention) — integrado en todas las features
 - [ ] Email sequences post-diagnostic (nurture leads no convertidos)
 - [ ] Mejoras UX basadas en feedback de primeros 5 usuarios pagados
 - [ ] A/B test en pricing (€19 vs €29 vs €39)

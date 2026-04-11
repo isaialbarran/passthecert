@@ -6,6 +6,7 @@ import { checkDiagnosticAnswer } from '../actions'
 import { DiagnosticResults } from './diagnostic-results'
 import { EmailGate } from './email-gate'
 import { DiagnosticTimer } from './diagnostic-timer'
+import { usePostHog } from 'posthog-js/react'
 import type {
   DiagnosticQuestion,
   DiagnosticAnswer,
@@ -141,6 +142,7 @@ export function DiagnosticClient({
   questions,
   isLoggedIn,
 }: DiagnosticClientProps): React.JSX.Element | null {
+  const posthog = usePostHog()
   const [phase, setPhase] = useState<Phase>('intro')
   const [answers, setAnswers] = useState<DiagnosticAnswer[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -244,6 +246,7 @@ export function DiagnosticClient({
     } catch {
       // noop
     }
+    posthog.capture('diagnostic_started', { question_count: questions.length })
     setTimerStartedAt(now)
     setPhase('quiz')
   }
