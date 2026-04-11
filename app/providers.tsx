@@ -4,7 +4,7 @@ import posthog from 'posthog-js'
 import { PostHogProvider, usePostHog } from 'posthog-js/react'
 import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js'
 import { createBrowserClient } from '@/shared/lib/supabase-browser'
 
 if (typeof window !== 'undefined') {
@@ -37,11 +37,24 @@ function AuthSync(): null {
 
   useEffect(() => {
     const supabase = createBrowserClient()
+
+    // Identify users already authenticated on first load (INITIAL_SESSION does not
+    // fire a SIGNED_IN event in newer Supabase versions)
+    supabase.auth.getUser().then(({ data }: { data: { user: User | null } }) => {
+      if (data.user) {
+        ph.identify(data.user.id, { email: data.user.email })
+        if (data.user.email) ph.alias(data.user.email)
+      }
+    })
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (event === 'SIGNED_IN' && session?.user) {
         ph.identify(session.user.id, { email: session.user.email })
+        // Link the email distinctId (used by the anonymous diagnostic funnel)
+        // to the Supabase userId so PostHog can connect pre-signup events
+        if (session.user.email) ph.alias(session.user.email)
       } else if (event === 'SIGNED_OUT') {
         ph.reset()
       }
