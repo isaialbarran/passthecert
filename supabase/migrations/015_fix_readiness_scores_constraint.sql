@@ -11,5 +11,14 @@ alter table public.readiness_scores
   add constraint readiness_scores_user_id_exam_id_key unique (user_id, exam_id);
 
 -- Add missing INSERT policy (upserts for new users were blocked by RLS)
-create policy "Users can insert own readiness" on public.readiness_scores
-  for insert with check (auth.uid() = user_id);
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where tablename = 'readiness_scores'
+      and policyname = 'Users can insert own readiness'
+  ) then
+    create policy "Users can insert own readiness" on public.readiness_scores
+      for insert with check (auth.uid() = user_id);
+  end if;
+end $$;
