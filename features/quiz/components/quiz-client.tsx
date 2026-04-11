@@ -23,6 +23,7 @@ export function QuizClient({
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [result, setResult] = useState<AnswerResult | null>(null)
   const [questionIndex, setQuestionIndex] = useState(1)
+  const [correctCount, setCorrectCount] = useState(0)
   const [isSubmitting, startSubmit] = useTransition()
   const [isLoadingNext, startLoadNext] = useTransition()
   const [sessionComplete, setSessionComplete] = useState(false)
@@ -48,6 +49,9 @@ export function QuizClient({
         selectedKey
       )
       setResult(answerResult)
+      if (answerResult.isCorrect) {
+        setCorrectCount((c) => c + 1)
+      }
     })
   }
 
@@ -57,12 +61,7 @@ export function QuizClient({
       if (!nextQuestion) {
         setSessionComplete(true)
         setFinalScore({
-          correct: result
-            ? (result.isCorrect
-                ? questionIndex
-                : questionIndex - 1) +
-              (result.isCorrect ? 0 : 0)
-            : 0,
+          correct: correctCount,
           total: totalQuestions,
         })
         return
@@ -84,9 +83,9 @@ export function QuizClient({
           <p className="text-lg text-muted">
             You got{' '}
             <span className="text-accent font-medium">
-              {result?.questionIndex ?? 0}
+              {finalScore.correct}
             </span>{' '}
-            out of {totalQuestions} questions
+            out of {finalScore.total} questions
           </p>
         )}
         <div className="flex gap-4">

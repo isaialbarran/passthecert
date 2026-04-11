@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/shared/lib/supabase'
+import { createClient, createAdminClient } from '@/shared/lib/supabase'
 
 export async function GET(request: Request): Promise<NextResponse> {
   const { searchParams, origin } = new URL(request.url)
@@ -10,9 +10,19 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
+      const email = data.user?.email
+      if (email) {
+        const admin = createAdminClient()
+        await admin
+          .from('diagnostic_leads')
+          .update({ converted_at: new Date().toISOString() })
+          .eq('email', email)
+          .is('converted_at', null)
+      }
+
       const destination = type === 'recovery' ? '/auth/reset-password' : next
       return NextResponse.redirect(new URL(destination, origin))
     }
