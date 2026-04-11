@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/shared/lib/supabase'
 import { resend } from '@/shared/lib/resend'
+import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { diagnosticLeadSchema, checkAnswerSchema } from './schemas'
 import { buildDiagnosticReportEmail } from './emails/diagnostic-report'
 import type { DiagnosticLeadPayload, DomainScore, CheckAnswerResult } from './types'
@@ -93,6 +94,22 @@ export async function submitDiagnosticLead(
   if (upsertError) {
     return { success: false, error: 'Failed to save your results. Please try again.' }
   }
+
+  await Promise.all([
+    captureServerEvent({
+      distinctId: email,
+      event: 'email_captured',
+      properties: { source: 'diagnostic' },
+    }),
+    captureServerEvent({
+      distinctId: email,
+      event: 'diagnostic_completed',
+      properties: {
+        overall_score: overallScore,
+        weakest_domain_id: weakestDomainId,
+      },
+    }),
+  ])
 
   // Send email (non-blocking — lead is already saved)
   try {

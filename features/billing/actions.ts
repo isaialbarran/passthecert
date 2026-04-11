@@ -3,6 +3,7 @@
 import { createClient } from '@/shared/lib/supabase'
 import { stripe } from '@/shared/lib/stripe'
 import { serverEnv } from '@/shared/lib/env'
+import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { requireAuth } from '@/features/auth'
 import { redirect } from 'next/navigation'
 import { isPro } from './queries'
@@ -59,6 +60,12 @@ export async function createCheckoutSession(): Promise<{ url: string }> {
   if (!session.url) {
     throw new Error('Stripe did not return a checkout URL')
   }
+
+  await captureServerEvent({
+    distinctId: user.id,
+    event: 'checkout_started',
+    properties: { price_id: env.STRIPE_PRO_PRICE_ID },
+  })
 
   return { url: session.url }
 }
