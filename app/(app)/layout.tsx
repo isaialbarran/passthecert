@@ -1,5 +1,6 @@
 import { requireAuth } from '@/features/auth'
 import { signOut } from '@/features/auth'
+import { ThemeSwitcher } from '@/shared/components/ui/theme-switcher'
 import Link from 'next/link'
 
 export default async function AppLayout({
@@ -12,27 +13,28 @@ export default async function AppLayout({
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
           <Link
             href="/dashboard"
-            className="font-heading text-lg font-extrabold text-foreground"
+            className="font-heading text-lg font-extrabold text-foreground shrink-0"
           >
             PassTheCert
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <ThemeSwitcher />
             <Link
               href="/settings"
-              className="text-sm text-muted hover:text-foreground transition-colors"
+              className="text-sm text-muted hover:text-foreground transition-colors shrink-0"
             >
               Settings
             </Link>
-            <span className="text-sm text-muted">
+            <span className="text-sm text-muted truncate hidden sm:inline">
               {user.email}
             </span>
             <form action={signOut}>
               <button
                 type="submit"
-                className="text-sm text-muted hover:text-foreground transition-colors"
+                className="text-sm text-muted hover:text-foreground transition-colors shrink-0"
               >
                 Sign out
               </button>

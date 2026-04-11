@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 :root {
+  --background: #f6faf6;
+  --foreground: #0c1a0c;
+  --surface: #eaf2ea;
+  --border: rgba(22, 101, 52, 0.15);
+  --accent: #16a34a;
+  --muted: #5a7a5a;
+  --danger: #dc2626;
+}
+
+.dark {
   --background: #060b06;
   --foreground: #edfded;
   --surface: #0c140c;
