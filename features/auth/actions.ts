@@ -3,6 +3,7 @@
 import { createClient } from '@/shared/lib/supabase'
 import { serverEnv } from '@/shared/lib/env'
 import { redirect } from 'next/navigation'
+import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { signUpSchema, signInSchema, forgotPasswordSchema, resetPasswordSchema } from './schemas'
 
 export type AuthActionState = {
@@ -66,6 +67,12 @@ export async function signUpWithEmail(
   if (error) {
     return { error: 'Unable to create account. Please try again.' }
   }
+
+  await captureServerEvent({
+    distinctId: parsed.data.email,
+    event: 'signup',
+    properties: { method: 'email' },
+  })
 
   return { success: true }
 }

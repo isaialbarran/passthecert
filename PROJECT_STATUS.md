@@ -1,6 +1,6 @@
 # Project Status — PassTheCert
 
-> Last updated: 2026-04-11
+> Last updated: 2026-04-11 (analytics complete)
 
 ## Summary
 
@@ -9,8 +9,8 @@
 | 1 - Foundation | **100%** | 5/5 | 0 | 0 |
 | 2 - AI Tutor | **75%** | 3/4 | 0 | 1 |
 | 3 - Study Modes | **67%** | 4/6 | 1 | 1 |
-| 4 - Launch | **33%** | 2/6 | 1 | 3 |
-| **Total** | **66%** | **14/21** | **2** | **4** |
+| 4 - Launch | **50%** | 3/6 | 1 | 2 |
+| **Total** | **71%** | **15/21** | **2** | **3** |
 
 ---
 
@@ -51,7 +51,7 @@
 | [#44](https://github.com/isaialbarran/passthecert/issues/44) | Landing page | Done | Hero + features + pricing sections |
 | [#45](https://github.com/isaialbarran/passthecert/issues/45) | Blog SEO | **Pending** | Sin blog ni rutas de contenido |
 | [#46](https://github.com/isaialbarran/passthecert/issues/46) | Pass rate tracker | **Pending** | Sin tracking de pass rate |
-| [#47](https://github.com/isaialbarran/passthecert/issues/47) | Analytics + monitoring | **Pending** | Sin analytics integrado |
+| [#47](https://github.com/isaialbarran/passthecert/issues/47) | Analytics + monitoring | Done | PostHog integrado: pageviews, diagnostic funnel, checkout, subscription, quiz, signup |
 | [#48](https://github.com/isaialbarran/passthecert/issues/48) | Deployment Vercel + CI/CD | **Partial** | CI/CD con GitHub Actions, falta verificar deploy |
 | [#49](https://github.com/isaialbarran/passthecert/issues/49) | Soft launch 30 users | **Pending** | Infraestructura lista, sin beta users |
 
@@ -59,8 +59,7 @@
 
 ## Next priorities
 
-1. **#47** Analytics (PostHog) — blocker antes del soft launch
-2. **Smoke test** — diagnostic → email → login → Stripe → dashboard → quiz (end-to-end en prod)
-3. **#49** Soft launch — Reddit/Discord/LinkedIn, primeros 30 beta users
-4. **#34** AI Tutor con Claude API (post-launch, semana 1-2)
-5. **#48** Verificar deployment en Vercel (CI/CD)
+1. **Smoke test** — diagnostic → email → login → Stripe → dashboard → quiz (end-to-end en prod)
+2. **#49** Soft launch — Reddit/Discord/LinkedIn, primeros 30 beta users
+3. **#34** AI Tutor con Claude API (post-launch, semana 1-2)
+4. **#48** Verificar deployment en Vercel (CI/CD)

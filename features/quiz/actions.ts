@@ -5,6 +5,7 @@ import { createClient } from '@/shared/lib/supabase'
 import { requireAuth } from '@/features/auth'
 import { calculateSM2 } from './sm2'
 import { updateReadinessScore } from '@/features/progress/actions'
+import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { isPro, getDailyQuestionCount } from '@/features/billing'
 import type { QuizMode } from './types'
 import type { Question } from '@/shared/types/database'
@@ -220,6 +221,17 @@ export async function completeSession(sessionId: string) {
       score_pct: scorePct,
     })
     .eq('id', sessionId)
+
+  await captureServerEvent({
+    distinctId: user.id,
+    event: 'study_session_completed',
+    properties: {
+      session_id: sessionId,
+      score_pct: scorePct,
+      correct_count: session.correct_count,
+      total_questions: session.total_questions,
+    },
+  })
 
   return { scorePct, correctCount: session.correct_count, totalQuestions: session.total_questions }
 }
