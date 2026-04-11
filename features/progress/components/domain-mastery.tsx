@@ -6,7 +6,9 @@ interface DomainData {
   code: string
   weightPct: number
   correctPct: number
+  coveredPct: number
   totalAnswered: number
+  totalInDomain: number
 }
 
 interface DomainMasteryProps {
@@ -18,8 +20,10 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
   return (
     <div id="domains" className="rounded-lg border border-border bg-surface p-6">
       <h3 className="font-heading text-lg font-extrabold">Domain Mastery</h3>
-      <p className="mt-1 text-xs text-muted">Click a domain to practice</p>
-      <div className="mt-4 space-y-2">
+      <p className="mt-1 text-xs text-muted">
+        Accuracy on questions you&apos;ve practiced · Click to focus on a domain
+      </p>
+      <div className="mt-4 space-y-3">
         {domains.map((domain) => (
           <Link
             key={domain.domainId}
@@ -31,20 +35,27 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
                 {domain.code} {domain.domainName}
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-muted">
+                <span className="font-medium text-foreground">
                   {domain.correctPct}%
-                  <span className="ml-1 text-xs">
-                    ({domain.totalAnswered} answered)
-                  </span>
                 </span>
                 <span className="text-muted">&#8250;</span>
               </div>
             </div>
+            {/* Accuracy bar */}
             <div className="h-2 rounded-full bg-background">
               <div
                 className="h-full rounded-full bg-accent transition-all duration-500"
                 style={{ width: `${domain.correctPct}%` }}
               />
+            </div>
+            {/* Coverage info */}
+            <div className="mt-1.5 flex items-center justify-between">
+              <span className="text-xs text-muted">
+                {domain.totalAnswered} / {domain.totalInDomain} questions seen
+              </span>
+              <span className="text-xs text-muted">
+                {domain.coveredPct}% covered · {domain.weightPct}% of exam
+              </span>
             </div>
           </Link>
         ))}

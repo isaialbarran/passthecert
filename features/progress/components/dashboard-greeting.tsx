@@ -18,9 +18,9 @@ function getGreeting(hour: number): string {
 }
 
 function getReadinessLabel(score: number): string {
-  if (score >= 70) return 'Ready to Pass'
-  if (score >= 40) return 'Getting There'
-  return 'Not Ready'
+  if (score >= 75) return 'Ready to Pass'
+  if (score >= 50) return 'Getting There'
+  return 'Keep Practicing'
 }
 
 export function DashboardGreeting({
