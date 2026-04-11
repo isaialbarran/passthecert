@@ -2,7 +2,7 @@
 -- Stores email leads from the diagnostic quiz funnel
 
 create table public.diagnostic_leads (
-  id              uuid default uuid_generate_v4() primary key,
+  id              uuid default gen_random_uuid() primary key,
   email           text not null unique,
   overall_score   int not null check (overall_score between 0 and 100),
   domain_scores   jsonb not null default '{}',

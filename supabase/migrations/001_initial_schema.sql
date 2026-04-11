@@ -1,7 +1,6 @@
 -- migrations/001_initial_schema.sql
 
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
+-- uuid-ossp not needed: gen_random_uuid() is built-in since PostgreSQL 13
 
 -- ─── USERS ───────────────────────────────────────────────────────────────────
 -- Extends Supabase auth.users with app-specific profile data
@@ -28,7 +27,7 @@ create policy "Users can update own profile" on public.profiles for update using
 -- ─── EXAMS ───────────────────────────────────────────────────────────────────
 -- Certification metadata (Security+, AWS, etc.)
 create table public.exams (
-  id            uuid default uuid_generate_v4() primary key,
+  id            uuid default gen_random_uuid() primary key,
   slug          text unique not null,         -- 'comptia-security-plus'
   name          text not null,                -- 'CompTIA Security+ (SY0-701)'
   vendor        text not null,                -- 'CompTIA'
@@ -42,7 +41,7 @@ create table public.exams (
 -- ─── DOMAINS ─────────────────────────────────────────────────────────────────
 -- Exam domains (topics). Security+ has 5 domains.
 create table public.domains (
-  id            uuid default uuid_generate_v4() primary key,
+  id            uuid default gen_random_uuid() primary key,
   exam_id       uuid references public.exams(id) on delete cascade,
   name          text not null,                -- 'Threats, Attacks and Vulnerabilities'
   code          text not null,                -- '1.0'
@@ -52,7 +51,7 @@ create table public.domains (
 
 -- ─── QUESTIONS ───────────────────────────────────────────────────────────────
 create table public.questions (
-  id            uuid default uuid_generate_v4() primary key,
+  id            uuid default gen_random_uuid() primary key,
   exam_id       uuid references public.exams(id) on delete cascade,
   domain_id     uuid references public.domains(id) on delete set null,
   -- Content
@@ -75,7 +74,7 @@ create index questions_domain_id_idx on public.questions(domain_id);
 -- ─── USER RESPONSES ──────────────────────────────────────────────────────────
 -- Every single answer attempt is recorded here. This is the SM-2 engine's input.
 create table public.user_responses (
-  id              uuid default uuid_generate_v4() primary key,
+  id              uuid default gen_random_uuid() primary key,
   user_id         uuid references public.profiles(id) on delete cascade,
   question_id     uuid references public.questions(id) on delete cascade,
   -- Answer data
@@ -104,7 +103,7 @@ create index user_responses_next_review_idx on public.user_responses(user_id, ne
 -- ─── QUIZ SESSIONS ───────────────────────────────────────────────────────────
 -- Tracks each quiz attempt (Random 10, Full Exam, Review Mistakes)
 create table public.quiz_sessions (
-  id            uuid default uuid_generate_v4() primary key,
+  id            uuid default gen_random_uuid() primary key,
   user_id       uuid references public.profiles(id) on delete cascade,
   exam_id       uuid references public.exams(id),
   -- Session config
@@ -125,7 +124,7 @@ create policy "Users can manage own sessions" on public.quiz_sessions for all us
 -- ─── READINESS SCORE ─────────────────────────────────────────────────────────
 -- Denormalized for fast dashboard queries. Recalculated after each session.
 create table public.readiness_scores (
-  id              uuid default uuid_generate_v4() primary key,
+  id              uuid default gen_random_uuid() primary key,
   user_id         uuid references public.profiles(id) on delete cascade unique,
   exam_id         uuid references public.exams(id),
   overall_score   int default 0,              -- 0-100 "Ready to Pass" probability
