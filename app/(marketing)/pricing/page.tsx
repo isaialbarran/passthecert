@@ -30,7 +30,7 @@ export default async function PricingPage(): Promise<React.JSX.Element> {
             Pro
           </h2>
           <p className="font-heading text-4xl font-extrabold">
-            &euro;29<span className="text-lg text-muted">/mo</span>
+            &euro;14.99<span className="text-lg text-muted">/mo</span>
           </p>
         </div>
 

@@ -82,7 +82,7 @@ export default function LandingPage(): React.JSX.Element {
                 Pro
               </h3>
               <p className="font-heading text-4xl font-extrabold">
-                €29<span className="text-lg text-muted">/mo</span>
+                €14.99<span className="text-lg text-muted">/mo</span>
               </p>
             </div>
             <ul className="mt-6 space-y-3 text-sm">
