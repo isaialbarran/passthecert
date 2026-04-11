@@ -24,24 +24,51 @@ export async function getDomainMastery(userId: string, examId: string) {
 
   if (!domains) return []
 
+  // Get total question count per domain
+  const { data: allQuestions } = await supabase
+    .from('questions')
+    .select('domain_id')
+    .in(
+      'domain_id',
+      domains.map((d) => d.id)
+    )
+
+  const totalByDomain = new Map<string, number>()
+  for (const q of allQuestions ?? []) {
+    totalByDomain.set(q.domain_id, (totalByDomain.get(q.domain_id) ?? 0) + 1)
+  }
+
   const results = await Promise.all(
     domains.map(async (domain) => {
+      // Fetch all responses for this domain, ordered newest first
       const { data: responses } = await supabase
         .from('user_responses')
-        .select('is_correct, questions!inner(domain_id)')
+        .select('question_id, is_correct, created_at, questions!inner(domain_id)')
         .eq('user_id', userId)
         .eq('questions.domain_id', domain.id)
+        .order('created_at', { ascending: false })
 
-      const total = responses?.length ?? 0
-      const correct = responses?.filter((r) => r.is_correct).length ?? 0
+      // Keep only the latest answer per question
+      const latestByQuestion = new Map<string, boolean>()
+      for (const r of responses ?? []) {
+        if (!latestByQuestion.has(r.question_id)) {
+          latestByQuestion.set(r.question_id, r.is_correct)
+        }
+      }
+
+      const uniqueSeen = latestByQuestion.size
+      const correctLatest = [...latestByQuestion.values()].filter(Boolean).length
+      const totalInDomain = totalByDomain.get(domain.id) ?? 0
 
       return {
         domainId: domain.id,
         domainName: domain.name,
         code: domain.code,
         weightPct: domain.weight_pct,
-        correctPct: total > 0 ? Math.round((correct / total) * 100) : 0,
-        totalAnswered: total,
+        correctPct: uniqueSeen > 0 ? Math.round((correctLatest / uniqueSeen) * 100) : 0,
+        coveredPct: totalInDomain > 0 ? Math.round((uniqueSeen / totalInDomain) * 100) : 0,
+        totalAnswered: uniqueSeen,
+        totalInDomain,
       }
     })
   )

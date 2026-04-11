@@ -48,7 +48,7 @@ export async function updateReadinessScore(userId: string, examId: string) {
         last_activity_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
-      { onConflict: 'user_id' }
+      { onConflict: 'user_id,exam_id' }
     )
 
   return overallScore
