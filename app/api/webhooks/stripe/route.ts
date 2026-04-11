@@ -1,6 +1,7 @@
 import { stripe } from '@/shared/lib/stripe'
 import { createAdminClient } from '@/shared/lib/supabase'
 import { serverEnv } from '@/shared/lib/env'
+import { captureServerEvent } from '@/shared/lib/posthog-server'
 import type Stripe from 'stripe'
 
 export async function POST(request: Request) {
@@ -46,6 +47,12 @@ export async function POST(request: Request) {
         if (error) {
           return new Response('DB update failed', { status: 500 })
         }
+
+        await captureServerEvent({
+          distinctId: userId,
+          event: 'subscription_activated',
+          properties: { stripe_session_id: session.id },
+        })
       }
       break
     }
