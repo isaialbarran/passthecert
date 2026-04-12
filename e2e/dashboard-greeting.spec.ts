@@ -68,7 +68,7 @@ test.describe('Dashboard — Edge Cases', () => {
   })
 
   test('TC-10: readiness label es uno de los tres valores válidos', async ({ page }) => {
-    const labels = ['Not Ready', 'Getting There', 'Ready to Pass']
+    const labels = ['Keep Practicing', 'Getting There', 'Ready to Pass']
     const greeting = page.getByTestId('dashboard-greeting')
     const text = await greeting.textContent()
     const hasLabel = labels.some((l) => text?.includes(l))
