@@ -35,8 +35,11 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.TEST_SUPABASE_URL }}" >> .env.local
           echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=${{ secrets.TEST_SUPABASE_ANON_KEY }}" >> .env.local
           echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.TEST_SUPABASE_SERVICE_ROLE_KEY }}" >> .env.local
+          echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> .env.local
           echo "RESEND_API_KEY=re_test_dummy" >> .env.local
           echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env.local
+          echo "STRIPE_WEBHOOK_SECRET=whsec_test_dummy" >> .env.local
+          echo "STRIPE_PRO_PRICE_ID=price_test_dummy" >> .env.local
 
       - name: Run Playwright tests
         run: npm run test:e2e
