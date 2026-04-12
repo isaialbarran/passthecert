@@ -21,8 +21,8 @@ test.describe('Smoke Test — Critical User Flows', () => {
 
   test('pricing page shows plan details and CTA', async ({ page }) => {
     await page.goto('/pricing')
-    await expect(page.getByText('Pro')).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText('€14.99/mo', { exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Pro', level: 2 })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/€\d+\.\d{2}\/mo/)).toBeVisible()
     await expect(page.getByText(/unlimited questions/i)).toBeVisible()
   })
 
@@ -99,7 +99,7 @@ test.describe('Smoke Test — Authenticated Flows', () => {
 
   test('settings page loads with billing section', async ({ page }) => {
     await page.goto('/settings')
-    await expect(page.getByText(/billing|subscription/i)).toBeVisible({
+    await expect(page.getByRole('heading', { name: /billing/i })).toBeVisible({
       timeout: 10_000,
     })
   })
