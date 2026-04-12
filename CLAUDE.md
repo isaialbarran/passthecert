@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **`INSTRUCTIONS.md`** — MVP specification (features, schema, execution order). Read it before any task.
 - **`AGENTS/`** — Agent role prompts and workflow docs. See `AGENTS/README.md` for the roster and how to invoke each role.
+- **`E2E_TEST_SUMMARY.md`** — Current E2E test inventory, coverage gaps, and pending tests by priority. Read before writing or modifying tests.
 
 ## Commands
 
@@ -19,9 +20,13 @@ npm start            # Run production build
 npx supabase start   # Local Supabase instance
 npx supabase db reset # Reset DB + run migrations + seed
 npx supabase migration new <name>  # Create a new migration
-```
 
-No test runner is configured yet (Playwright is in the approved stack but not installed).
+# Testing (Playwright)
+npm run test:e2e         # Run all E2E tests
+npm run test:e2e:ui      # Playwright UI mode
+npm run test:e2e:headed  # Headed browser (visible)
+npm run test:e2e:report  # View HTML report
+```
 
 ## Stack (do not deviate)
 
@@ -36,7 +41,7 @@ No test runner is configured yet (Playwright is in the approved stack but not in
 | DB + Auth | Supabase (PostgreSQL + Google OAuth + RLS) |
 | Payments | Stripe |
 | Email | Resend |
-| Testing | Playwright (pending install) |
+| Testing | Playwright (installed — see `E2E_TEST_SUMMARY.md`) |
 | Deployment | Vercel |
 
 ## Next.js 16
@@ -78,6 +83,7 @@ shared/
 supabase/
   migrations/           # Numbered SQL migration files (001_initial_schema.sql, ...)
   seed.sql              # Initial question bank (Security+)
+e2e/                    # Playwright E2E tests (see E2E_TEST_SUMMARY.md)
 AGENTS/                 # AI agent role prompts (reference docs)
 ```
 
