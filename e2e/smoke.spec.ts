@@ -74,10 +74,8 @@ test.describe('Smoke Test — Authenticated Flows', () => {
     })
     const alreadySubscribed = page.getByText(/already have an active/i)
 
-    const hasCheckout = await checkoutBtn.isVisible().catch(() => false)
-    const hasSubscription = await alreadySubscribed
-      .isVisible()
-      .catch(() => false)
+    const hasCheckout = await checkoutBtn.isVisible()
+    const hasSubscription = await alreadySubscribed.isVisible()
 
     // One of these two states must be true
     expect(hasCheckout || hasSubscription).toBe(true)
@@ -89,7 +87,7 @@ test.describe('Smoke Test — Authenticated Flows', () => {
       name: /subscribe/i,
     })
 
-    const isVisible = await checkoutBtn.isVisible().catch(() => false)
+    const isVisible = await checkoutBtn.isVisible()
 
     // Skip if user is already Pro (no checkout button shown)
     test.skip(!isVisible, 'User is already subscribed — skipping checkout test')
@@ -97,7 +95,6 @@ test.describe('Smoke Test — Authenticated Flows', () => {
     // Click and wait for navigation to Stripe
     await checkoutBtn.click()
     await page.waitForURL(/checkout\.stripe\.com/, { timeout: 30_000 })
-    expect(page.url()).toContain('checkout.stripe.com')
   })
 
   test('settings page loads with billing section', async ({ page }) => {
