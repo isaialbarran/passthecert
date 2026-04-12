@@ -22,7 +22,7 @@ test.describe('Smoke Test — Critical User Flows', () => {
   test('pricing page shows plan details and CTA', async ({ page }) => {
     await page.goto('/pricing')
     await expect(page.getByRole('heading', { name: 'Pro', level: 2 })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText(/€\d+\.\d{2}\/mo/)).toBeVisible()
+    await expect(page.getByText(/€\d+\.\d{2}\/mo/).first()).toBeVisible()
     await expect(page.getByText(/unlimited questions/i)).toBeVisible()
   })
 
@@ -82,6 +82,10 @@ test.describe('Smoke Test — Authenticated Flows', () => {
   })
 
   test('checkout button redirects to Stripe', async ({ page }) => {
+    const hasRealStripeKey = process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_') &&
+      process.env.STRIPE_SECRET_KEY !== 'sk_test_dummy'
+    test.skip(!hasRealStripeKey, 'Stripe key is a dummy — skipping checkout redirect test')
+
     await page.goto('/pricing')
     const checkoutBtn = page.getByRole('button', {
       name: /subscribe/i,
