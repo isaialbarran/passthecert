@@ -26,7 +26,9 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Start Supabase
-        run: npx supabase start
+        run: |
+          npx supabase stop --no-backup || true
+          npx supabase start
 
       - name: Write .env.local
         run: |
