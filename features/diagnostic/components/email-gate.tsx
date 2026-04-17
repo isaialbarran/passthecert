@@ -18,7 +18,10 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
     e.preventDefault()
     setError(null)
 
-    const domainScores: Record<string, { percentage: number; correct: number; total: number }> = {}
+    const domainScores: Record<
+      string,
+      { percentage: number; correct: number; total: number }
+    > = {}
     for (const ds of result.domainScores) {
       domainScores[ds.domainId] = {
         percentage: ds.percentage,
@@ -46,14 +49,35 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
   return (
     <div className="rounded-lg border border-accent/30 bg-surface p-6">
       <h3 className="font-heading text-lg font-extrabold">
-        Unlock Your Domain Breakdown
+        Where should we send your personalized study plan?
       </h3>
       <p className="mt-2 text-sm text-muted">
-        Enter your email to see exactly which domains need work — plus get a
-        personalized study plan sent to your inbox.
+        Drop your email and we&apos;ll unlock + send you:
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-4 flex gap-3">
+      <ul className="mt-3 space-y-2 text-sm text-foreground">
+        <li className="flex items-start gap-2">
+          <span className="mt-0.5 text-accent">✓</span>
+          <span>
+            Your weakest domain (and why it&apos;s costing you the most points)
+          </span>
+        </li>
+        <li className="flex items-start gap-2">
+          <span className="mt-0.5 text-accent">✓</span>
+          <span>
+            A full breakdown of your score across all{' '}
+            {result.domainScores.length} Security+ domains
+          </span>
+        </li>
+        <li className="flex items-start gap-2">
+          <span className="mt-0.5 text-accent">✓</span>
+          <span>
+            A personalized study plan calibrated to your current readiness score
+          </span>
+        </li>
+      </ul>
+
+      <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
         <input
           type="email"
           required
@@ -65,18 +89,16 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity disabled:opacity-40"
+          className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90 disabled:opacity-40"
         >
-          {isPending ? 'Sending...' : 'Unlock Results'}
+          {isPending ? 'Sending...' : 'Send my plan →'}
         </button>
       </form>
 
-      {error && (
-        <p className="mt-3 text-sm text-danger">{error}</p>
-      )}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
-      <p className="mt-3 text-xs text-muted/60">
-        No spam. Just your diagnostic report and study recommendations.
+      <p className="mt-3 text-xs text-muted/70">
+        No spam. One email with your plan — unsubscribe anytime if it&apos;s not useful.
       </p>
     </div>
   )
