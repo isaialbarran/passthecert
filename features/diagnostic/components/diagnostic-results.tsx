@@ -149,7 +149,7 @@ export function DiagnosticResults({
   const readiness = result.overallScore
   const passProb = passProbabilityToday(readiness)
   const hoursNeeded = hoursToReady(readiness)
-  const weeks = Math.max(1, Math.ceil(hoursNeeded / 8)) // ~1h/day × 8 days per "week block"
+  const weeks = Math.max(1, Math.ceil(hoursNeeded / 7)) // ~1h/day × 7 days per week, matches UI copy
   const isInPassingZone = readiness >= PASSING_ZONE
   // Fallback prevents rendering an empty <span> if the result was computed
   // without any answered questions (e.g. edge-case state in the client flow).
@@ -172,16 +172,26 @@ export function DiagnosticResults({
           {result.correctCount} of {result.totalQuestions} correct · Passing zone starts at {PASSING_ZONE}
         </p>
 
-        {/* Progress bar with passing zone marker */}
-        <div className="relative mx-auto mt-4 h-3 w-full max-w-md overflow-hidden rounded-full bg-background">
+        {/* Progress bar with passing zone marker.
+            Inline styles are an intentional exception to the Tailwind-only rule:
+            width and left are dynamic numeric values that can't be expressed
+            as static utility classes. */}
+        <div
+          className="relative mx-auto mt-4 h-3 w-full max-w-md overflow-hidden rounded-full bg-background"
+          role="progressbar"
+          aria-valuenow={readiness}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Readiness ${readiness} out of 100, passing zone starts at ${PASSING_ZONE}`}
+        >
           <div
             className={`h-full rounded-full transition-all duration-700 ${barColor(readiness)}`}
             style={{ width: `${readiness}%` }}
           />
           <div
+            role="presentation"
             className="absolute top-0 h-full w-0.5 bg-accent/60"
             style={{ left: `${PASSING_ZONE}%` }}
-            aria-label="Passing zone marker"
           />
         </div>
         <p className="mt-3 text-sm text-muted">{readinessLabel(readiness)}</p>
