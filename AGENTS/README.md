@@ -18,6 +18,7 @@ Before using the agent workflow, ensure these exist:
 | Developer | `dev.md` | Claude Code | Feature implementation, migrations, PRs |
 | QA | `qa.md` | Claude (chat) | Test plans, bug reports, Playwright tests |
 | Architect | `architect.md` | Claude (chat) | Code review, scalability, DRY, best practices |
+| Growth / Marketing | `marketing.md` | Claude (chat) / Claude Code | GTM plan, channel copy, positioning, tracking audit |
 
 ## How to use each agent
 
