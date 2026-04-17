@@ -64,12 +64,15 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
         </li>
         <li className="flex items-start gap-2">
           <span className="mt-0.5 text-accent">✓</span>
-          <span>A full breakdown of your score across all 5 Security+ domains</span>
+          <span>
+            A full breakdown of your score across all{' '}
+            {result.domainScores.length} Security+ domains
+          </span>
         </li>
         <li className="flex items-start gap-2">
           <span className="mt-0.5 text-accent">✓</span>
           <span>
-            A 6-week study plan calibrated to your current readiness score
+            A personalized study plan calibrated to your current readiness score
           </span>
         </li>
       </ul>

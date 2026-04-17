@@ -29,13 +29,22 @@ function barColor(percentage: number): string {
 }
 
 // Probability of passing today based on current readiness score.
-// Calibrated so that score=75 (passing zone) ~= 65% probability,
-// score=40 ~= 18%, score=90 ~= 90%.
+// Piecewise linear anchored at: (40, 18%), (75, 65%), (90, 90%).
+// Below 20 floors at 5%; at/above 95 caps at 95%.
 function passProbabilityToday(score: number): number {
   if (score <= 20) return 5
   if (score >= 95) return 95
-  const p = Math.round(1.15 * score - 28)
-  return Math.max(5, Math.min(95, p))
+  // 3-segment piecewise anchored at (20,5) (40,18) (75,65) (95,95):
+  //   20–40: slope 0.65, intercept -8
+  //   40–75: slope ≈1.343, intercept ≈-35.7
+  //   75–95: slope 1.5, intercept -47.5
+  const p =
+    score <= 40
+      ? 0.65 * score - 8
+      : score <= 75
+        ? 1.343 * score - 35.7
+        : 1.5 * score - 47.5
+  return Math.max(5, Math.min(95, Math.round(p)))
 }
 
 // Estimated hours of focused practice to reach the passing zone.
@@ -141,6 +150,10 @@ export function DiagnosticResults({
   const passProb = passProbabilityToday(readiness)
   const hoursNeeded = hoursToReady(readiness)
   const weeks = Math.max(1, Math.ceil(hoursNeeded / 8)) // ~1h/day × 8 days per "week block"
+  const isInPassingZone = readiness >= PASSING_ZONE
+  // Fallback prevents rendering an empty <span> if the result was computed
+  // without any answered questions (e.g. edge-case state in the client flow).
+  const weakestDomainName = result.weakestDomainName || 'your weakest domain'
 
   return (
     <div className="space-y-8">
@@ -190,15 +203,31 @@ export function DiagnosticResults({
           </p>
         </div>
         <div className="rounded-lg border border-border bg-surface p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Focused practice to be ready
-          </p>
-          <p className="mt-1 font-heading text-3xl font-extrabold text-foreground">
-            ~{hoursNeeded}h
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            About {weeks} {weeks === 1 ? 'week' : 'weeks'} at 1h/day with spaced repetition.
-          </p>
+          {hoursNeeded === 0 ? (
+            <>
+              <p className="text-xs uppercase tracking-wider text-muted">
+                You&apos;re in the passing zone
+              </p>
+              <p className="mt-1 font-heading text-3xl font-extrabold text-accent">
+                Ready
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                Maintain with daily reviews so you don&apos;t lose it before exam day.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs uppercase tracking-wider text-muted">
+                Focused practice to be ready
+              </p>
+              <p className="mt-1 font-heading text-3xl font-extrabold text-foreground">
+                ~{hoursNeeded}h
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                About {weeks} {weeks === 1 ? 'week' : 'weeks'} at 1h/day with spaced repetition.
+              </p>
+            </>
+          )}
         </div>
       </div>
 
@@ -282,7 +311,7 @@ export function DiagnosticResults({
       {/* Plan + paid CTA (only when unlocked) */}
       {isUnlocked && (
         <div className="rounded-lg border border-accent/30 bg-surface p-6">
-          {readiness >= 80 ? (
+          {isInPassingZone ? (
             <>
               <h3 className="font-heading text-lg font-extrabold">
                 You&apos;re already close. Don&apos;t let it slip.
@@ -313,7 +342,7 @@ export function DiagnosticResults({
                   <span>
                     Targeted drills on{' '}
                     <span className="text-danger">
-                      {result.weakestDomainName}
+                      {weakestDomainName}
                     </span>{' '}
                     — the only domain still pulling your score down.
                   </span>
@@ -363,7 +392,7 @@ export function DiagnosticResults({
                 {weeks === 1 ? 'week' : 'weeks'} of focused practice closes your gap:
               </p>
               <ol className="mt-4 space-y-2 text-sm text-foreground">
-                {buildPhasePlan(weeks, result.weakestDomainName).map(
+                {buildPhasePlan(weeks, weakestDomainName).map(
                   (phase, i) => (
                     <li key={phase.rangeLabel} className="flex gap-3">
                       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-medium text-accent">
