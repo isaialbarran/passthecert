@@ -384,14 +384,13 @@ export function DiagnosticClient({
   }
 
   // --- Results (locked) ---
+  // MVP: only the email gate + retake. All score/probability/domain UI lives
+  // in the unlocked state, where the user has earned it.
   if (phase === 'results' && result) {
     return (
       <div className="mx-auto max-w-2xl space-y-8 py-10">
-        <DiagnosticResults result={result} isUnlocked={false} isLoggedIn={isLoggedIn} />
         <EmailGate result={result} onUnlock={handleUnlock} />
-        {/* Demoted retake link: tiny, muted, below the fold — present but not
-            competing with the email CTA. */}
-        <div className="pt-6 text-center">
+        <div className="pt-2 text-center">
           <button
             onClick={handleRestart}
             className="text-xs text-muted/60 underline-offset-2 transition-colors hover:text-muted hover:underline"
