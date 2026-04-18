@@ -7,7 +7,6 @@ interface DomainData {
   weightPct: number
   correctPct: number
   masteryPct: number
-  coveredPct: number
   totalAnswered: number
   totalCorrect: number
   totalInDomain: number
@@ -51,7 +50,7 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
             </div>
             <div className="mt-1.5 flex items-center justify-between">
               <span className="text-xs text-muted">
-                {domain.totalCorrect} / {domain.totalInDomain} mastered ·{' '}
+                {domain.totalCorrect} / {domain.totalInDomain} correct ·{' '}
                 {domain.totalAnswered} seen
               </span>
               <span className="text-xs text-muted">
