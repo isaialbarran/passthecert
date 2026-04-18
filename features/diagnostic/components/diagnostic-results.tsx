@@ -10,7 +10,6 @@ import { PRICE_LABEL } from '@/features/billing/constants'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
-  isUnlocked: boolean
   isLoggedIn: boolean
 }
 
@@ -135,7 +134,6 @@ function buildPhasePlan(weeks: number, weakestDomain: string): PhasePlan[] {
 
 export function DiagnosticResults({
   result,
-  isUnlocked,
   isLoggedIn,
 }: DiagnosticResultsProps) {
   const readiness = result.overallScore
@@ -191,75 +189,33 @@ export function DiagnosticResults({
         </p>
       </div>
 
-      {/* Unified stat card: pass probability is the lead, hours is the context */}
+      {/* Unified stat card: pass probability is the lead, hours is the context.
+          The header + big percentage are constant; only the sub-copy branches
+          on whether the user is already in the passing zone. */}
       <div className="rounded-lg border border-border bg-surface p-5 text-center">
-        {hoursNeeded === 0 ? (
-          <>
-            <p className="text-xs uppercase tracking-wider text-muted">
-              Probability of passing today
-            </p>
-            <p
-              className={`mt-1 font-heading text-4xl font-extrabold ${scoreColor(passProb)}`}
-            >
-              {passProb}%
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              You&apos;re in the passing zone — daily reviews keep it that way.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-xs uppercase tracking-wider text-muted">
-              Probability of passing today
-            </p>
-            <p
-              className={`mt-1 font-heading text-4xl font-extrabold ${scoreColor(passProb)}`}
-            >
-              {passProb}%
-            </p>
-            <p className="mt-2 text-sm text-muted">
+        <p className="text-xs uppercase tracking-wider text-muted">
+          Probability of passing today
+        </p>
+        <p
+          className={`mt-1 font-heading text-4xl font-extrabold ${scoreColor(passProb)}`}
+        >
+          {passProb}%
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          {hoursNeeded === 0 ? (
+            <>You&apos;re in the passing zone — daily reviews keep it that way.</>
+          ) : (
+            <>
               <span className="font-medium text-foreground">~{hoursNeeded}h</span>{' '}
               of focused practice (~{weeks} {weeks === 1 ? 'week' : 'weeks'} at
               1h/day) closes the gap to the passing zone.
-            </p>
-          </>
-        )}
+            </>
+          )}
+        </p>
       </div>
 
-      {/* Weakest Domain Teaser (blurred before email) */}
-      {!isUnlocked && (
-        <div className="rounded-lg border border-danger/30 bg-surface p-5">
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Your weakest domain
-          </p>
-          <div className="mt-2 flex items-center justify-between">
-            <p className="select-none font-heading text-lg font-extrabold text-danger blur-[6px]">
-              ████████████████████
-            </p>
-            <span className="select-none font-heading text-lg font-extrabold text-danger blur-[6px]">
-              ██%
-            </span>
-          </div>
-          <p className="mt-3 text-sm text-muted">
-            One domain is pulling your score down more than the others.
-            Knowing which one lets you focus your first week of practice where
-            it matters most.
-          </p>
-        </div>
-      )}
-
-      {/* Accuracy disclaimer — only shown before unlock */}
-      {!isUnlocked && (
-        <p className="text-center text-xs text-muted/70">
-          This is a 10-question snapshot — directionally accurate, not
-          definitive. The full tool tracks hundreds of responses over time to
-          refine your readiness score as you practice.
-        </p>
-      )}
-
-      {/* Domain Breakdown (revealed after email) */}
-      {isUnlocked && (
-        <div>
+      {/* Domain Breakdown */}
+      <div>
           <h3 className="mb-4 font-heading text-lg font-extrabold">
             Domain Breakdown
           </h3>
@@ -297,28 +253,23 @@ export function DiagnosticResults({
             ))}
           </div>
         </div>
-      )}
 
-      {/* Scientific social proof — shown only after unlock, as a pre-CTA
-          reassurance for a user already invested. Before unlock it was just
-          cognitive noise in the email-conversion flow. */}
-      {isUnlocked && (
-        <div className="rounded-lg border border-accent/20 bg-accent/5 p-4">
-          <p className="text-sm text-foreground">
-            <span className="font-medium text-accent">Why this works:</span>{' '}
-            Spaced repetition is one of the most-studied learning techniques
-            in cognitive science. Meta-analyses show it can produce 2× better
-            long-term retention than massed practice.
-          </p>
-          <p className="mt-2 text-xs text-muted">
-            Cepeda et al. (2006), <em>Psychological Bulletin</em>, meta-analysis of 317 experiments.
-          </p>
-        </div>
-      )}
+      {/* Scientific social proof — pre-CTA reassurance for a user who has
+          already submitted their email and is deciding whether to pay. */}
+      <div className="rounded-lg border border-accent/20 bg-accent/5 p-4">
+        <p className="text-sm text-foreground">
+          <span className="font-medium text-accent">Why this works:</span>{' '}
+          Spaced repetition is one of the most-studied learning techniques in
+          cognitive science. Meta-analyses show it can produce 2× better
+          long-term retention than massed practice.
+        </p>
+        <p className="mt-2 text-xs text-muted">
+          Cepeda et al. (2006), <em>Psychological Bulletin</em>, meta-analysis of 317 experiments.
+        </p>
+      </div>
 
-      {/* Plan + paid CTA (only when unlocked) */}
-      {isUnlocked && (
-        <div className="rounded-lg border border-accent/30 bg-surface p-6">
+      {/* Plan + paid CTA */}
+      <div className="rounded-lg border border-accent/30 bg-surface p-6">
           {isInPassingZone ? (
             <>
               <h3 className="font-heading text-lg font-extrabold">
@@ -448,8 +399,7 @@ export function DiagnosticResults({
               </div>
             </>
           )}
-        </div>
-      )}
+      </div>
     </div>
   )
 }

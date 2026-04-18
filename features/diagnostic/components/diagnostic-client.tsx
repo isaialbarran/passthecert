@@ -406,13 +406,13 @@ export function DiagnosticClient({
   if (phase === 'unlocked' && result) {
     return (
       <div className="mx-auto max-w-2xl space-y-8 py-10">
-        <DiagnosticResults result={result} isUnlocked={true} isLoggedIn={isLoggedIn} />
-        <div className="text-center">
+        <DiagnosticResults result={result} isLoggedIn={isLoggedIn} />
+        <div className="pt-2 text-center">
           <button
             onClick={handleRestart}
-            className="text-sm text-muted underline transition-colors hover:text-foreground"
+            className="text-xs text-muted/60 underline-offset-2 transition-colors hover:text-muted hover:underline"
           >
-            Retake Diagnostic
+            Retake diagnostic
           </button>
         </div>
       </div>
