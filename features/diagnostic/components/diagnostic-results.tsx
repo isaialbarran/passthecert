@@ -10,7 +10,6 @@ import { PRICE_LABEL } from '@/features/billing/constants'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
-  isUnlocked: boolean
   isLoggedIn: boolean
 }
 
@@ -52,14 +51,6 @@ function passProbabilityToday(score: number): number {
 function hoursToReady(score: number): number {
   const gap = Math.max(0, PASSING_ZONE - score)
   return Math.round(gap * 1.2)
-}
-
-function readinessLabel(score: number): string {
-  if (score >= PASSING_ZONE) return "You're in the passing zone — keep sharpening."
-  if (score >= 55) return 'Solid foundation — targeted practice will close the gap.'
-  if (score >= 35) return 'Meaningful gaps identified — a plan fixes this fast.'
-  if (score >= 21) return "You're far from ready today — but that's exactly what this tool fixes."
-  return "Starting from scratch is a feature, not a bug — SM-2 builds memory right the first time."
 }
 
 interface PhasePlan {
@@ -143,7 +134,6 @@ function buildPhasePlan(weeks: number, weakestDomain: string): PhasePlan[] {
 
 export function DiagnosticResults({
   result,
-  isUnlocked,
   isLoggedIn,
 }: DiagnosticResultsProps) {
   const readiness = result.overallScore
@@ -157,7 +147,7 @@ export function DiagnosticResults({
 
   return (
     <div className="space-y-8">
-      {/* Readiness Score */}
+      {/* Readiness Score hero — one anchor number, no redundant copy */}
       <div className="text-center">
         <p className="text-sm uppercase tracking-wider text-muted">
           Your Readiness Score
@@ -169,7 +159,7 @@ export function DiagnosticResults({
           <span className="text-3xl text-muted">/100</span>
         </p>
         <p className="mt-2 text-xs text-muted">
-          {result.correctCount} of {result.totalQuestions} correct · Passing zone starts at {PASSING_ZONE}
+          {result.correctCount} of {result.totalQuestions} correct
         </p>
 
         {/* Progress bar with passing zone marker.
@@ -194,78 +184,38 @@ export function DiagnosticResults({
             style={{ left: `${PASSING_ZONE}%` }}
           />
         </div>
-        <p className="mt-3 text-sm text-muted">{readinessLabel(readiness)}</p>
+        <p className="mt-2 text-xs text-muted">
+          Passing zone starts at {PASSING_ZONE}
+        </p>
       </div>
 
-      {/* Key metrics: Pass probability + Time to ready */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-border bg-surface p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Probability of passing today
-          </p>
-          <p
-            className={`mt-1 font-heading text-3xl font-extrabold ${scoreColor(passProb)}`}
-          >
-            {passProb}%
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            Based on your current score vs. the 75-point passing zone.
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-surface p-4 text-center">
+      {/* Unified stat card: pass probability is the lead, hours is the context.
+          The header + big percentage are constant; only the sub-copy branches
+          on whether the user is already in the passing zone. */}
+      <div className="rounded-lg border border-border bg-surface p-5 text-center">
+        <p className="text-xs uppercase tracking-wider text-muted">
+          Probability of passing today
+        </p>
+        <p
+          className={`mt-1 font-heading text-4xl font-extrabold ${scoreColor(passProb)}`}
+        >
+          {passProb}%
+        </p>
+        <p className="mt-2 text-sm text-muted">
           {hoursNeeded === 0 ? (
-            <>
-              <p className="text-xs uppercase tracking-wider text-muted">
-                You&apos;re in the passing zone
-              </p>
-              <p className="mt-1 font-heading text-3xl font-extrabold text-accent">
-                Ready
-              </p>
-              <p className="mt-1 text-xs text-muted">
-                Maintain with daily reviews so you don&apos;t lose it before exam day.
-              </p>
-            </>
+            <>You&apos;re in the passing zone — daily reviews keep it that way.</>
           ) : (
             <>
-              <p className="text-xs uppercase tracking-wider text-muted">
-                Focused practice to be ready
-              </p>
-              <p className="mt-1 font-heading text-3xl font-extrabold text-foreground">
-                ~{hoursNeeded}h
-              </p>
-              <p className="mt-1 text-xs text-muted">
-                About {weeks} {weeks === 1 ? 'week' : 'weeks'} at 1h/day with spaced repetition.
-              </p>
+              <span className="font-medium text-foreground">~{hoursNeeded}h</span>{' '}
+              of focused practice (~{weeks} {weeks === 1 ? 'week' : 'weeks'} at
+              1h/day) closes the gap to the passing zone.
             </>
           )}
-        </div>
+        </p>
       </div>
 
-      {/* Weakest Domain Teaser (blurred before email) */}
-      {!isUnlocked && (
-        <div className="rounded-lg border border-danger/30 bg-surface p-5">
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Your weakest domain
-          </p>
-          <div className="mt-2 flex items-center justify-between">
-            <p className="select-none font-heading text-lg font-extrabold text-danger blur-[6px]">
-              ████████████████████
-            </p>
-            <span className="select-none font-heading text-lg font-extrabold text-danger blur-[6px]">
-              ██%
-            </span>
-          </div>
-          <p className="mt-3 text-sm text-muted">
-            One domain is pulling your score down more than the others.
-            Knowing which one lets you focus the first two weeks of practice
-            where it matters most.
-          </p>
-        </div>
-      )}
-
-      {/* Domain Breakdown (revealed after email) */}
-      {isUnlocked && (
-        <div>
+      {/* Domain Breakdown */}
+      <div>
           <h3 className="mb-4 font-heading text-lg font-extrabold">
             Domain Breakdown
           </h3>
@@ -303,9 +253,9 @@ export function DiagnosticResults({
             ))}
           </div>
         </div>
-      )}
 
-      {/* Scientific social proof (honest, cited) */}
+      {/* Scientific social proof — pre-CTA reassurance for a user who has
+          already submitted their email and is deciding whether to pay. */}
       <div className="rounded-lg border border-accent/20 bg-accent/5 p-4">
         <p className="text-sm text-foreground">
           <span className="font-medium text-accent">Why this works:</span>{' '}
@@ -318,9 +268,8 @@ export function DiagnosticResults({
         </p>
       </div>
 
-      {/* Plan + paid CTA (only when unlocked) */}
-      {isUnlocked && (
-        <div className="rounded-lg border border-accent/30 bg-surface p-6">
+      {/* Plan + paid CTA */}
+      <div className="rounded-lg border border-accent/30 bg-surface p-6">
           {isInPassingZone ? (
             <>
               <h3 className="font-heading text-lg font-extrabold">
@@ -450,8 +399,7 @@ export function DiagnosticResults({
               </div>
             </>
           )}
-        </div>
-      )}
+      </div>
     </div>
   )
 }

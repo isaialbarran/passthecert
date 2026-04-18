@@ -49,35 +49,14 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
   return (
     <div className="rounded-lg border border-accent/30 bg-surface p-6">
       <h3 className="font-heading text-lg font-extrabold">
-        Where should we send your personalized study plan?
+        See your full results
       </h3>
       <p className="mt-2 text-sm text-muted">
-        Drop your email and we&apos;ll unlock + send you:
+        Your weakest domain, score breakdown and a personalized study plan —
+        sent to your inbox.
       </p>
 
-      <ul className="mt-3 space-y-2 text-sm text-foreground">
-        <li className="flex items-start gap-2">
-          <span className="mt-0.5 text-accent">✓</span>
-          <span>
-            Your weakest domain (and why it&apos;s costing you the most points)
-          </span>
-        </li>
-        <li className="flex items-start gap-2">
-          <span className="mt-0.5 text-accent">✓</span>
-          <span>
-            A full breakdown of your score across all{' '}
-            {result.domainScores.length} Security+ domains
-          </span>
-        </li>
-        <li className="flex items-start gap-2">
-          <span className="mt-0.5 text-accent">✓</span>
-          <span>
-            A personalized study plan calibrated to your current readiness score
-          </span>
-        </li>
-      </ul>
-
-      <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
+      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
         <input
           type="email"
           required
@@ -91,14 +70,14 @@ export function EmailGate({ result, onUnlock }: EmailGateProps) {
           disabled={isPending}
           className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90 disabled:opacity-40"
         >
-          {isPending ? 'Sending...' : 'Send my plan →'}
+          {isPending ? 'Sending...' : 'Unlock →'}
         </button>
       </form>
 
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       <p className="mt-3 text-xs text-muted/70">
-        No spam. One email with your plan — unsubscribe anytime if it&apos;s not useful.
+        No spam. Unsubscribe anytime.
       </p>
     </div>
   )
