@@ -6,8 +6,10 @@ interface DomainData {
   code: string
   weightPct: number
   correctPct: number
+  masteryPct: number
   coveredPct: number
   totalAnswered: number
+  totalCorrect: number
   totalInDomain: number
 }
 
@@ -21,7 +23,7 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
     <div id="domains" className="rounded-lg border border-border bg-surface p-6">
       <h3 className="font-heading text-lg font-extrabold">Domain Mastery</h3>
       <p className="mt-1 text-xs text-muted">
-        Accuracy on questions you&apos;ve practiced · Click to focus on a domain
+        Mastery counts unanswered questions as not yet learned · Click to focus on a domain
       </p>
       <div className="mt-4 space-y-3">
         {domains.map((domain) => (
@@ -36,25 +38,25 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
               </span>
               <div className="flex items-center gap-2">
                 <span className="font-medium text-foreground">
-                  {domain.correctPct}%
+                  {domain.masteryPct}%
                 </span>
                 <span className="text-muted">&#8250;</span>
               </div>
             </div>
-            {/* Accuracy bar */}
             <div className="h-2 rounded-full bg-background">
               <div
                 className="h-full rounded-full bg-accent transition-all duration-500"
-                style={{ width: `${domain.correctPct}%` }}
+                style={{ width: `${domain.masteryPct}%` }}
               />
             </div>
-            {/* Coverage info */}
             <div className="mt-1.5 flex items-center justify-between">
               <span className="text-xs text-muted">
-                {domain.totalAnswered} / {domain.totalInDomain} questions seen
+                {domain.totalCorrect} / {domain.totalInDomain} mastered ·{' '}
+                {domain.totalAnswered} seen
               </span>
               <span className="text-xs text-muted">
-                {domain.coveredPct}% covered · {domain.weightPct}% of exam
+                {domain.totalAnswered > 0 ? `${domain.correctPct}% accuracy · ` : ''}
+                {domain.weightPct}% of exam
               </span>
             </div>
           </Link>
