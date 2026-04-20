@@ -23,8 +23,43 @@ export async function isPro(userId: string): Promise<boolean> {
   }
 
   return (
-    data?.subscription_tier === 'pro' && data?.subscription_status === 'active'
+    data?.subscription_tier === 'pro' &&
+    (data?.subscription_status === 'active' ||
+      data?.subscription_status === 'trialing')
   )
+}
+
+export interface TrialInfo {
+  endsAt: string
+  daysLeft: number
+}
+
+export async function getTrialInfo(userId: string): Promise<TrialInfo | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('subscription_status, trial_ends_at')
+    .eq('id', userId)
+    .single()
+
+  if (error) {
+    throw new Error(`Failed to fetch trial info: ${error.message}`)
+  }
+
+  if (data?.subscription_status !== 'trialing' || !data?.trial_ends_at) {
+    return null
+  }
+
+  const endMs = new Date(data.trial_ends_at).getTime()
+  if (Number.isNaN(endMs)) return null
+
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((endMs - Date.now()) / (1000 * 60 * 60 * 24)),
+  )
+
+  return { endsAt: data.trial_ends_at, daysLeft }
 }
 
 export async function getSubscriptionStatus(

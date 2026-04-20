@@ -110,7 +110,7 @@ export default function LandingPage(): React.JSX.Element {
               Take the Free Diagnostic First
             </Link>
             <p className="mt-3 text-center text-xs text-muted">
-              7-day money-back guarantee, no questions asked
+              Free for 7 days, then €14.99/mo — cancel anytime
             </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { requireAuth } from '@/features/auth'
 import { redirect } from 'next/navigation'
 import { isPro } from './queries'
+import { TRIAL_DAYS } from './constants'
 
 export async function createCheckoutSession(): Promise<{ url: string }> {
   const user = await requireAuth()
@@ -46,12 +47,17 @@ export async function createCheckoutSession(): Promise<{ url: string }> {
   const session = await stripe().checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
+    payment_method_collection: 'always',
     line_items: [
       {
         price: env.STRIPE_PRO_PRICE_ID,
         quantity: 1,
       },
     ],
+    subscription_data: {
+      trial_period_days: TRIAL_DAYS,
+      metadata: { supabase_user_id: user.id },
+    },
     success_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard?upgraded=true`,
     cancel_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard`,
     metadata: { supabase_user_id: user.id },

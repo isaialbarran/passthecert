@@ -4,7 +4,7 @@ export interface Profile {
   full_name: string | null
   avatar_url: string | null
   stripe_customer_id: string | null
-  subscription_status: 'trialing' | 'active' | 'canceled' | 'past_due'
+  subscription_status: 'trialing' | 'active' | 'canceled' | 'past_due' | 'unpaid' | 'inactive' | null
   subscription_tier: 'free' | 'pro'
   trial_ends_at: string | null
   created_at: string
