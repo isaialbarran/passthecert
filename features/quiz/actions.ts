@@ -215,7 +215,7 @@ export async function completeSession(sessionId: string) {
 
   const { data: session } = await supabase
     .from('quiz_sessions')
-    .select('total_questions, correct_count')
+    .select('total_questions, correct_count, is_completed')
     .eq('id', sessionId)
     .eq('user_id', user.id)
     .single()
@@ -226,25 +226,28 @@ export async function completeSession(sessionId: string) {
     (session.correct_count / session.total_questions) * 100
   )
 
-  await supabase
-    .from('quiz_sessions')
-    .update({
-      is_completed: true,
-      completed_at: new Date().toISOString(),
-      score_pct: scorePct,
-    })
-    .eq('id', sessionId)
+  // Idempotent: only write + emit the analytics event the first time.
+  if (!session.is_completed) {
+    await supabase
+      .from('quiz_sessions')
+      .update({
+        is_completed: true,
+        completed_at: new Date().toISOString(),
+        score_pct: scorePct,
+      })
+      .eq('id', sessionId)
 
-  await captureServerEvent({
-    distinctId: user.id,
-    event: 'study_session_completed',
-    properties: {
-      session_id: sessionId,
-      score_pct: scorePct,
-      correct_count: session.correct_count,
-      total_questions: session.total_questions,
-    },
-  })
+    await captureServerEvent({
+      distinctId: user.id,
+      event: 'study_session_completed',
+      properties: {
+        session_id: sessionId,
+        score_pct: scorePct,
+        correct_count: session.correct_count,
+        total_questions: session.total_questions,
+      },
+    })
+  }
 
   return { scorePct, correctCount: session.correct_count, totalQuestions: session.total_questions }
 }

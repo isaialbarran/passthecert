@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { submitAnswer, getNextQuestion } from '../actions'
+import { submitAnswer, getNextQuestion, completeSession } from '../actions'
 import { QuestionCard } from '@/shared/components/ui/question-card'
 import { ExplanationPanel } from '@/shared/components/ui/explanation-panel'
 import type { Question } from '@/shared/types/database'
@@ -23,7 +23,6 @@ export function QuizClient({
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [result, setResult] = useState<AnswerResult | null>(null)
   const [questionIndex, setQuestionIndex] = useState(1)
-  const [correctCount, setCorrectCount] = useState(0)
   const [isSubmitting, startSubmit] = useTransition()
   const [isLoadingNext, startLoadNext] = useTransition()
   const [sessionComplete, setSessionComplete] = useState(false)
@@ -50,9 +49,6 @@ export function QuizClient({
         selectedKey
       )
       setResult(answerResult)
-      if (answerResult.isCorrect === true) {
-        setCorrectCount((c) => c + 1)
-      }
     })
   }
 
@@ -60,11 +56,15 @@ export function QuizClient({
     startLoadNext(async () => {
       const nextQuestion = await getNextQuestion(sessionId)
       if (!nextQuestion) {
-        setSessionComplete(true)
+        // Use server-authoritative score, not the locally-tracked counter.
+        // In full_exam mode `result.isCorrect` is always null, so the client
+        // counter is 0 — the DB is the only reliable source of truth.
+        const summary = await completeSession(sessionId)
         setFinalScore({
-          correct: correctCount,
-          total: totalQuestions,
+          correct: summary.correctCount,
+          total: summary.totalQuestions,
         })
+        setSessionComplete(true)
         return
       }
       setQuestion(nextQuestion)
