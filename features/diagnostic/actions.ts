@@ -128,7 +128,7 @@ export async function submitDiagnosticLead(
 
     if (sendError) {
       console.error('[diagnostic] Resend email failed:', sendError)
-      await captureServerEvent({
+      void captureServerEvent({
         distinctId: email,
         event: 'email_send_failed',
         properties: {
@@ -138,7 +138,7 @@ export async function submitDiagnosticLead(
         },
       })
     } else {
-      await captureServerEvent({
+      void captureServerEvent({
         distinctId: email,
         event: 'diagnostic_report_email_sent',
         properties: { resend_id: data?.id },
@@ -146,11 +146,12 @@ export async function submitDiagnosticLead(
     }
   } catch (err) {
     console.error('[diagnostic] Resend email failed:', err)
-    await captureServerEvent({
+    void captureServerEvent({
       distinctId: email,
       event: 'email_send_failed',
       properties: {
         source: 'diagnostic',
+        error_name: err instanceof Error ? err.name : 'UnknownError',
         error_message: err instanceof Error ? err.message : String(err),
       },
     })
