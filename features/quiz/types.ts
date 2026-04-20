@@ -20,9 +20,10 @@ export type QuizMode =
   | 'domain_focus'
 
 export interface AnswerResult {
-  isCorrect: boolean
-  correctKey: string
-  explanation: string
+  revealFeedback: boolean
+  isCorrect: boolean | null
+  correctKey: string | null
+  explanation: string | null
   questionIndex: number
   totalQuestions: number
 }

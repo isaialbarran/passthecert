@@ -7,7 +7,7 @@ import { calculateSM2 } from './sm2'
 import { updateReadinessScore } from '@/features/progress/actions'
 import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { isPro, getDailyQuestionCount } from '@/features/billing'
-import type { QuizMode } from './types'
+import type { AnswerResult, QuizMode } from './types'
 import type { Question } from '@/shared/types/database'
 
 const FREE_DAILY_LIMIT = 20
@@ -114,9 +114,18 @@ export async function submitAnswer(
   questionId: string,
   selectedKey: string,
   timeSpentSecs?: number
-) {
+): Promise<AnswerResult> {
   const user = await requireAuth()
   const supabase = await createClient()
+
+  const { data: session } = await supabase
+    .from('quiz_sessions')
+    .select('exam_id, mode, total_questions')
+    .eq('id', sessionId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!session) throw new Error('Session not found')
 
   const { data: question } = await supabase
     .from('questions')
@@ -165,15 +174,7 @@ export async function submitAnswer(
   }
 
   // Update readiness score
-  const { data: sessionForExam } = await supabase
-    .from('quiz_sessions')
-    .select('exam_id')
-    .eq('id', sessionId)
-    .single()
-
-  if (sessionForExam) {
-    await updateReadinessScore(user.id, sessionForExam.exam_id)
-  }
+  await updateReadinessScore(user.id, session.exam_id)
 
   // Get progress
   const { count } = await supabase
@@ -181,18 +182,30 @@ export async function submitAnswer(
     .select('*', { count: 'exact', head: true })
     .eq('session_id', sessionId)
 
-  const { data: sessionData } = await supabase
-    .from('quiz_sessions')
-    .select('total_questions')
-    .eq('id', sessionId)
-    .single()
+  const questionIndex = count ?? 0
+  const totalQuestions = session.total_questions ?? 0
+
+  // In full_exam mode we withhold correctness + explanation until the session
+  // is completed — a real cert exam never reveals answers per question.
+  // DB still stores is_correct so completeSession can compute the final score.
+  if (session.mode === 'full_exam') {
+    return {
+      revealFeedback: false,
+      isCorrect: null,
+      correctKey: null,
+      explanation: null,
+      questionIndex,
+      totalQuestions,
+    }
+  }
 
   return {
+    revealFeedback: true,
     isCorrect,
     correctKey: question.correct_key,
     explanation: question.explanation,
-    questionIndex: count ?? 0,
-    totalQuestions: sessionData?.total_questions ?? 0,
+    questionIndex,
+    totalQuestions,
   }
 }
 

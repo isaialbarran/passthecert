@@ -33,6 +33,7 @@ export function QuizClient({
   } | null>(null)
 
   const isSubmitted = result !== null
+  const revealFeedback = result?.revealFeedback === true
 
   function handleSelect(key: string) {
     if (isSubmitted || isSubmitting) return
@@ -49,7 +50,7 @@ export function QuizClient({
         selectedKey
       )
       setResult(answerResult)
-      if (answerResult.isCorrect) {
+      if (answerResult.isCorrect === true) {
         setCorrectCount((c) => c + 1)
       }
     })
@@ -134,24 +135,33 @@ export function QuizClient({
             isSelected={selectedKey === option.key}
             isSubmitted={isSubmitted}
             isCorrect={
-              isSubmitted ? option.key === result?.correctKey : undefined
+              revealFeedback ? option.key === result?.correctKey : undefined
             }
             isSelectedWrong={
-              isSubmitted &&
+              revealFeedback &&
               selectedKey === option.key &&
-              !result?.isCorrect
+              result?.isCorrect === false
             }
             onClick={() => handleSelect(option.key)}
           />
         ))}
       </div>
 
-      {/* Explanation */}
-      {isSubmitted && result && (
+      {/* Explanation (study modes only) */}
+      {isSubmitted && revealFeedback && result?.explanation !== null && result?.isCorrect !== null && (
         <ExplanationPanel
-          explanation={result.explanation}
-          isCorrect={result.isCorrect}
+          explanation={result.explanation as string}
+          isCorrect={result.isCorrect as boolean}
         />
+      )}
+
+      {/* Exam-mode acknowledgment — no feedback until exam is submitted */}
+      {isSubmitted && !revealFeedback && (
+        <div className="rounded-lg border border-border bg-surface p-4">
+          <p className="text-sm font-medium text-muted">
+            Answer recorded. Your score will be revealed at the end of the exam.
+          </p>
+        </div>
       )}
 
       {/* Actions */}
