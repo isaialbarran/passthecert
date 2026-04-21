@@ -1,3 +1,5 @@
+import type { Question } from '@/shared/types/database'
+
 export interface SM2Input {
   isCorrect: boolean
   quality: number // 0-5 (0-2: fail, 3-5: pass). For binary correct/wrong use: correct=4, wrong=1
@@ -26,4 +28,15 @@ export interface AnswerResult {
   explanation: string | null
   questionIndex: number
   totalQuestions: number
+}
+
+export interface SessionCompletion {
+  correctCount: number
+  totalQuestions: number
+  scorePct: number
+}
+
+export interface NextQuestionResult {
+  question: Question | null
+  completion: SessionCompletion | null
 }

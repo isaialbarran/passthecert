@@ -7,7 +7,12 @@ import { calculateSM2 } from './sm2'
 import { updateReadinessScore } from '@/features/progress/actions'
 import { captureServerEvent } from '@/shared/lib/posthog-server'
 import { isPro, getDailyQuestionCount } from '@/features/billing'
-import type { AnswerResult, QuizMode } from './types'
+import type {
+  AnswerResult,
+  NextQuestionResult,
+  QuizMode,
+  SessionCompletion,
+} from './types'
 import type { Question } from '@/shared/types/database'
 
 const FREE_DAILY_LIMIT = 20
@@ -75,7 +80,9 @@ export async function startQuizSession(
   return { sessionId: session.id, question: firstQuestion, totalQuestions }
 }
 
-export async function getNextQuestion(sessionId: string) {
+export async function getNextQuestion(
+  sessionId: string
+): Promise<NextQuestionResult> {
   const user = await requireAuth()
   const supabase = await createClient()
 
@@ -87,7 +94,16 @@ export async function getNextQuestion(sessionId: string) {
     .single()
 
   if (!session) throw new Error('Session not found')
-  if (session.is_completed) return null
+  if (session.is_completed) {
+    return {
+      question: null,
+      completion: {
+        correctCount: session.correct_count,
+        totalQuestions: session.total_questions,
+        scorePct: session.score_pct ?? 0,
+      },
+    }
+  }
 
   const { count } = await supabase
     .from('user_responses')
@@ -95,11 +111,11 @@ export async function getNextQuestion(sessionId: string) {
     .eq('session_id', sessionId)
 
   if ((count ?? 0) >= session.total_questions) {
-    await completeSession(sessionId)
-    return null
+    const completion = await completeSession(sessionId)
+    return { question: null, completion }
   }
 
-  return getNextQuestionForSession(
+  const question = await getNextQuestionForSession(
     supabase,
     user.id,
     session.exam_id,
@@ -107,6 +123,8 @@ export async function getNextQuestion(sessionId: string) {
     session.mode as QuizMode,
     session.domain_id
   )
+
+  return { question, completion: null }
 }
 
 export async function submitAnswer(
@@ -170,7 +188,10 @@ export async function submitAnswer(
 
   // Update session correct count atomically to prevent race conditions
   if (isCorrect) {
-    await supabase.rpc('increment_correct_count', { session_id: sessionId })
+    const { error: rpcError } = await supabase.rpc('increment_correct_count', {
+      session_id: sessionId,
+    })
+    if (rpcError) throw new Error('Failed to record correct answer')
   }
 
   // Update readiness score
@@ -209,7 +230,9 @@ export async function submitAnswer(
   }
 }
 
-export async function completeSession(sessionId: string) {
+export async function completeSession(
+  sessionId: string
+): Promise<SessionCompletion> {
   const user = await requireAuth()
   const supabase = await createClient()
 

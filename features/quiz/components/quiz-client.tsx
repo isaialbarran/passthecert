@@ -23,7 +23,6 @@ export function QuizClient({
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [result, setResult] = useState<AnswerResult | null>(null)
   const [questionIndex, setQuestionIndex] = useState(1)
-  const [correctCount, setCorrectCount] = useState(0)
   const [isSubmitting, startSubmit] = useTransition()
   const [isLoadingNext, startLoadNext] = useTransition()
   const [sessionComplete, setSessionComplete] = useState(false)
@@ -50,21 +49,21 @@ export function QuizClient({
         selectedKey
       )
       setResult(answerResult)
-      if (answerResult.isCorrect === true) {
-        setCorrectCount((c) => c + 1)
-      }
     })
   }
 
   function handleNext() {
     startLoadNext(async () => {
-      const nextQuestion = await getNextQuestion(sessionId)
+      const { question: nextQuestion, completion } =
+        await getNextQuestion(sessionId)
       if (!nextQuestion) {
         setSessionComplete(true)
-        setFinalScore({
-          correct: correctCount,
-          total: totalQuestions,
-        })
+        if (completion) {
+          setFinalScore({
+            correct: completion.correctCount,
+            total: completion.totalQuestions,
+          })
+        }
         return
       }
       setQuestion(nextQuestion)
