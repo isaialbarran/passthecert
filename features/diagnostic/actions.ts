@@ -119,14 +119,45 @@ export async function submitDiagnosticLead(
       weakestDomainName: weakestDomain?.name ?? 'Unknown',
     })
 
-    await resend().emails.send({
+    const { data, error: sendError } = await resend().emails.send({
       from: 'PassTheCert <reports@passthecert.com>',
       to: email,
       subject: `Your Security+ Diagnostic: ${overallScore}% — Here's Your Study Plan`,
       html,
     })
-  } catch {
-    // Email failure is non-blocking — lead is already captured
+
+    if (sendError) {
+      console.error('[diagnostic] Resend email failed:', sendError)
+      void captureServerEvent({
+        distinctId: email,
+        event: 'diagnostic_report_email_failed',
+        properties: {
+          source: 'diagnostic',
+          error_name: sendError.name,
+          error_message: sendError.message,
+        },
+      })
+    } else {
+      void captureServerEvent({
+        distinctId: email,
+        event: 'diagnostic_report_email_sent',
+        properties: {
+          source: 'diagnostic',
+          resend_id: data?.id,
+        },
+      })
+    }
+  } catch (err) {
+    console.error('[diagnostic] Resend email failed:', err)
+    void captureServerEvent({
+      distinctId: email,
+      event: 'diagnostic_report_email_failed',
+      properties: {
+        source: 'diagnostic',
+        error_name: err instanceof Error ? err.name : 'UnknownError',
+        error_message: err instanceof Error ? err.message : String(err),
+      },
+    })
   }
 
   return { success: true }

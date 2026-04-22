@@ -20,8 +20,8 @@ export async function updateReadinessScore(userId: string, examId: string) {
   let totalWeight = 0
 
   for (const domain of domainMastery) {
-    domainScores[domain.domainId] = domain.correctPct
-    weightedSum += domain.correctPct * domain.weightPct
+    domainScores[domain.domainId] = domain.masteryPct
+    weightedSum += domain.masteryPct * domain.weightPct
     totalWeight += domain.weightPct
   }
 

@@ -66,8 +66,9 @@ export async function getDomainMastery(userId: string, examId: string) {
         code: domain.code,
         weightPct: domain.weight_pct,
         correctPct: uniqueSeen > 0 ? Math.round((correctLatest / uniqueSeen) * 100) : 0,
-        coveredPct: totalInDomain > 0 ? Math.round((uniqueSeen / totalInDomain) * 100) : 0,
+        masteryPct: totalInDomain > 0 ? Math.round((correctLatest / totalInDomain) * 100) : 0,
         totalAnswered: uniqueSeen,
+        totalCorrect: correctLatest,
         totalInDomain,
       }
     })

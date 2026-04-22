@@ -1,7 +1,9 @@
 import Link from 'next/link'
 
-// Below this many unique answered questions, accuracy isn't statistically
-// meaningful. The UI flags the domain so users don't read the % as reliable.
+// Below this many unique answered questions, per-domain accuracy isn't
+// statistically meaningful. The UI flags the domain so users don't read the
+// accuracy % as reliable. Mastery (correct / bank total) is not flagged —
+// its denominator is stable.
 const MIN_SAMPLE = 10
 
 interface DomainData {
@@ -10,8 +12,9 @@ interface DomainData {
   code: string
   weightPct: number
   correctPct: number
-  coveredPct: number
+  masteryPct: number
   totalAnswered: number
+  totalCorrect: number
   totalInDomain: number
 }
 
@@ -25,11 +28,12 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
     <div id="domains" className="rounded-lg border border-border bg-surface p-6">
       <h3 className="font-heading text-lg font-extrabold">Domain Mastery</h3>
       <p className="mt-1 text-xs text-muted">
-        Accuracy on questions you&apos;ve practiced · Click to focus on a domain
+        Mastery counts unanswered questions as not yet learned · Click to focus on a domain
       </p>
       <div className="mt-4 space-y-3">
         {domains.map((domain) => {
-          const insufficient = domain.totalAnswered < MIN_SAMPLE
+          const insufficient =
+            domain.totalAnswered > 0 && domain.totalAnswered < MIN_SAMPLE
           return (
             <Link
               key={domain.domainId}
@@ -41,42 +45,39 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
                   {domain.code} {domain.domainName}
                 </span>
                 <div className="flex items-center gap-2">
-                  {insufficient && (
-                    <span
-                      title={`Answer at least ${MIN_SAMPLE} questions in this domain for a reliable score`}
-                      className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted"
-                    >
-                      Low sample
-                    </span>
-                  )}
-                  <span
-                    className={
-                      insufficient
-                        ? 'font-medium text-muted'
-                        : 'font-medium text-foreground'
-                    }
-                  >
-                    {domain.correctPct}%
+                  <span className="font-medium text-foreground">
+                    {domain.masteryPct}%
                   </span>
                   <span className="text-muted">&#8250;</span>
                 </div>
               </div>
-              {/* Accuracy bar */}
               <div className="h-2 rounded-full bg-background">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    insufficient ? 'bg-accent/30' : 'bg-accent'
-                  }`}
-                  style={{ width: `${domain.correctPct}%` }}
+                  className="h-full rounded-full bg-accent transition-all duration-500"
+                  style={{ width: `${domain.masteryPct}%` }}
                 />
               </div>
-              {/* Coverage info */}
               <div className="mt-1.5 flex items-center justify-between">
                 <span className="text-xs text-muted">
-                  {domain.totalAnswered} / {domain.totalInDomain} questions seen
+                  {domain.totalCorrect} / {domain.totalInDomain} correct ·{' '}
+                  {domain.totalAnswered} seen
                 </span>
-                <span className="text-xs text-muted">
-                  {domain.coveredPct}% covered · {domain.weightPct}% of exam
+                <span className="flex items-center gap-1.5 text-xs text-muted">
+                  {domain.totalAnswered > 0 && (
+                    <>
+                      <span>{domain.correctPct}% accuracy</span>
+                      {insufficient && (
+                        <span
+                          title={`Answer at least ${MIN_SAMPLE} questions in this domain for a reliable accuracy`}
+                          className="rounded-full border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                        >
+                          Low sample
+                        </span>
+                      )}
+                      <span>·</span>
+                    </>
+                  )}
+                  <span>{domain.weightPct}% of exam</span>
                 </span>
               </div>
             </Link>
