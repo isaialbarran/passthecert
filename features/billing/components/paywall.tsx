@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import { createCheckoutAndRedirect } from '../actions'
-import { PRICE_CTA, TRIAL_GUARANTEE } from '../constants'
+import { PRICE_CTA, TRIAL_DAYS, TRIAL_GUARANTEE } from '../constants'
 
 export function Paywall(): JSX.Element {
   return (
@@ -23,7 +23,7 @@ export function Paywall(): JSX.Element {
           Exclusive Content
         </h2>
         <p className="mx-auto mt-3 max-w-sm text-sm text-muted">
-          Start your 7-day free trial to access this content. Cancel anytime.
+          Start your {TRIAL_DAYS}-day free trial to access this content. Cancel anytime.
         </p>
         <form action={createCheckoutAndRedirect} className="mt-8">
           <button

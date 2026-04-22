@@ -7,8 +7,14 @@ export {
   cancelSubscriptionAndRedirect,
   checkIsPro,
 } from './actions'
-export { isPro, getSubscriptionStatus, getDailyQuestionCount, getTrialInfo } from './queries'
-export type { TrialInfo } from './queries'
+export {
+  isPro,
+  getSubscriptionStatus,
+  getDailyQuestionCount,
+  getTrialInfo,
+  getBillingSummary,
+} from './queries'
+export type { TrialInfo, BillingSummary } from './queries'
 export {
   PRICE_AMOUNT,
   PRICE_INTERVAL,

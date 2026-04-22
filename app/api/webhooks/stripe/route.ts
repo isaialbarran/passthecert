@@ -62,6 +62,10 @@ export async function POST(request: Request) {
     case 'customer.subscription.updated': {
       const subscription = event.data.object as Stripe.Subscription
       const customerId = subscription.customer as string
+      const metadataUserId =
+        typeof subscription.metadata?.supabase_user_id === 'string'
+          ? subscription.metadata.supabase_user_id
+          : null
 
       const trialEndsAt =
         subscription.trial_end != null
@@ -90,16 +94,32 @@ export async function POST(request: Request) {
           break
         default:
           // incomplete / paused / other transient states — do not overwrite
+          // status/tier, but still persist trial_ends_at so the banner is
+          // accurate if a trial is already in flight.
           break
       }
 
-      if (updates.subscription_status) {
-        const { error } = await supabase
-          .from('profiles')
-          .update(updates)
-          .eq('stripe_customer_id', customerId)
+      // Match by stripe_customer_id first. If that affects 0 rows (e.g.
+      // subscription.created arrived before checkout.session.completed had a
+      // chance to write stripe_customer_id), fall back to the supabase user id
+      // carried in subscription.metadata and backfill stripe_customer_id.
+      const { data: updatedByCustomer, error: customerErr } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('stripe_customer_id', customerId)
+        .select('id')
 
-        if (error) {
+      if (customerErr) {
+        return new Response('DB update failed', { status: 500 })
+      }
+
+      if ((updatedByCustomer?.length ?? 0) === 0 && metadataUserId) {
+        const { error: fallbackErr } = await supabase
+          .from('profiles')
+          .update({ ...updates, stripe_customer_id: customerId })
+          .eq('id', metadataUserId)
+
+        if (fallbackErr) {
           return new Response('DB update failed', { status: 500 })
         }
       }

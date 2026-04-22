@@ -1,4 +1,4 @@
-import { PRICE_AMOUNT } from '@/features/billing'
+import { PRICE_AMOUNT, TRIAL_GUARANTEE } from '@/features/billing'
 import Link from 'next/link'
 
 export default function LandingPage(): React.JSX.Element {
@@ -110,7 +110,7 @@ export default function LandingPage(): React.JSX.Element {
               Take the Free Diagnostic First
             </Link>
             <p className="mt-3 text-center text-xs text-muted">
-              Free for 7 days, then €14.99/mo — cancel anytime
+              {TRIAL_GUARANTEE}
             </p>
           </div>
         </div>

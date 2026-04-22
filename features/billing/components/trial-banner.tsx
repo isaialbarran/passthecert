@@ -1,11 +1,12 @@
 import type { JSX } from 'react'
+import Link from 'next/link'
 
 interface TrialBannerProps {
   daysLeft: number
 }
 
 export function TrialBanner({ daysLeft }: TrialBannerProps): JSX.Element {
-  const safeDays = Math.max(0, Math.floor(daysLeft))
+  const safeDays = Math.max(0, daysLeft)
 
   const label =
     safeDays === 0
@@ -20,12 +21,12 @@ export function TrialBanner({ daysLeft }: TrialBannerProps): JSX.Element {
         <span className="font-medium text-accent">{label}</span>{' '}
         <span className="text-muted">Cancel anytime from Settings.</span>
       </p>
-      <a
+      <Link
         href="/settings"
         className="text-xs text-muted underline underline-offset-4 transition-colors hover:text-foreground"
       >
         Manage
-      </a>
+      </Link>
     </div>
   )
 }

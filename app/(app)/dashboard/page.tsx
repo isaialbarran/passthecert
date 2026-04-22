@@ -11,8 +11,7 @@ import {
 import { DomainMastery } from '@/features/progress/components/domain-mastery'
 import { StartPracticeCta } from '@/features/progress/components/start-practice-cta'
 import {
-  isPro,
-  getTrialInfo,
+  getBillingSummary,
   TrialBanner,
   UpgradeBanner,
   UpgradeSuccessBanner,
@@ -43,19 +42,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     streak,
     mastered,
     wrongAnswersCount,
-    userIsPro,
+    billing,
     profile,
-    trialInfo,
   ] = await Promise.all([
     getReadinessScore(user.id, exam.id),
     getDomainMastery(user.id, exam.id),
     getStudyStreak(user.id),
     getQuestionsMastered(user.id),
     getWrongAnswersCount(user.id),
-    isPro(user.id),
+    getBillingSummary(user.id),
     getProfile(user.id),
-    getTrialInfo(user.id),
   ])
+
+  const { isPro: userIsPro, trialInfo } = billing
 
   const firstName =
     profile?.full_name?.split(' ')[0]?.trim() ||
