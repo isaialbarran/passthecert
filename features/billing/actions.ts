@@ -133,15 +133,19 @@ async function getActiveSubscriptionId(
 ): Promise<string> {
   const subscriptions = await stripe().subscriptions.list({
     customer: customerId,
-    status: 'active',
-    limit: 1,
+    status: 'all',
+    limit: 10,
   })
 
-  if (!subscriptions.data[0]) {
+  const cancelable = subscriptions.data.find(
+    (s) => s.status === 'active' || s.status === 'trialing'
+  )
+
+  if (!cancelable) {
     throw new Error('No active subscription found')
   }
 
-  return subscriptions.data[0].id
+  return cancelable.id
 }
 
 export async function createPortalAndRedirect(): Promise<never> {
