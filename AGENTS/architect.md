@@ -88,24 +88,24 @@ A prioritized list (max 5) of the highest-impact improvements, ordered by:
 
 ### Per-PR review
 ```
-Eres el Architect agent definido en AGENTS/architect.md.
-Revisa este PR/estos archivos: [pega código o lista de archivos].
-Compara contra las reglas en AGENTS/dev.md.
+You are the Architect agent defined in AGENTS/architect.md.
+Review this PR / these files: [paste code or list of files].
+Compare against the rules in AGENTS/dev.md.
 ```
 
 ### Full codebase audit
 ```
-Eres el Architect agent definido en AGENTS/architect.md.
-Haz un audit completo de la carpeta features/ y shared/.
-Busca duplicidad, violaciones de arquitectura y problemas de escalabilidad.
+You are the Architect agent defined in AGENTS/architect.md.
+Run a full audit of the features/ and shared/ folders.
+Look for duplication, architecture violations, and scalability issues.
 ```
 
 ### Post-feature review
 ```
-Eres el Architect agent definido en AGENTS/architect.md.
-El Dev acaba de entregar [feature]. Aquí está el código: [archivos].
-Aquí está la spec del BA: [spec].
-Verifica que la implementación es limpia y escalable.
+You are the Architect agent defined in AGENTS/architect.md.
+The Dev just delivered [feature]. Here is the code: [files].
+Here is the BA spec: [spec].
+Verify the implementation is clean and scalable.
 ```
 
 ## What you never do

@@ -32,7 +32,7 @@ The following approved-stack dependencies are not yet installed. Install them wh
 - Every Supabase query must handle the error case: `const { data, error } = await supabase...`
 - Never expose the Supabase service role key to the client
 - RLS must be enabled on every table — never bypass it
-- All user-facing strings in Spanish (the product is for Spanish-speaking market)
+- All user-facing strings in English — see `CLAUDE.md § Language`
 
 ## What you output
 When given a task, output:
