@@ -1,5 +1,11 @@
 import Link from 'next/link'
 
+// Below this many unique answered questions, per-domain accuracy isn't
+// statistically meaningful. The UI flags the domain so users don't read the
+// accuracy % as reliable. Mastery (correct / bank total) is not flagged —
+// its denominator is stable.
+const MIN_SAMPLE = 10
+
 interface DomainData {
   domainId: string
   domainName: string
@@ -25,41 +31,58 @@ export function DomainMastery({ domains, examSlug }: DomainMasteryProps) {
         Mastery counts unanswered questions as not yet learned · Click to focus on a domain
       </p>
       <div className="mt-4 space-y-3">
-        {domains.map((domain) => (
-          <Link
-            key={domain.domainId}
-            href={`/quiz/${examSlug}?mode=domain_focus&domainId=${domain.domainId}`}
-            className="-mx-3 block rounded-lg px-3 py-3 transition-colors hover:bg-accent/5"
-          >
-            <div className="mb-1 flex items-center justify-between text-sm">
-              <span className="text-foreground">
-                {domain.code} {domain.domainName}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-foreground">
-                  {domain.masteryPct}%
+        {domains.map((domain) => {
+          const insufficient =
+            domain.totalAnswered > 0 && domain.totalAnswered < MIN_SAMPLE
+          return (
+            <Link
+              key={domain.domainId}
+              href={`/quiz/${examSlug}?mode=domain_focus&domainId=${domain.domainId}`}
+              className="-mx-3 block rounded-lg px-3 py-3 transition-colors hover:bg-accent/5"
+            >
+              <div className="mb-1 flex items-center justify-between text-sm">
+                <span className="text-foreground">
+                  {domain.code} {domain.domainName}
                 </span>
-                <span className="text-muted">&#8250;</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">
+                    {domain.masteryPct}%
+                  </span>
+                  <span className="text-muted">&#8250;</span>
+                </div>
               </div>
-            </div>
-            <div className="h-2 rounded-full bg-background">
-              <div
-                className="h-full rounded-full bg-accent transition-all duration-500"
-                style={{ width: `${domain.masteryPct}%` }}
-              />
-            </div>
-            <div className="mt-1.5 flex items-center justify-between">
-              <span className="text-xs text-muted">
-                {domain.totalCorrect} / {domain.totalInDomain} correct ·{' '}
-                {domain.totalAnswered} seen
-              </span>
-              <span className="text-xs text-muted">
-                {domain.totalAnswered > 0 ? `${domain.correctPct}% accuracy · ` : ''}
-                {domain.weightPct}% of exam
-              </span>
-            </div>
-          </Link>
-        ))}
+              <div className="h-2 rounded-full bg-background">
+                <div
+                  className="h-full rounded-full bg-accent transition-all duration-500"
+                  style={{ width: `${domain.masteryPct}%` }}
+                />
+              </div>
+              <div className="mt-1.5 flex items-center justify-between">
+                <span className="text-xs text-muted">
+                  {domain.totalCorrect} / {domain.totalInDomain} correct ·{' '}
+                  {domain.totalAnswered} seen
+                </span>
+                <span className="flex items-center gap-1.5 text-xs text-muted">
+                  {domain.totalAnswered > 0 && (
+                    <>
+                      <span>{domain.correctPct}% accuracy</span>
+                      {insufficient && (
+                        <span
+                          title={`Answer at least ${MIN_SAMPLE} questions in this domain for a reliable accuracy`}
+                          className="rounded-full border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                        >
+                          Low sample
+                        </span>
+                      )}
+                      <span>·</span>
+                    </>
+                  )}
+                  <span>{domain.weightPct}% of exam</span>
+                </span>
+              </div>
+            </Link>
+          )
+        })}
         {domains.length === 0 && (
           <p className="text-sm text-muted">
             No data yet. Start practicing to see your progress.
