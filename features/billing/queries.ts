@@ -23,8 +23,79 @@ export async function isPro(userId: string): Promise<boolean> {
   }
 
   return (
-    data?.subscription_tier === 'pro' && data?.subscription_status === 'active'
+    data?.subscription_tier === 'pro' &&
+    (data?.subscription_status === 'active' ||
+      data?.subscription_status === 'trialing')
   )
+}
+
+export interface TrialInfo {
+  endsAt: string
+  daysLeft: number
+}
+
+export async function getTrialInfo(userId: string): Promise<TrialInfo | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('subscription_status, trial_ends_at')
+    .eq('id', userId)
+    .single()
+
+  if (error) {
+    throw new Error(`Failed to fetch trial info: ${error.message}`)
+  }
+
+  return deriveTrialInfo(data?.subscription_status, data?.trial_ends_at)
+}
+
+export interface BillingSummary {
+  isPro: boolean
+  trialInfo: TrialInfo | null
+}
+
+export async function getBillingSummary(
+  userId: string,
+): Promise<BillingSummary> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('subscription_tier, subscription_status, trial_ends_at')
+    .eq('id', userId)
+    .single()
+
+  if (error) {
+    throw new Error(`Failed to fetch billing summary: ${error.message}`)
+  }
+
+  const isPro =
+    data?.subscription_tier === 'pro' &&
+    (data?.subscription_status === 'active' ||
+      data?.subscription_status === 'trialing')
+
+  return {
+    isPro,
+    trialInfo: deriveTrialInfo(data?.subscription_status, data?.trial_ends_at),
+  }
+}
+
+function deriveTrialInfo(
+  status: string | null | undefined,
+  trialEndsAt: string | null | undefined,
+): TrialInfo | null {
+  if (status !== 'trialing' || !trialEndsAt) return null
+
+  const endMs = new Date(trialEndsAt).getTime()
+  if (Number.isNaN(endMs)) return null
+
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((endMs - Date.now()) / (1000 * 60 * 60 * 24)),
+  )
+
+  return { endsAt: trialEndsAt, daysLeft }
 }
 
 export async function getSubscriptionStatus(

@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import { createCheckoutAndRedirect } from '../actions'
-import { PRICE_LABEL } from '../constants'
+import { PRICE_LABEL, TRIAL_DAYS, TRIAL_GUARANTEE } from '../constants'
 
 export function UpgradeBanner(): JSX.Element {
   return (
@@ -28,10 +28,10 @@ export function UpgradeBanner(): JSX.Element {
           type="submit"
           className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
         >
-          Start Studying — {PRICE_LABEL}
+          Start {TRIAL_DAYS}-day free trial — then {PRICE_LABEL}
         </button>
       </form>
-      <p className="mt-3 text-xs text-muted">7-day money-back guarantee, no questions asked</p>
+      <p className="mt-3 text-xs text-muted">{TRIAL_GUARANTEE}</p>
     </div>
   )
 }

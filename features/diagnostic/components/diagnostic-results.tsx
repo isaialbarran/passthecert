@@ -6,7 +6,7 @@ import type { DiagnosticResult } from '../types'
 // use next/headers. Server action modules ('use server') are safe as they
 // become RPC stubs on the client.
 import { createCheckoutAndRedirect } from '@/features/billing/actions'
-import { PRICE_LABEL } from '@/features/billing/constants'
+import { PRICE_LABEL, TRIAL_DAYS } from '@/features/billing/constants'
 
 interface DiagnosticResultsProps {
   result: DiagnosticResult
@@ -325,7 +325,7 @@ export function DiagnosticResults({
                       type="submit"
                       className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
                     >
-                      Lock it in with full-length exams — {PRICE_LABEL}
+                      Start {TRIAL_DAYS}-day free trial — then {PRICE_LABEL}
                     </button>
                   </form>
                 ) : (
@@ -333,11 +333,11 @@ export function DiagnosticResults({
                     href="/auth/login?next=/dashboard"
                     className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
                   >
-                    Lock it in with full-length exams — {PRICE_LABEL}
+                    Start {TRIAL_DAYS}-day free trial — then {PRICE_LABEL}
                   </a>
                 )}
                 <p className="mt-2 text-xs text-muted">
-                  7-day money-back guarantee · Cancel anytime
+                  Free for {TRIAL_DAYS} days, then {PRICE_LABEL} · Cancel anytime
                 </p>
               </div>
             </>
@@ -382,7 +382,7 @@ export function DiagnosticResults({
                       type="submit"
                       className="rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
                     >
-                      Start my plan — {PRICE_LABEL}
+                      Start {TRIAL_DAYS}-day free trial — then {PRICE_LABEL}
                     </button>
                   </form>
                 ) : (
@@ -390,11 +390,11 @@ export function DiagnosticResults({
                     href="/auth/login?next=/dashboard"
                     className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-medium text-[#060b06] transition-opacity hover:opacity-90"
                   >
-                    Start my plan — {PRICE_LABEL}
+                    Start {TRIAL_DAYS}-day free trial — then {PRICE_LABEL}
                   </a>
                 )}
                 <p className="mt-2 text-xs text-muted">
-                  7-day money-back guarantee · Cancel anytime
+                  Free for {TRIAL_DAYS} days, then {PRICE_LABEL} · Cancel anytime
                 </p>
               </div>
             </>

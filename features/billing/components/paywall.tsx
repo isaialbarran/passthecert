@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import { createCheckoutAndRedirect } from '../actions'
-import { PRICE_CTA } from '../constants'
+import { PRICE_CTA, TRIAL_DAYS, TRIAL_GUARANTEE } from '../constants'
 
 export function Paywall(): JSX.Element {
   return (
@@ -23,7 +23,7 @@ export function Paywall(): JSX.Element {
           Exclusive Content
         </h2>
         <p className="mx-auto mt-3 max-w-sm text-sm text-muted">
-          You need a subscription to access this content.
+          Start your {TRIAL_DAYS}-day free trial to access this content. Cancel anytime.
         </p>
         <form action={createCheckoutAndRedirect} className="mt-8">
           <button
@@ -33,9 +33,7 @@ export function Paywall(): JSX.Element {
             {PRICE_CTA}
           </button>
         </form>
-        <p className="mt-4 text-xs text-muted">
-          7-day money-back guarantee, no questions asked
-        </p>
+        <p className="mt-4 text-xs text-muted">{TRIAL_GUARANTEE}</p>
       </div>
     </div>
   )

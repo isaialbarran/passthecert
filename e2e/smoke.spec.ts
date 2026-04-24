@@ -28,7 +28,7 @@ test.describe('Smoke Test — Critical User Flows', () => {
 
   test('unauthenticated user on pricing sees login CTA', async ({ page }) => {
     await page.goto('/pricing')
-    const cta = page.getByRole('link', { name: /subscribe/i })
+    const cta = page.getByRole('link', { name: /free trial/i })
     await expect(cta).toBeVisible({ timeout: 10_000 })
     await expect(cta).toHaveAttribute('href', /\/auth\/login/)
   })
@@ -70,7 +70,7 @@ test.describe('Smoke Test — Authenticated Flows', () => {
     await page.goto('/pricing')
     // Authenticated non-pro user sees submit button (form action) or "already subscribed"
     const checkoutBtn = page.getByRole('button', {
-      name: /subscribe/i,
+      name: /free trial/i,
     })
     const alreadySubscribed = page.getByText(/already have an active/i)
 
@@ -88,7 +88,7 @@ test.describe('Smoke Test — Authenticated Flows', () => {
 
     await page.goto('/pricing')
     const checkoutBtn = page.getByRole('button', {
-      name: /subscribe/i,
+      name: /free trial/i,
     })
 
     const isVisible = await checkoutBtn.isVisible()

@@ -1,5 +1,11 @@
 import { getUser } from '@/features/auth'
-import { checkIsPro, createCheckoutAndRedirect, PRICE_AMOUNT, PRICE_CTA } from '@/features/billing'
+import {
+  checkIsPro,
+  createCheckoutAndRedirect,
+  PRICE_AMOUNT,
+  PRICE_CTA,
+  TRIAL_GUARANTEE,
+} from '@/features/billing'
 import Link from 'next/link'
 
 const FEATURES = [
@@ -48,7 +54,7 @@ export default async function PricingPage(): Promise<React.JSX.Element> {
         <PricingCta isAuthenticated={!!user} isProUser={isProUser} />
 
         <p className="mt-3 text-center text-xs text-muted">
-          7-day money-back guarantee, no questions asked
+          {TRIAL_GUARANTEE}
         </p>
       </div>
     </main>

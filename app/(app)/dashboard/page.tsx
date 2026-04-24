@@ -10,7 +10,12 @@ import {
 } from '@/features/progress'
 import { DomainMastery } from '@/features/progress/components/domain-mastery'
 import { StartPracticeCta } from '@/features/progress/components/start-practice-cta'
-import { isPro, UpgradeBanner, UpgradeSuccessBanner } from '@/features/billing'
+import {
+  getBillingSummary,
+  TrialBanner,
+  UpgradeBanner,
+  UpgradeSuccessBanner,
+} from '@/features/billing'
 
 interface DashboardPageProps {
   searchParams: Promise<{ upgraded?: string }>
@@ -31,16 +36,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     return <p className="text-muted">No exam configured.</p>
   }
 
-  const [readiness, domainMastery, streak, mastered, wrongAnswersCount, userIsPro, profile] =
-    await Promise.all([
-      getReadinessScore(user.id, exam.id),
-      getDomainMastery(user.id, exam.id),
-      getStudyStreak(user.id),
-      getQuestionsMastered(user.id),
-      getWrongAnswersCount(user.id),
-      isPro(user.id),
-      getProfile(user.id),
-    ])
+  const [
+    readiness,
+    domainMastery,
+    streak,
+    mastered,
+    wrongAnswersCount,
+    billing,
+    profile,
+  ] = await Promise.all([
+    getReadinessScore(user.id, exam.id),
+    getDomainMastery(user.id, exam.id),
+    getStudyStreak(user.id),
+    getQuestionsMastered(user.id),
+    getWrongAnswersCount(user.id),
+    getBillingSummary(user.id),
+    getProfile(user.id),
+  ])
+
+  const { isPro: userIsPro, trialInfo } = billing
 
   const firstName =
     profile?.full_name?.split(' ')[0]?.trim() ||
@@ -58,6 +72,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       {upgraded === 'true' && !userIsPro && <UpgradeSuccessBanner />}
+      {trialInfo && <TrialBanner daysLeft={trialInfo.daysLeft} />}
       {userIsPro ? (
         <StartPracticeCta examSlug={exam.slug} hasMistakes={wrongAnswersCount > 0} />
       ) : (

@@ -35,12 +35,13 @@ export async function POST(request: Request) {
       const userId = session.metadata?.supabase_user_id
 
       if (userId) {
+        // Only persist the customer link here. Subscription status (and trial
+        // end) are set by customer.subscription.created / .updated so we don't
+        // overwrite a 'trialing' status with 'active'.
         const { error } = await supabase
           .from('profiles')
           .update({
             stripe_customer_id: session.customer as string,
-            subscription_status: 'active',
-            subscription_tier: 'pro',
           })
           .eq('id', userId)
 
@@ -50,43 +51,78 @@ export async function POST(request: Request) {
 
         await captureServerEvent({
           distinctId: userId,
-          event: 'subscription_activated',
+          event: 'checkout_completed',
           properties: { stripe_session_id: session.id },
         })
       }
       break
     }
 
+    case 'customer.subscription.created':
     case 'customer.subscription.updated': {
       const subscription = event.data.object as Stripe.Subscription
       const customerId = subscription.customer as string
+      const metadataUserId =
+        typeof subscription.metadata?.supabase_user_id === 'string'
+          ? subscription.metadata.supabase_user_id
+          : null
 
-      const isActive = subscription.status === 'active' || subscription.status === 'trialing'
+      const trialEndsAt =
+        subscription.trial_end != null
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : null
 
-      if (isActive) {
-        const { error } = await supabase
+      const updates: Record<string, unknown> = {
+        trial_ends_at: trialEndsAt,
+      }
+
+      switch (subscription.status) {
+        case 'trialing':
+        case 'active':
+          updates.subscription_status = subscription.status
+          updates.subscription_tier = 'pro'
+          break
+        case 'past_due':
+        case 'unpaid':
+        case 'canceled':
+        case 'incomplete_expired':
+          updates.subscription_status =
+            subscription.status === 'incomplete_expired'
+              ? 'canceled'
+              : subscription.status
+          // Keep tier='pro' so history is preserved; isPro() gates on status.
+          break
+        default:
+          // incomplete / paused / other transient states — do not overwrite
+          // status/tier, but still persist trial_ends_at so the banner is
+          // accurate if a trial is already in flight.
+          break
+      }
+
+      // Match by stripe_customer_id first. If that affects 0 rows (e.g.
+      // subscription.created arrived before checkout.session.completed had a
+      // chance to write stripe_customer_id), fall back to the supabase user id
+      // carried in subscription.metadata and backfill stripe_customer_id.
+      const { data: updatedByCustomer, error: customerErr } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('stripe_customer_id', customerId)
+        .select('id')
+
+      if (customerErr) {
+        return new Response('DB update failed', { status: 500 })
+      }
+
+      if ((updatedByCustomer?.length ?? 0) === 0 && metadataUserId) {
+        const { error: fallbackErr } = await supabase
           .from('profiles')
-          .update({
-            subscription_status: 'active',
-            subscription_tier: 'pro',
-          })
-          .eq('stripe_customer_id', customerId)
+          .update({ ...updates, stripe_customer_id: customerId })
+          .eq('id', metadataUserId)
 
-        if (error) {
-          return new Response('DB update failed', { status: 500 })
-        }
-      } else if (subscription.status === 'past_due') {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ subscription_status: 'past_due' })
-          .eq('stripe_customer_id', customerId)
-
-        if (error) {
+        if (fallbackErr) {
           return new Response('DB update failed', { status: 500 })
         }
       }
-      // Ignore other statuses (incomplete, incomplete_expired) to avoid
-      // overwriting 'active' set by checkout.session.completed
       break
     }
 
@@ -99,6 +135,7 @@ export async function POST(request: Request) {
         .update({
           subscription_status: 'canceled',
           subscription_tier: 'free',
+          trial_ends_at: null,
         })
         .eq('stripe_customer_id', customerId)
 
