@@ -222,9 +222,8 @@ export async function completeSession(sessionId: string) {
 
   if (!session) throw new Error('Session not found')
 
-  const scorePct = Math.round(
-    (session.correct_count / session.total_questions) * 100
-  )
+  const correctCount = session.correct_count ?? 0
+  const scorePct = Math.round((correctCount / session.total_questions) * 100)
 
   // Idempotent: only write + emit the analytics event the first time.
   if (!session.is_completed) {
@@ -243,13 +242,13 @@ export async function completeSession(sessionId: string) {
       properties: {
         session_id: sessionId,
         score_pct: scorePct,
-        correct_count: session.correct_count,
+        correct_count: correctCount,
         total_questions: session.total_questions,
       },
     })
   }
 
-  return { scorePct, correctCount: session.correct_count, totalQuestions: session.total_questions }
+  return { scorePct, correctCount, totalQuestions: session.total_questions }
 }
 
 async function getNextQuestionForSession(
