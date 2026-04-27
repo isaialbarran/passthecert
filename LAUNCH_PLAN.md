@@ -71,18 +71,19 @@
   - Patrón a reusar: `e2e/diagnostic.spec.ts` ya cubre TC-01..TC-06; añadir TC-07..TC-10 al mismo archivo.
 - [x] **B7** BILL-02: clic upgrade → Stripe Checkout _(1h)_
   - ✅ Hecho y verificado verde en `e2e/billing.spec.ts`. Verifica `https://checkout.stripe.com/(c/)?pay/`. Skipea si la STRIPE_SECRET_KEY es dummy o si el TEST_USER ya está suscrito (resetear a `inactive` en Supabase para correr).
-- [ ] **B8** **BILL-03** con `stripe-cli`: webhook → pro _(2h)_
-  - `stripe trigger checkout.session.completed`
-  - Verificar `profile.subscription_status='active'` en Supabase
-  - **Esta es la prueba más crítica del sprint**
+- [x] **B8** **BILL-03** webhook → pro _(2h)_
+  - ✅ Hecho y verificado verde en `e2e/billing-webhook.spec.ts`. **Pivote vs el plan original:** el evento que flipa `subscription_status` + `tier='pro'` es `customer.subscription.created/.updated`, NO `checkout.session.completed` (este último solo persiste `stripe_customer_id`). Ver `app/api/webhooks/stripe/route.ts:73-141`.
+  - **Enfoque:** payload firmado en código con `stripe.webhooks.generateTestHeaderString()` y POST directo a `/api/webhooks/stripe` — no necesita `stripe listen`. Totalmente automatizable en CI.
+  - 4 tests verde: BILL-03 (active → pro), BILL-04 (trialing → pro + trial_ends_at), BILL-06 (deleted → canceled/free), BILL-07 (payment_failed → past_due). ~7s.
+  - El riesgo no cubierto (`stripe listen` real + signing en producción) lo absorbe **D5** (test con tarjeta verdadera).
 - [ ] **B9** CROSS-02 + CROSS-04: smoke + console _(1h)_
 - [ ] **B10** GitHub Actions: e2e en cada push a `main` _(1h)_
   - Workflow simple: install → build → `npm run test:e2e`
-  - Secrets para `TEST_USER_*`
-  - Bloquea merges si rojo
+  - Secrets: `TEST_USER_*`, `TEST_PRO_*`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_APP_URL`.
+  - Bloquea merges si rojo.
 
 **Notas del día:**
->
+> 2026-04-27 — B8 verde con 4 tests de webhook (BILL-03/04/06/07). Coverage del workflow Billing pasó de 13% a 63%. PR [#80](https://github.com/isaialbarran/passthecert/pull/80).
 
 ---
 
