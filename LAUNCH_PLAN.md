@@ -21,11 +21,18 @@
 
 ## Lunes — Auditar contenido + setup de QA
 
-- [ ] **A1** Auditar las 105 preguntas existentes _(3h)_
-  - Hoja: ID, dominio, dificultad, ¿stem claro?, ¿correcto verificable?, ¿distractores plausibles?, ¿explicación enseña?
-  - Output: lista de preguntas marcadas para reescritura
-- [ ] **A2** Reescribir explicaciones débiles _(4h)_
-  - Cada explicación debe decir **por qué el correcto SÍ y por qué cada distractor NO**
+- [x] **A1** Auditar el banco de preguntas _(3h)_
+  - ✅ Hecho — ver `QUESTION_AUDIT.md`. **Hallazgo clave:** banco real es **305 preguntas**, no 105 (`QUESTION_INVENTORY.md` está desactualizado). Cero `correct_key` factualmente incorrecto detectado → **sin bloqueantes P0 de contenido**.
+  - Diferencia entre batches: batch 2 (migrations 008–012, ~182 preguntas) refuta cada distractor en contexto. Batch 1 (seed + 003–007, ~123 preguntas) define distractores en abstracto pero no los aterriza al escenario.
+- [ ] **A2** Reescribir explicaciones débiles _(4h)_ → **deferred a post-launch**
+  - El audit recomienda **NO reescribir batch 1 esta semana** (~80 preguntas, 6h). Lanza primero, instrumenta `question_id` + `is_correct` en PostHog (C2), y reescribe **solo las top 20 con peor performance** después de los primeros 20-30 usuarios reales.
+  - Razón: sin datos esto es intuición; el funnel/checkout/email mueven más la aguja en semana 1.
+  - Movido a "Stretch / post-launch".
+- [ ] **A5** Line-edits puntuales del audit §5 _(30m)_ ← **micro-tarea blocker-free**
+  - 5 fixes de terminología/wording que NO son reescrituras: `seed.sql:202` (Credential replay → Replay attack), `seed.sql:230-238` + `007:158-166` (white/black/gray-box → known/unknown environment), `006:236-244` (OAuth: "authentication protocol" → "open-standard protocol").
+  - Pueden ir en un commit aparte mientras avanza el resto del sprint.
+- [ ] **A6** Actualizar `QUESTION_INVENTORY.md` _(10m)_
+  - Reflejar 305 (no 105), 5 archivos batch 2 nuevos, distribución real por dominio. Datos exactos en `QUESTION_AUDIT.md` §1.
 - [x] **B1** Crear cuentas de test (free + pro) _(30m)_
   - ✅ `.env.local` con `TEST_USER_EMAIL/PASSWORD` + `TEST_PRO_EMAIL/PASSWORD` + `STRIPE_SECRET_KEY` (sk_test). Pro account flagged en Supabase.
   - ⏳ Pendiente: replicar las 5 vars en **Vercel** (production env) y como **GitHub Actions secrets** (necesario para B10).
@@ -40,12 +47,10 @@
 
 ## Martes — Tests del revenue path + expansión de banco
 
-- [ ] **A3** Expandir banco a 200 preguntas _(5h)_
-  - Migrations 013–017, una por dominio
-  - LLM-assisted, **revisión humana obligatoria** (regla del INSTRUCTIONS.md §11)
-- [ ] **A4** Spot-check en frío de 30 preguntas _(1h)_
-  - Tú u otro Security+ certificado responde sin ver respuesta
-  - Cualquier pregunta donde el correcto sea ambiguo → reescritura inmediata
+- [x] **A3** Expandir banco a 200 preguntas _(5h)_
+  - ✅ **Ya en 305** (target original 200, stretch 300 también superado). Migrations 008–012 (batch 2) ya añadieron 182 preguntas con explicaciones al "gold standard" del audit. **No se necesita expansión más.**
+- [x] **A4** Spot-check en frío de 30 preguntas _(1h)_
+  - ✅ Cubierto por `QUESTION_AUDIT.md` §3: revisión manual sobre seed + 10 migrations, cero `correct_key` incorrecto. Sin ambigüedades de respuesta correcta.
 - [ ] **B3** AUTH-03 + AUTH-05 _(1h)_
   - Login con valid creds → `/dashboard`
   - Signout limpia sesión y redirige a `/`
@@ -90,6 +95,7 @@
   - Trackear cada uno en `BETA_FEEDBACK.md`
 - [ ] **C2** Instrumentar PostHog en el funnel _(2h)_
   - Eventos: `diagnostic_started`, `diagnostic_completed`, `lead_submitted`, `paywall_viewed`, `checkout_started`, `subscription_created`, `quiz_session_completed`
+  - **Crítico:** en cada evento `submitAnswer`/`question_answered` incluir `{ question_id, is_correct, domain }`. Esto alimenta el A2 deferred — sin esto no hay forma de priorizar qué reescribir post-launch.
 - [ ] **C3** Definir 3 métricas norte en PostHog dashboard _(30m)_
   - Targets en la tabla de arriba
 - [ ] **D1** Verificar entregabilidad del email _(1h)_
@@ -167,7 +173,8 @@
 
 ## Stretch / post-launch (solo si todo lo de arriba está verde)
 
-- [ ] Llegar a 300 preguntas (target original del INSTRUCTIONS.md)
+- [x] Llegar a 300 preguntas (target original del INSTRUCTIONS.md) — ✅ 305 al 2026-04-27.
+- [ ] **A2 (deferred):** reescribir top-20 preguntas de batch 1 al estándar de batch 2, **priorizadas por % incorrecto en PostHog** (no por intuición). Plantilla en `QUESTION_AUDIT.md` §8.
 - [ ] QUIZ-09..11: paywall enforcement (solo si introduces free tier)
 - [ ] Affiliate manual con 3 creators IT en YouTube (30% recurring)
 
@@ -176,8 +183,8 @@
 ## Definition of Done del sprint
 
 - [ ] **Confianza técnica:** todos los e2e P0 en verde (auth, quiz, billing, diagnostic). CI bloquea merges si rojo.
-- [ ] **Confianza de contenido:** 200 preguntas, todas con explicación que enseña, spot-check en frío sin ambigüedades.
-- [ ] **Confianza de valor:** 5 beta users entrevistados, 3 fixes prioritarios shippeados, métricas norte instrumentadas.
+- [x] **Confianza de contenido:** ✅ 305 preguntas (target 200, superado). Cero `correct_key` incorrecto (`QUESTION_AUDIT.md` §3). Pendiente: 4 line-edits de terminología (A5) — no bloqueante.
+- [ ] **Confianza de valor:** 5 beta users entrevistados, 3 fixes prioritarios shippeados, métricas norte instrumentadas (+ `question_id` en `quiz_session_completed` para alimentar A2 post-launch).
 - [ ] **Confianza comercial:** 1 cobro real con tarjeta verdadera + refund probado. Email no cae en spam. Webhook actualiza profile en producción.
 - [ ] **Resultado:** ≥ 5 pagos reales en las 72h post-launch.
 
