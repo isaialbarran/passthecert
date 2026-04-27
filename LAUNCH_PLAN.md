@@ -26,14 +26,15 @@
   - Output: lista de preguntas marcadas para reescritura
 - [ ] **A2** Reescribir explicaciones débiles _(4h)_
   - Cada explicación debe decir **por qué el correcto SÍ y por qué cada distractor NO**
-- [ ] **B1** Crear cuentas de test (free + pro) _(30m)_
-  - Setear `TEST_USER_EMAIL/PASSWORD` y `TEST_PRO_EMAIL/PASSWORD` en Vercel + `.env.local`
-  - Pro account: flag manual en Supabase → `subscription_status='active'`, `subscription_tier='pro'`
+- [x] **B1** Crear cuentas de test (free + pro) _(30m)_
+  - ✅ `.env.local` con `TEST_USER_EMAIL/PASSWORD` + `TEST_PRO_EMAIL/PASSWORD` + `STRIPE_SECRET_KEY` (sk_test). Pro account flagged en Supabase.
+  - ⏳ Pendiente: replicar las 5 vars en **Vercel** (production env) y como **GitHub Actions secrets** (necesario para B10).
 - [x] **B2** Extraer `login()` a `e2e/helpers.ts` _(30m)_
   - ✅ Hecho. `helpers.ts` exporta `login`, `loginAsPro`, `hasFreeCredentials`, `hasProCredentials`. `smoke.spec.ts` y `dashboard-greeting.spec.ts` ya lo importan.
+  - ✅ Bonus: `playwright.config.ts` ahora carga `.env.local` con `process.loadEnvFile`. Sin esto, los specs auth-gated se skipeaban silenciosamente (los `process.env` se leen al cargar el módulo, antes de que el webServer los exponga).
 
 **Notas del día:**
-> _(escribe aquí: bloqueos, sorpresas, decisiones que tomaste)_
+> 2026-04-27 — Corrida full local: **29/29 green** (smoke 7, dashboard-greeting 6, diagnostic 6, quiz 6, billing 4). Tiempo total ~2 min. Bug encontrado: env loading (ver B2). PR [#80](https://github.com/isaialbarran/passthecert/pull/80).
 
 ---
 
@@ -49,21 +50,22 @@
   - Login con valid creds → `/dashboard`
   - Signout limpia sesión y redirige a `/`
 - [x] **B4** QUIZ-01..04 _(2h)_
-  - ✅ Hecho en `e2e/quiz.spec.ts`. QUIZ-01 (render + 4 opciones), QUIZ-02 (feedback), QUIZ-03 (explicación >20 chars), QUIZ-04 (Q2 ≠ Q1). **Requiere `TEST_PRO_EMAIL/PASSWORD` para correr** (free users → Paywall).
+  - ✅ Hecho y verificado verde en `e2e/quiz.spec.ts`. QUIZ-01 (render + 4 opciones), QUIZ-02 (feedback), QUIZ-03 (explicación >20 chars), QUIZ-04 (Q2 ≠ Q1). **Requiere `TEST_PRO_EMAIL/PASSWORD`** (free users → Paywall).
 - [x] **B5** QUIZ-06: completar sesión muestra score _(1h)_
-  - ✅ Hecho. Test corre las 10 preguntas y verifica "Quiz Complete!" + link a dashboard.
+  - ✅ Hecho y verificado verde. Test corre las 10 preguntas y verifica "Quiz Complete!" + link a dashboard. ~50s/run por los Server Actions secuenciales.
 
 **Notas del día:**
->
+> 2026-04-27 — B4 + B5 corren verde con `TEST_PRO_*` seteado. PR [#80](https://github.com/isaialbarran/passthecert/pull/80).
 
 ---
 
 ## Miércoles — Cierre de QA + Stripe end-to-end
 
-- [ ] **B6** DIAG-07..09: completar diagnóstico + lead capture _(2h)_
-  - Las 4 P0 pendientes del diagnostic (`e2e/TEST_MATRIX.md` §1)
+- [ ] **B6** DIAG-07..09: completar diagnóstico + lead capture _(2h)_ ← **siguiente tarea**
+  - Las 4 P0 pendientes del diagnostic (`e2e/TEST_MATRIX.md` §1): DIAG-07 (completar 10/10 → results), DIAG-08 (email gate aparece en "See Full Results"), DIAG-09 (`submitDiagnosticLead` server action OK).
+  - Patrón a reusar: `e2e/diagnostic.spec.ts` ya cubre TC-01..TC-06; añadir TC-07..TC-10 al mismo archivo.
 - [x] **B7** BILL-02: clic upgrade → Stripe Checkout _(1h)_
-  - ✅ Hecho en `e2e/billing.spec.ts`. Verifica `https://checkout.stripe.com/(c/)?pay/`. Skipea si la STRIPE_SECRET_KEY es dummy o si el TEST_USER ya está suscrito (resetear a `inactive` en Supabase para correr).
+  - ✅ Hecho y verificado verde en `e2e/billing.spec.ts`. Verifica `https://checkout.stripe.com/(c/)?pay/`. Skipea si la STRIPE_SECRET_KEY es dummy o si el TEST_USER ya está suscrito (resetear a `inactive` en Supabase para correr).
 - [ ] **B8** **BILL-03** con `stripe-cli`: webhook → pro _(2h)_
   - `stripe trigger checkout.session.completed`
   - Verificar `profile.subscription_status='active'` en Supabase
