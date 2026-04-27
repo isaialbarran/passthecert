@@ -50,4 +50,4 @@ Numbered list, each one a specific, automated-testable condition.
 - Never leave validation ambiguous — "must be a string of 8-100 characters", not "should be valid"
 - Server Actions for all mutations, no API routes (except webhooks)
 - RLS must be specified for every new table
-- All user-facing strings in Spanish
+- All user-facing strings in English — see `CLAUDE.md § Language`

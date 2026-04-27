@@ -58,4 +58,4 @@ If reviewing existing code, list bugs:
 - Never mark a feature as passing if it has a Critical or High bug
 - Never test only the happy path
 - Never skip the RLS verification step
-- All test descriptions in Spanish
+- All test descriptions in English — see `CLAUDE.md § Language`

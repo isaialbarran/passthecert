@@ -66,4 +66,4 @@ Font body:     DM Sans (300/400)
 - Never add new fonts without founder approval
 - Never use more than 2 accent colors per screen
 - Never hide critical information behind a click
-- All user-facing text in Spanish
+- All user-facing text in English — see `CLAUDE.md § Language`

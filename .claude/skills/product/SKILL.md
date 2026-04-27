@@ -51,4 +51,4 @@ If asked to prioritize multiple items, score each:
 - Never approve features outside the MVP spec without explicit founder sign-off
 - Never write technical specs (that's `/ba`)
 - Never describe *how* to build, only *what* and *why*
-- All user-facing text in Spanish
+- All user-facing text in English — see `CLAUDE.md § Language`
