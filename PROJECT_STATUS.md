@@ -31,7 +31,7 @@
 | [#34](https://github.com/isaialbarran/passthecert/issues/34) | AI Tutor — Claude API | **Pending** | No Claude API integration yet |
 | [#35](https://github.com/isaialbarran/passthecert/issues/35) | Readiness dashboard | Done | Score + domain mastery in `features/progress/` |
 | [#36](https://github.com/isaialbarran/passthecert/issues/36) | Study session tracking | Done | Quiz sessions with mode, score, completion |
-| [#37](https://github.com/isaialbarran/passthecert/issues/37) | 300 Security+ questions | Done | 287 questions (migrations 003-012 + seed.sql). Min 200 exceeded. |
+| [#37](https://github.com/isaialbarran/passthecert/issues/37) | 300 Security+ questions | Done | 307 questions (migrations 003-012 + seed.sql). Min 200 exceeded. |
 
 ## Milestone 3 — Study Modes (Sem 5-6)
 

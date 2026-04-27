@@ -235,7 +235,7 @@ WHERE e.slug = 'comptia-security-plus' AND d.code = '4.0';
 
 INSERT INTO public.questions (exam_id, domain_id, stem, options, correct_key, explanation, difficulty, tags)
 SELECT e.id, d.id,
-  'Which authentication protocol is an open standard commonly used to allow third-party applications to access user resources without sharing the user''s password?',
+  'Which open-standard protocol is commonly used to allow third-party applications to access user resources without sharing the user''s password?',
   '[{"key":"A","text":"LDAP"},{"key":"B","text":"SAML"},{"key":"C","text":"OAuth"},{"key":"D","text":"Kerberos"}]'::jsonb,
   'C',
   'OAuth (Open Authorization) is a token-based authorization framework that allows third-party applications to access user resources without exposing the user''s credentials. LDAP is a directory service protocol for querying user information, SAML is used for SSO authentication between domains, and Kerberos is a ticket-based authentication protocol used in Active Directory environments.',

@@ -31,7 +31,7 @@
 
 Ship only after Phase 1 (the live MVP) is stable.
 
-- Expand question bank to 300+ Security+ questions (currently 287; 100+/domain target).
+- Expand question bank to 300+ Security+ questions (currently 307; 100+/domain target).
 - Email sequences post-diagnostic to nurture unconverted leads.
 - UX iterations driven by feedback from the first paying users.
 - Pricing A/B test (€14.99 baseline vs higher tiers).

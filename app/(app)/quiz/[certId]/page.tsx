@@ -14,12 +14,20 @@ export default async function QuizPage({
   const user = await requireAuth()
   const userIsPro = await isPro(user.id)
 
-  if (!userIsPro) {
-    return <Paywall />
-  }
-
   const { certId } = await params
   const { mode = 'random_10', domainId } = await searchParams
+
+  if (!userIsPro) {
+    const proOnlyModes: ReadonlyArray<string> = [
+      'full_exam',
+      'review_mistakes',
+      'domain_focus',
+    ]
+    const source = proOnlyModes.includes(mode)
+      ? (mode as 'full_exam' | 'review_mistakes' | 'domain_focus')
+      : 'quiz'
+    return <Paywall source={source} />
+  }
 
   const { sessionId, question, totalQuestions } = await startQuizSession(
     certId,
