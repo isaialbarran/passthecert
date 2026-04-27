@@ -94,9 +94,14 @@
   - Post en Discord/Slack de comunidades
   - Oferta: 1 mes gratis a cambio de 15 min de feedback en día 3
   - Trackear cada uno en `BETA_FEEDBACK.md`
-- [ ] **C2** Instrumentar PostHog en el funnel _(2h)_
-  - Eventos: `diagnostic_started`, `diagnostic_completed`, `lead_submitted`, `paywall_viewed`, `checkout_started`, `subscription_created`, `quiz_session_completed`
-  - **Crítico:** en cada evento `submitAnswer`/`question_answered` incluir `{ question_id, is_correct, domain }`. Esto alimenta el A2 deferred — sin esto no hay forma de priorizar qué reescribir post-launch.
+- [x] **C2** Instrumentar PostHog en el funnel _(2h)_
+  - ✅ Inventario completo en `docs/posthog-events.md` (12 eventos cubriendo el funnel + el `question_answered` crítico para A2).
+  - **Lo añadido en este sprint:**
+    - `question_answered` (server, en `submitAnswer`) con `{ question_id, is_correct, domain_id, session_id, mode, time_spent_secs }` — el evento que alimenta A2 post-launch.
+    - `paywall_viewed` (client, en `<PaywallViewedTracker>`) con `source` (`quiz` / `full_exam` / `review_mistakes` / `domain_focus` / `other`).
+    - `subscription_created` (server, en webhook handler) — solo dispara en `customer.subscription.created` con status `active`/`trialing`, no en `.updated`, para no doble-contar.
+    - Renames: `email_captured` → `lead_submitted`, `study_session_completed` → `quiz_session_completed` (alineamiento con plan; sin dashboards aún en PostHog → rename in-place es seguro).
+  - Pendiente: confirmar `NEXT_PUBLIC_POSTHOG_KEY` está en Vercel production env (en local ya está en `.env.local`).
 - [ ] **C3** Definir 3 métricas norte en PostHog dashboard _(30m)_
   - Targets en la tabla de arriba
 - [ ] **D1** Verificar entregabilidad del email _(1h — preparado, falta ejecutar)_

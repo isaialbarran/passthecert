@@ -1,10 +1,16 @@
 import type { JSX } from 'react'
 import { createCheckoutAndRedirect } from '../actions'
 import { PRICE_CTA, TRIAL_DAYS, TRIAL_GUARANTEE } from '../constants'
+import { PaywallViewedTracker } from './paywall-viewed-tracker'
 
-export function Paywall(): JSX.Element {
+interface Props {
+  source?: 'quiz' | 'full_exam' | 'review_mistakes' | 'domain_focus' | 'other'
+}
+
+export function Paywall({ source = 'other' }: Props = {}): JSX.Element {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
+      <PaywallViewedTracker source={source} />
       <div className="w-full max-w-md rounded-lg border border-accent/40 bg-surface p-10 text-center">
         <svg
           className="mx-auto mb-6 h-12 w-12 text-accent"

@@ -107,6 +107,20 @@ Once the helper script lands cleanly, do one full end-to-end:
 
 This is the **actual** revenue-driving email. The helper script tests deliverability of a minimal payload; the diagnostic email is heavier (HTML, links, inline styles) and may trigger different filter heuristics.
 
+## Reusing this for future email features
+
+When you add a new email path (welcome email post-pago D6, weekly recap, etc.):
+
+1. **Same From domain → no DNS work.** As long as the new sender uses `@passthecert.com` (root), the SPF/DKIM/DMARC already in place cover it. Just add the new template + Resend call.
+2. **Different subdomain (e.g. `welcome@send.passthecert.com`) → re-do auth at that subdomain.** Add SPF + DKIM CNAMEs at the subdomain. Don't switch to a subdomain just for vanity — it's strictly more DNS to maintain.
+3. **Test the new template before shipping** — even with auth green, a heavy HTML or image-only body can trip spam filters. Run:
+   ```bash
+   npm run test:email -- you@gmail.com you@outlook.com
+   ```
+   to send a baseline. Then send the actual new template via the app to the same addresses and compare. If the new template lands in spam while the baseline doesn't, the issue is the template (links, image ratio, copy), not auth.
+4. **Score new templates on mail-tester.com.** Same threshold: ≥ 9/10 to ship.
+5. **Update `docs/posthog-events.md`** if the new email path emits `*_email_sent` / `*_email_failed` events so we can track deliverability per template.
+
 ## Common gotchas
 
 - **Two SPF records → both ignored.** Vendors return SOFTFAIL. Merge into one.
