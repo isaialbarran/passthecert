@@ -1,5 +1,8 @@
 # Historia de Usuario: Facturación y Suscripción
 
+> **Sample user story for the BA agent's reference.** Not a live spec — the canonical billing requirements live in `INSTRUCTIONS.md`. Kept in Spanish as an example of the founder's input format.
+
+
 ## Épica
 
 **Como** visitante o usuario registrado,

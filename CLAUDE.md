@@ -4,8 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Source of truth
 
-- **`INSTRUCTIONS.md`** — MVP specification (features, schema, execution order). Read it before any task.
-- **`AGENTS/`** — Agent role prompts and workflow docs. See `AGENTS/README.md` for the roster and how to invoke each role.
+| File | Purpose |
+|---|---|
+| `INSTRUCTIONS.md` | MVP spec — the constitution. Read before any task. |
+| `PROJECT_STATUS.md` | Current milestone state (single progress tracker). |
+| `ROADMAP.md` | Strategic context (positioning, competitors, post-MVP vision). |
+| `AGENTS/README.md` | Agent roster + workflow. Each role has a stub here and a canonical spec in `.claude/skills/<name>/`. |
+| `docs/stack-setup.md` | Pending dependency installs and commands. |
+
+`INSTRUCTIONS.md` is the constitution — no agent overrides it without founder approval.
 
 ## Commands
 
@@ -62,12 +69,13 @@ Use `createServerClient` from `@supabase/ssr` with `getAll`/`setAll` cookie meth
 
 ```
 app/                    # Routes only — no business logic
-  (marketing)/          # Public: landing, pricing
+  (marketing)/          # Public: landing, pricing, diagnostic
   (auth)/               # Login, signup, callback
   (app)/                # Protected: dashboard, quiz
   api/webhooks/stripe/  # Stripe webhook handler
 features/               # Business logic organized by domain
   auth/                 # Supabase auth wrapper (actions, queries, schemas)
+  diagnostic/           # Anonymous diagnostic test + lead capture
   quiz/                 # Quiz engine, SM-2, question display
   progress/             # User stats, readiness score
   billing/              # Stripe checkout, webhooks
