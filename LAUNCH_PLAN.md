@@ -99,9 +99,12 @@
   - **Crítico:** en cada evento `submitAnswer`/`question_answered` incluir `{ question_id, is_correct, domain }`. Esto alimenta el A2 deferred — sin esto no hay forma de priorizar qué reescribir post-launch.
 - [ ] **C3** Definir 3 métricas norte en PostHog dashboard _(30m)_
   - Targets en la tabla de arriba
-- [ ] **D1** Verificar entregabilidad del email _(1h)_
-  - DKIM/SPF/DMARC configurados en `passthecert.com`
-  - Mandar diagnostic report a 3 inboxes (Gmail/Outlook/iCloud) → confirmar **NO va a spam**
+- [ ] **D1** Verificar entregabilidad del email _(1h — preparado, falta ejecutar)_
+  - **Estado actual (audited 2026-04-27):** DKIM ok en `resend._domainkey`, DMARC `p=none;` ok, **SPF AUSENTE en root** (launch blocker), `resend2/3._domainkey` selectors no verificados.
+  - **Runbook completo:** `docs/email-deliverability.md` con pasos exactos (registros DNS, comandos `dig` para verificar, qué buscar en headers).
+  - **Helper script:** `npm run test:email -- me@gmail.com me@outlook.com me@icloud.com` (envía un email de test desde `reports@passthecert.com` y devuelve los Resend IDs).
+  - Falta por hacer (manual, fuera del repo): añadir SPF root, verificar selectors `resend2/3` en dashboard de Resend, opcionalmente tightear DMARC con `rua=`, correr el helper, abrir cada inbox y confirmar `dkim=pass spf=pass dmarc=pass` + Inbox (no Spam).
+  - Score objetivo en mail-tester.com: **≥ 9/10**. Por debajo de 7 es launch blocker.
 - [ ] **D2** Stripe en modo live + price ID _(1h)_
   - Crear producto Pro €14.99/mo en live
   - `STRIPE_PRO_PRICE_ID` y `STRIPE_WEBHOOK_SECRET` en Vercel (production env)
