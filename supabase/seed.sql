@@ -229,9 +229,9 @@ where e.slug = 'comptia-security-plus' and d.code = '4.0'
 union all
 select e.id, d.id,
   'A security team wants to test their network defenses by simulating real-world attacks without prior knowledge of the internal systems. What type of testing is this?',
-  '[{"key":"A","text":"White-box testing"},{"key":"B","text":"Gray-box testing"},{"key":"C","text":"Black-box testing"},{"key":"D","text":"Regression testing"}]'::jsonb,
+  '[{"key":"A","text":"Known environment (white-box) testing"},{"key":"B","text":"Partially known environment (gray-box) testing"},{"key":"C","text":"Unknown environment (black-box) testing"},{"key":"D","text":"Regression testing"}]'::jsonb,
   'C',
-  'Black-box testing (also called external or blind testing) simulates attacks without prior knowledge of the target systems, mimicking a real attacker. White-box testing provides full knowledge, gray-box provides partial knowledge, and regression testing verifies that changes haven''t broken existing functionality.',
+  'Unknown environment (black-box) testing simulates attacks without prior knowledge of the target systems, mimicking a real attacker. Known environment (white-box) testing provides full knowledge, partially known environment (gray-box) provides partial knowledge, and regression testing verifies that changes haven''t broken existing functionality.',
   'medium',
   array['penetration-testing','security-operations','vulnerability-assessment','obj-4.3']
 from public.exams e, public.domains d

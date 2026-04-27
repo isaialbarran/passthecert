@@ -98,7 +98,7 @@ export async function submitDiagnosticLead(
   await Promise.all([
     captureServerEvent({
       distinctId: email,
-      event: 'email_captured',
+      event: 'lead_submitted',
       properties: { source: 'diagnostic' },
     }),
     captureServerEvent({

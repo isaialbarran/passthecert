@@ -123,6 +123,27 @@ export async function POST(request: Request) {
           return new Response('DB update failed', { status: 500 })
         }
       }
+
+      // Fire `subscription_created` only on the .created event with a final
+      // status (active or trialing). .updated fires on lifecycle changes that
+      // already had a creation event, so emitting it there would double-count.
+      if (
+        event.type === 'customer.subscription.created' &&
+        (subscription.status === 'active' ||
+          subscription.status === 'trialing') &&
+        metadataUserId
+      ) {
+        await captureServerEvent({
+          distinctId: metadataUserId,
+          event: 'subscription_created',
+          properties: {
+            stripe_subscription_id: subscription.id,
+            stripe_customer_id: customerId,
+            status: subscription.status,
+            trial_ends_at: trialEndsAt,
+          },
+        })
+      }
       break
     }
 

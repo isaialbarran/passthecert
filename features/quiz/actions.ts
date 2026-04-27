@@ -147,7 +147,7 @@ export async function submitAnswer(
 
   const { data: question } = await supabase
     .from('questions')
-    .select('correct_key, explanation')
+    .select('correct_key, explanation, domain_id')
     .eq('id', questionId)
     .single()
 
@@ -184,6 +184,21 @@ export async function submitAnswer(
     interval_days: sm2Result.intervalDays,
     next_review_at: sm2Result.nextReviewAt.toISOString(),
     session_id: sessionId,
+  })
+
+  // Fire-and-forget — feeds the data-driven A2 prioritization (rewrite top-N
+  // worst-performing questions post-launch using % incorrect from PostHog).
+  void captureServerEvent({
+    distinctId: user.id,
+    event: 'question_answered',
+    properties: {
+      question_id: questionId,
+      is_correct: isCorrect,
+      domain_id: question.domain_id,
+      session_id: sessionId,
+      mode: session.mode,
+      time_spent_secs: timeSpentSecs ?? null,
+    },
   })
 
   // Update session correct count atomically to prevent race conditions
@@ -259,7 +274,7 @@ export async function completeSession(
 
   await captureServerEvent({
     distinctId: user.id,
-    event: 'study_session_completed',
+    event: 'quiz_session_completed',
     properties: {
       session_id: sessionId,
       score_pct: scorePct,

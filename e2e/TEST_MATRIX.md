@@ -8,11 +8,11 @@
 |----------|------|---------|-------|----------|
 | Diagnostic Quiz | 6 | 4 | 10 | 60% |
 | Authentication | 1 | 7 | 8 | 13% |
-| Quiz Engine | 0 | 14 | 14 | 0% |
+| Quiz Engine | 6 | 8 | 14 | 43% |
 | Dashboard & Progress | 4 | 6 | 10 | 40% |
-| Billing & Subscription | 0 | 8 | 8 | 0% |
+| Billing & Subscription | 5 | 3 | 8 | 63% |
 | Cross-cutting | 0 | 4 | 4 | 0% |
-| **Total** | **11** | **43** | **54** | **20%** |
+| **Total** | **22** | **32** | **54** | **41%** |
 
 ### Priority definitions
 
@@ -64,12 +64,13 @@
 
 | ID | Test Case | Priority | Status | Notes |
 |----|-----------|----------|--------|-------|
-| QUIZ-01 | Start `random_10` session — first question renders with 4 options | P0 | **pending** | `startQuizSession` action |
-| QUIZ-02 | Selecting an answer and submitting shows correct/incorrect feedback | P0 | **pending** | `submitAnswer` action, green/red highlight |
-| QUIZ-03 | Explanation text appears after answer submission | P0 | **pending** | |
-| QUIZ-04 | "Next Question" advances to next question after feedback | P0 | **pending** | `getNextQuestion` action |
-| QUIZ-05 | Question counter increments (e.g. "2 of 10") | P1 | **pending** | |
-| QUIZ-06 | Completing all questions in session shows results with score % | P0 | **pending** | `completeSession` action |
+| QUIZ-00 | Unauthenticated user is redirected from `/quiz/*` to `/auth/login` | P0 | done | quiz.spec.ts auth gating |
+| QUIZ-01 | Start `random_10` session — first question renders with 4 options | P0 | done | quiz.spec.ts |
+| QUIZ-02 | Selecting an answer and submitting shows correct/incorrect feedback | P0 | done | quiz.spec.ts; covers option disabling + Next button swap |
+| QUIZ-03 | Explanation text appears after answer submission | P0 | done | quiz.spec.ts; >20 char floor on explanation |
+| QUIZ-04 | "Next Question" advances to next question after feedback | P0 | done | quiz.spec.ts; checks Q2 stem differs from Q1 |
+| QUIZ-05 | Question counter increments (e.g. "2 of 10") | P1 | done | covered by QUIZ-04 + QUIZ-06 (full 1→10 progression) |
+| QUIZ-06 | Completing all questions in session shows results with score % | P0 | done | quiz.spec.ts; verifies "Quiz Complete!" + dashboard link |
 | QUIZ-07 | Results screen shows correct count and total | P1 | **pending** | |
 | QUIZ-08 | Starting a new session after completing one works | P1 | **pending** | |
 | QUIZ-09 | Free user hitting 20 daily question limit sees paywall/error | P0 | **pending** | `getDailyQuestionCount` check |
@@ -102,19 +103,19 @@
 
 ## 5. Billing & Subscription
 
-**Spec file:** `e2e/billing.spec.ts` (to create)
+**Spec files:** `e2e/billing.spec.ts` (checkout flow), `e2e/billing-webhook.spec.ts` (signed webhook events).
 
-> Note: Stripe Checkout and webhooks require test-mode keys and cannot be fully E2E tested without Stripe CLI or mock webhooks. Tests marked with (mock) need a webhook simulation strategy.
+> Note: webhook tests sign payloads in code with `stripe.webhooks.generateTestHeaderString()` using `STRIPE_WEBHOOK_SECRET` — no `stripe-cli` needed, fully automatable in CI. The trade-off is they don't exercise the `stripe listen` signature flow itself; that risk is covered by D5 (real-card test against live Stripe).
 
 | ID | Test Case | Priority | Status | Notes |
 |----|-----------|----------|--------|-------|
 | BILL-01 | Free user sees "Upgrade to Pro" CTA on dashboard | P0 | **pending** | Same as DASH-10 |
-| BILL-02 | Clicking upgrade calls `createCheckoutSession` and redirects to Stripe | P0 | **pending** | Verify redirect URL starts with `https://checkout.stripe.com` |
-| BILL-03 | `checkout.session.completed` webhook updates profile to pro | P0 | **pending** | (mock) Use Stripe CLI `stripe trigger` or direct API call |
-| BILL-04 | After webhook, dashboard no longer shows upgrade banner | P0 | **pending** | Depends on BILL-03 |
+| BILL-02 | Clicking upgrade calls `createCheckoutSession` and redirects to Stripe | P0 | done | billing.spec.ts; gated on real Stripe key + free test user |
+| BILL-03 | `customer.subscription.created` (active) flips profile to active+pro | P0 | done | billing-webhook.spec.ts; signed payload, ~1s |
+| BILL-04 | `customer.subscription.created` (trialing) sets trial_ends_at + tier=pro | P0 | done | billing-webhook.spec.ts; ±60s tolerance on trial_end ISO |
 | BILL-05 | Pro user can access "Manage Subscription" on settings page | P1 | **pending** | `createPortalSession` action |
-| BILL-06 | `customer.subscription.deleted` webhook downgrades to free | P1 | **pending** | (mock) Profile reverts to free tier |
-| BILL-07 | `invoice.payment_failed` webhook sets status to past_due | P2 | **pending** | (mock) |
+| BILL-06 | `customer.subscription.deleted` reverts to canceled+free | P1 | done | billing-webhook.spec.ts |
+| BILL-07 | `invoice.payment_failed` sets status to past_due | P2 | done | billing-webhook.spec.ts |
 | BILL-08 | Past-due user still has access but sees warning | P2 | **pending** | Graceful degradation |
 
 ---
@@ -156,7 +157,8 @@ TEST_PRO_PASSWORD=     # Password for pro test account
 5. **BILLING** — requires Stripe test mode setup
 6. **CROSS** — smoke tests, run last
 
-### Shared helpers needed
-- `login(page, email?, password?)` — already exists in `dashboard-greeting.spec.ts`, extract to `e2e/helpers.ts`
-- `loginAsPro(page)` — variant using pro test account
-- `completeQuizSession(page, n?)` — answer N questions to create session data for dashboard tests
+### Shared helpers
+- ✅ `login(page, creds?)` — in `e2e/helpers.ts`. Defaults to `FREE_CREDS` (TEST_USER_*).
+- ✅ `loginAsPro(page)` — in `e2e/helpers.ts`. Uses `PRO_CREDS` (TEST_PRO_*).
+- ✅ `hasFreeCredentials` / `hasProCredentials` — boolean guards for `test.skip(...)`.
+- ⏳ `completeQuizSession(page, n?)` — answer N questions to create session data for dashboard tests (DASH-08 dependency).

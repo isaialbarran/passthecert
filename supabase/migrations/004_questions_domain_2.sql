@@ -188,9 +188,9 @@ WHERE e.slug = 'comptia-security-plus' AND d.code = '2.0';
 INSERT INTO public.questions (exam_id, domain_id, stem, options, correct_key, explanation, difficulty, tags)
 SELECT e.id, d.id,
   'An attacker overwhelms a web server by sending massive amounts of traffic from thousands of compromised systems simultaneously. What type of attack is this?',
-  '[{"key":"A","text":"On-path attack"},{"key":"B","text":"DNS poisoning"},{"key":"C","text":"Distributed Denial of Service (DDoS)"},{"key":"D","text":"Credential replay"}]'::jsonb,
+  '[{"key":"A","text":"On-path attack"},{"key":"B","text":"DNS poisoning"},{"key":"C","text":"Distributed Denial of Service (DDoS)"},{"key":"D","text":"Replay attack"}]'::jsonb,
   'C',
-  'A Distributed Denial of Service (DDoS) attack uses multiple compromised systems (a botnet) to flood a target with traffic, overwhelming its capacity and making it unavailable to legitimate users. An on-path attack intercepts communications, DNS poisoning redirects traffic by corrupting DNS records, and credential replay reuses captured authentication data.',
+  'A Distributed Denial of Service (DDoS) attack uses multiple compromised systems (a botnet) to flood a target with traffic, overwhelming its capacity and making it unavailable to legitimate users. An on-path attack intercepts communications, DNS poisoning redirects traffic by corrupting DNS records, and a replay attack reuses captured authentication data.',
   'easy',
   ARRAY['network-attacks','ddos','denial-of-service','obj-2.4']
 FROM public.exams e, public.domains d
@@ -199,11 +199,11 @@ WHERE e.slug = 'comptia-security-plus' AND d.code = '2.0';
 INSERT INTO public.questions (exam_id, domain_id, stem, options, correct_key, explanation, difficulty, tags)
 SELECT e.id, d.id,
   'An attacker uses a previously captured authentication token to gain access to a system without knowing the user''s password. What type of attack is this?',
-  '[{"key":"A","text":"Password spraying"},{"key":"B","text":"Brute force"},{"key":"C","text":"Credential replay"},{"key":"D","text":"Birthday attack"}]'::jsonb,
+  '[{"key":"A","text":"Password spraying"},{"key":"B","text":"Brute force"},{"key":"C","text":"Replay attack"},{"key":"D","text":"Birthday attack"}]'::jsonb,
   'C',
-  'A credential replay attack captures and reuses valid authentication tokens, session IDs, or hashed credentials to impersonate a legitimate user without needing the actual password. Password spraying tries one common password across many accounts, brute force tries many passwords against one account, and a birthday attack exploits hash collision probability.',
+  'A replay attack captures and reuses valid authentication tokens, session IDs, or hashed credentials to impersonate a legitimate user without needing the actual password. Password spraying tries one common password across many accounts, brute force tries many passwords against one account, and a birthday attack exploits hash collision probability.',
   'medium',
-  ARRAY['attacks','credential-replay','authentication','obj-2.4']
+  ARRAY['attacks','replay-attack','authentication','obj-2.4']
 FROM public.exams e, public.domains d
 WHERE e.slug = 'comptia-security-plus' AND d.code = '2.0';
 
