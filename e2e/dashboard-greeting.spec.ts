@@ -1,14 +1,9 @@
-import { test, expect, type Page } from '@playwright/test'
-
-async function login(page: Page): Promise<void> {
-  await page.goto('/auth/login')
-  await page.getByLabel(/email/i).fill(process.env.TEST_USER_EMAIL!)
-  await page.getByLabel(/password/i).fill(process.env.TEST_USER_PASSWORD!)
-  await page.getByRole('button', { name: /sign in|log in/i }).click()
-  await page.waitForURL('**/dashboard', { timeout: 15_000 })
-}
+import { test, expect } from '@playwright/test'
+import { hasFreeCredentials, login } from './helpers'
 
 test.describe('Dashboard Greeting — Happy Path', () => {
+  test.skip(!hasFreeCredentials, 'TEST_USER_EMAIL / TEST_USER_PASSWORD not set')
+
   test.beforeEach(async ({ page }) => {
     await login(page)
   })
@@ -31,6 +26,8 @@ test.describe('Dashboard Greeting — Happy Path', () => {
 })
 
 test.describe('Dashboard Greeting — Botón Review Mistakes condicional', () => {
+  test.skip(!hasFreeCredentials, 'TEST_USER_EMAIL / TEST_USER_PASSWORD not set')
+
   test.beforeEach(async ({ page }) => {
     await login(page)
   })
@@ -53,6 +50,8 @@ test.describe('Dashboard — Auth', () => {
 })
 
 test.describe('Dashboard — Edge Cases', () => {
+  test.skip(!hasFreeCredentials, 'TEST_USER_EMAIL / TEST_USER_PASSWORD not set')
+
   test.beforeEach(async ({ page }) => {
     await login(page)
   })
