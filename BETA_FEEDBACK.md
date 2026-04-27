@@ -1,5 +1,9 @@
 # BETA_FEEDBACK.md — Notas crudas de beta testers
 
+> ⚠️ **NO commitees PII real (nombres, emails) en este archivo.** Es un repo público.
+> Para llenar con datos reales: `cp BETA_FEEDBACK.md BETA_FEEDBACK.local.md` y trabaja en la copia
+> (ya gitignoreada), o mueve el roster a Notion/Airtable y deja aquí solo síntesis anonimizada.
+>
 > **Propósito:** Capturar feedback real de los 5–10 beta users del sprint de lanzamiento. Output → 1-3 fixes priorizados (tarea **C5** en `LAUNCH_PLAN.md`).
 >
 > **No editar copy aquí.** Anota lo que te dicen tal cual lo dicen — los patrones aparecen al releer en agregado.

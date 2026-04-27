@@ -45,3 +45,6 @@ next-env.d.ts
 /playwright-report/
 /test-results/
 /playwright/.auth/
+
+# beta tester PII — keep local copies out of the public repo
+BETA_FEEDBACK.local.md

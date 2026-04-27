@@ -157,6 +157,10 @@ test.describe('Quiz Engine — random_10 (P0 revenue path)', () => {
       timeout: 15_000,
     })
 
+    // Clicking "Next Question" on Q10 is what triggers handleNext() →
+    // setSessionComplete(true) in quiz-client.tsx. Skipping the click on Q10
+    // would leave sessionComplete=false, so the completion screen below would
+    // never render. The post-loop assertion verifies the completion screen.
     for (let i = 1; i <= 10; i++) {
       await selectOption(page, 'A')
       await submitAndWaitForFeedback(page)

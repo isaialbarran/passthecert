@@ -2,6 +2,9 @@
   "name": "passthecert",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.12.0"
+  },
   "scripts": {
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
     "build": "next build",

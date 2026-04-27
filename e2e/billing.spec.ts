@@ -48,10 +48,8 @@ test.describe('Billing — BILL-02: authenticated free user → Stripe Checkout'
     const alreadySubscribed = page.getByText(/already have an active/i)
 
     // Test account must be in one of these two states.
-    const seesCheckout = await checkoutBtn.isVisible().catch(() => false)
-    const seesAlreadySubscribed = await alreadySubscribed
-      .isVisible()
-      .catch(() => false)
+    const seesCheckout = await checkoutBtn.isVisible()
+    const seesAlreadySubscribed = await alreadySubscribed.isVisible()
 
     expect(seesCheckout || seesAlreadySubscribed).toBe(true)
 
@@ -76,7 +74,7 @@ test.describe('Billing — BILL-02: authenticated free user → Stripe Checkout'
     await page.goto('/pricing')
 
     const checkoutBtn = page.getByRole('button', { name: /free trial/i })
-    const isFreeUser = await checkoutBtn.isVisible().catch(() => false)
+    const isFreeUser = await checkoutBtn.isVisible()
 
     test.skip(
       !isFreeUser,
